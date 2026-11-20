@@ -21,7 +21,8 @@ from histogate.cli import _balanced_subset, _cache_for, build_index, load_settin
 from histogate.data import CachedPatches
 from histogate.model import N_CLASSES, PatchClassifier, PatchDataset
 
-CKPT = Path("runs/overnight-30ep/best.ckpt.pt")
+RUN = Path(os.environ.get("HISTOGATE_RUN", "runs/overnight-30ep"))
+CKPT = RUN / "best.ckpt.pt"
 N = 1024
 SEV = float(os.environ.get("SEV", "0.6"))
 
@@ -51,7 +52,7 @@ def energy_of(ds_patches) -> np.ndarray:
 
 
 e_clean, z_clean = energy_of(ds)
-cal = json.loads(Path("runs/overnight-30ep/calibration.json").read_text())
+cal = json.loads(RUN / "calibration.json".read_text())
 T_FIT = cal["temperature"]
 
 # flag convention: energy > threshold => OOD (higher energy = less
@@ -137,5 +138,5 @@ out = {
     "per_kind_energy_mean": {
         k: round(float(np.mean(v)), 3) for k, v in per_kind.items()},
 }
-Path(f"runs/overnight-30ep/ood_sev{SEV:g}.json").write_text(json.dumps(out, indent=2) + "\n")
+RUN / f"ood_sev{SEV:g}.json".write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))

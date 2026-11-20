@@ -7,6 +7,7 @@ the regression gate consumes. Writes onnx/export_bench.json.
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 
@@ -17,8 +18,9 @@ import torch
 from histogate.export.onnx_export import bench_session, export_onnx
 from histogate.model import N_CLASSES, PatchClassifier
 
-CKPT = Path("runs/overnight-30ep/best.ckpt.pt")
-OUT = Path("runs/overnight-30ep/onnx")
+RUN = Path(os.environ.get("HISTOGATE_RUN", "runs/overnight-30ep"))
+CKPT = RUN / "best.ckpt.pt"
+OUT = RUN / "onnx"
 BATCH = 32
 VRAM_CEILING_MB = 2048.0
 PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]

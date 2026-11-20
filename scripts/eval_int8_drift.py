@@ -9,6 +9,7 @@ tsr_int8_drift_max 0.05, til_int8_drift_rel_max 0.10.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -24,7 +25,8 @@ from histogate.data import CLASS_ORDER, CachedPatches, PatchIndex
 from histogate.export.onnx_export import export_onnx
 from histogate.model import CLASS_TO_IDX, N_CLASSES, PatchClassifier, PatchDataset
 
-CKPT = Path("runs/overnight-30ep/best.ckpt.pt")
+RUN = Path(os.environ.get("HISTOGATE_RUN", "runs/overnight-30ep"))
+CKPT = RUN / "best.ckpt.pt"
 N_SLIDES = 24
 G = 8  # 8x8 = 64 patches per pseudo-slide
 
@@ -62,7 +64,7 @@ ds = PatchDataset(CachedPatches(cache, sel, 224), train=False)
 
 xs, zs_fp = [], []
 with torch.no_grad():
-    for x, _ in DataLoader(ds, batch_size=256, num_workers=0):
+    for x, _ in DataLoader(ds, batch_size=64, num_workers=0):
         xc = x.to("cuda").to(memory_format=torch.channels_last)
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             z = model(xc)
@@ -90,6 +92,7 @@ COMP = {CLASS_TO_IDX["TUM"]: 18, CLASS_TO_IDX["STR"]: 26, CLASS_TO_IDX["LYM"]: 8
 OTHERS = [CLASS_TO_IDX[k] for k in ("MUC", "MUS", "NORM", "ADI", "DEB")]
 
 tsr_drifts, til_drifts, n_tsr, n_til = [], [], 0, 0
+tsr_fp32_vals, til_fp32_vals, tsr_i8_vals, til_i8_vals = [], [], [], []
 for _s in range(N_SLIDES):
     cells = []
     for cls, n in COMP.items():
@@ -103,11 +106,15 @@ for _s in range(N_SLIDES):
     if tf is not None and t8 is not None:
         n_tsr += 1
         tsr_drifts.append(abs(t8.tsr - tf.tsr))
+        tsr_fp32_vals.append(tf.tsr)
+        tsr_i8_vals.append(t8.tsr)
     if ti is not None and t8i is not None:
         n_til += 1
         til_drifts.append(
             abs(t8i.intratumoral_density_mm2 - ti.intratumoral_density_mm2)
             / max(ti.intratumoral_density_mm2, 1e-9))
+        til_fp32_vals.append(ti.intratumoral_density_mm2)
+        til_i8_vals.append(t8i.intratumoral_density_mm2)
 
 n_slides = N_SLIDES
 
@@ -122,6 +129,10 @@ out = {
     "til_pairs": n_til,
     "til_rel_drift_max": round(max(til_drifts), 4) if til_drifts else None,
     "til_rel_drift_mean": round(float(np.mean(til_drifts)), 4) if til_drifts else None,
+    "tsr_fp32_mean": round(float(np.mean(tsr_fp32_vals)), 4) if tsr_fp32_vals else None,
+    "tsr_int8_mean": round(float(np.mean(tsr_i8_vals)), 4) if tsr_i8_vals else None,
+    "til_fp32_mean": round(float(np.mean(til_fp32_vals)), 4) if til_fp32_vals else None,
+    "til_int8_mean": round(float(np.mean(til_i8_vals)), 4) if til_i8_vals else None,
 }
-Path("runs/overnight-30ep/int8_drift.json").write_text(json.dumps(out, indent=2) + "\n")
+RUN / "int8_drift.json".write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))

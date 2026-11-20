@@ -8,6 +8,7 @@ checkpoint — the gate and report read it, weights stay frozen.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import torch
@@ -18,7 +19,8 @@ from histogate.cli import _balanced_subset, _cache_for, build_index, load_settin
 from histogate.data import CachedPatches
 from histogate.model import N_CLASSES, PatchClassifier, PatchDataset
 
-CKPT = Path("runs/overnight-30ep/best.ckpt.pt")
+RUN = Path(os.environ.get("HISTOGATE_RUN", "runs/overnight-30ep"))
+CKPT = RUN / "best.ckpt.pt"
 SUBSET = 7000  # same balanced subset as the eval run -> same 5839 patches
 
 settings = load_settings(None)
@@ -62,5 +64,5 @@ out = {
     "ece_after": float(ece_cal),
     "energy_threshold_fpr05": float(e_thr),
 }
-Path("runs/overnight-30ep/calibration.json").write_text(json.dumps(out, indent=2) + "\n")
+RUN / "calibration.json".write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))

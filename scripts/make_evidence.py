@@ -17,8 +17,6 @@ import numpy as np
 
 from histogate.bio_optics import ArtifactKind, inject_artifact, normalize_stains
 from histogate.biomarkers import compute_til, compute_tsr
-from histogate.data import build_index
-from histogate.wsi import tile_grid, tissue_mask
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data/raw/NCT-CRC-HE-100K"

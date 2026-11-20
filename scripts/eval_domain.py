@@ -4,6 +4,7 @@ different scanners) vs CRC-VAL-HE-7K. Gate: domain_drop_max 0.015 macro-F1.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import torch
@@ -15,7 +16,8 @@ from histogate.data import CachedPatches
 from histogate.metrics import macro_f1, quadratic_kappa
 from histogate.model import N_CLASSES, PatchClassifier, PatchDataset
 
-CKPT = Path("runs/overnight-30ep/best.ckpt.pt")
+RUN = Path(os.environ.get("HISTOGATE_RUN", "runs/overnight-30ep"))
+CKPT = RUN / "best.ckpt.pt"
 N = 7000
 
 settings = load_settings(None)
@@ -54,5 +56,5 @@ out = {
     "domain_drop": round(f1_crc - macro_f1(y, pred), 4),
     "gate_domain_drop_max": 0.015,
 }
-Path("runs/overnight-30ep/domain.json").write_text(json.dumps(out, indent=2) + "\n")
+RUN / "domain.json".write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))
