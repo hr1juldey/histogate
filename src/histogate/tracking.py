@@ -21,10 +21,12 @@ import mlflow
 class MlflowTracker:
     """Thin, fail-loud wrapper. `enabled=False` makes every method a no-op."""
 
-    def __init__(self, experiment: str, tracking_uri: str, enabled: bool = True) -> None:
+    def __init__(self, experiment: str, tracking_uri: str, enabled: bool = True,
+                 system_metrics: bool = True) -> None:
         self.experiment = experiment
         self.tracking_uri = tracking_uri
         self.enabled = enabled
+        self.system_metrics = system_metrics
         self.run_id: str | None = None
         self.cur_metrics_path: str | None = None
         self._active = False
@@ -42,7 +44,8 @@ class MlflowTracker:
             return
         mlflow.set_tracking_uri(self.tracking_uri)
         mlflow.set_experiment(self.experiment)
-        with mlflow.start_run(run_name=name) as active:
+        with mlflow.start_run(run_name=name,
+                              log_system_metrics=self.system_metrics) as active:
             self.run_id = active.info.run_id
             self._active = True
             try:

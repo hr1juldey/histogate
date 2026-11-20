@@ -100,6 +100,7 @@ def train(argv: list[str] | None = None) -> None:
         if not settings.mlflow.tracking_uri.startswith(("./", "/", "file:", "http:", "sqlite:"))
         else settings.mlflow.tracking_uri,
         enabled=settings.mlflow.enabled,
+        system_metrics=settings.mlflow.system_metrics,
     )
     trainer = Trainer(cfg, run_dir=settings.paths.runs_dir / args.name, run_name=args.name,
                       tracker=tracker)

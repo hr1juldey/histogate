@@ -41,6 +41,7 @@ serve:
 mlflow:
   enabled: true
   experiment: histogate
+  system_metrics: true
   tracking_uri: sqlite:///mlflow.db
 
 paths:

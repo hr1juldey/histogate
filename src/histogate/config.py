@@ -88,6 +88,7 @@ class MLflowSettings(BaseModel):
 
     enabled: bool = True
     experiment: str = "histogate"
+    system_metrics: bool = True  # GPU util/VRAM, CPU/RAM per run (needs psutil)
     # MLflow 3.x: file-store backend is maintenance-mode (hard exception unless
     # MLFLOW_ALLOW_FILE_STORE=true) — sqlite is the sanctioned local backend.
     tracking_uri: str = "sqlite:///mlflow.db"
