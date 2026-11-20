@@ -122,11 +122,18 @@ def _disc_mask(shape: tuple[int, int, int], cy: float, cx: float, r: float) -> n
     return (yy - cy) ** 2 + (xx - cx) ** 2 <= r * r
 
 
-def _band_mask(shape: tuple[int, int, int], angle: float, offset: float, width: float) -> np.ndarray:
+def _band_mask(
+    shape: tuple[int, int, int], angle: float, offset_frac: float, width: float,
+    rng: np.random.Generator | None = None,
+) -> np.ndarray:
     h, w = shape[:2]
     yy, xx = np.mgrid[:h, :w]
-    d = xx * np.cos(angle) + yy * np.sin(angle) - offset
-    return np.abs(d) <= width / 2
+    d = xx * np.cos(angle) + yy * np.sin(angle)
+    # draw the offset from the ACHIEVABLE perpendicular range so the band
+    # always intersects the image (a band that misses = empty mask = lie)
+    lo, hi = float(d.min()), float(d.max())
+    offset = lo + offset_frac * (hi - lo)
+    return np.abs(d - offset) <= width / 2
 
 
 def inject_artifact(
@@ -151,7 +158,6 @@ def inject_artifact(
     h, w = img.shape[:2]
     out = img.copy()
     mask = np.zeros((h, w), dtype=bool)
-    diag = float(np.hypot(h, w))
 
     if kind is ArtifactKind.OUT_OF_FOCUS:
         sigma = 1.0 + 5.0 * sev
@@ -201,8 +207,7 @@ def inject_artifact(
     elif kind is ArtifactKind.COVERSLIP_LINE:
         width = 3 + 30 * sev
         angle = float(rng.uniform(0, np.pi))
-        offset = float(rng.uniform(0.2, 0.8)) * diag
-        d = _band_mask(img.shape, angle, offset, width)
+        d = _band_mask(img.shape, angle, float(rng.uniform(0.15, 0.85)), width)
         # multiplicative darkening: cannot clip, so every masked pixel changes
         out[d] = (out[d].astype(np.float64) * 0.6).round().astype(np.uint8)
         mask |= d
@@ -211,16 +216,15 @@ def inject_artifact(
         n_lines = 2 + int(28 * sev)
         base_angle = float(rng.uniform(-0.3, 0.3))
         for i in range(n_lines):
-            offset = diag * (0.05 + 0.9 * i / max(n_lines - 1, 1))
-            d = _band_mask(img.shape, base_angle, offset, 1.5)
+            frac = 0.05 + 0.9 * i / max(n_lines - 1, 1)
+            d = _band_mask(img.shape, base_angle, frac, 1.5)
             out[d] = np.clip(out[d].astype(int) - 70, 0, 255).astype(np.uint8)
             mask |= d
 
     elif kind is ArtifactKind.TISSUE_FOLD:
         width = 10 + 60 * sev
         angle = float(rng.uniform(0, np.pi))
-        offset = float(rng.uniform(0.3, 0.7)) * diag
-        d = _band_mask(img.shape, angle, offset, width)
+        d = _band_mask(img.shape, angle, float(rng.uniform(0.3, 0.7)), width)
         # fold: the band content is mirrored (flipped along the band axis) and darkened
         flipped = out[::-1, ::-1].copy()
         out[d] = np.clip(flipped[d].astype(int) - 40, 0, 255).astype(np.uint8)
