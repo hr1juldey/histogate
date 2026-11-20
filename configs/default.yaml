@@ -8,7 +8,7 @@ train:
   label_smoothing: 0.1
   amp: bf16
   ema: 0.999
-  workers: 8
+  workers: 0  # box gotcha 2026-11-20: torch worker shm IPC dies ENOMEM on this kernel regardless of strategy; memmap cache makes main-process loading viable (epoch time measured in runs-smoke)
   seed: 42
   backbone: convnext_tiny
   val_holdout: 0.08
