@@ -153,4 +153,34 @@ def gate(argv: list[str] | None = None) -> None:
 
 
 def serve(argv: list[str] | None = None) -> None:
-    raise SystemExit("histogate-serve arrives in PR-13/14 (API + MCP)")
+    """`histogate-serve [--api|--mcp]`: FastAPI (uvicorn) or FastMCP (stdio)."""
+    import argparse as _ap
+
+    p = _ap.ArgumentParser(prog="histogate-serve")
+    mode = p.add_mutually_exclusive_group()
+    mode.add_argument("--api", action="store_true", help="FastAPI on serve.host:port")
+    mode.add_argument("--mcp", action="store_true", help="FastMCP over stdio")
+    p.add_argument("--config", type=Path, default=None)
+    args = p.parse_args(argv)
+    settings = load_settings(args.config)
+
+    if args.mcp:
+        from histogate.serve.mcp import build_mcp
+
+        def _analyze(_path: Path):
+            raise NotImplementedError("wire real engine after tonight's checkpoint")
+        build_mcp(analyze=_analyze).run()
+        return
+    if args.api:
+        import uvicorn
+
+        from histogate.serve.api import create_app
+        from histogate.serve.engine import LockedEngine
+
+        def _analyze(_path: Path):
+            raise NotImplementedError("wire real engine after tonight's checkpoint")
+        app = create_app(engine=LockedEngine(analyze=_analyze),
+                         slides_root=settings.paths.data_dir)
+        uvicorn.run(app, host=settings.serve.host, port=settings.serve.port)
+        return
+    raise SystemExit("histogate-serve: pass --api or --mcp (real engine wired post-training)")

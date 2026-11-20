@@ -62,6 +62,7 @@ packages = ["src/histogate"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
+asyncio_mode = "auto"
 markers = [
     "gpu: requires CUDA GPU (deselect with '-m \"not gpu\"')",
     "slow: long-running tests",
@@ -77,3 +78,8 @@ ignore = ["E501"]
 
 [tool.coverage.run]
 source = ["src/histogate"]
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.5.0",
+]
