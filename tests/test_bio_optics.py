@@ -8,7 +8,6 @@ Oracles (all independent of the implementation):
 """
 
 import numpy as np
-import pytest
 from skimage.color import rgb2hed
 
 from histogate.bio_optics import (

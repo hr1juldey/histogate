@@ -48,10 +48,11 @@ def macenko_stain_matrix(
     if od.shape[0] < 100 or not np.isfinite(od).all():
         return RUIFROK_HE_REF.copy()
 
-    centered = od - od.mean(axis=0)
-    _, _, vt = np.linalg.svd(centered, full_matrices=False)
+    # Classic Macenko: UNCENTERED SVD — the stain cloud is a set of rays from the
+    # OD origin (white), and centering would distort that ray structure.
+    _, _, vt = np.linalg.svd(od, full_matrices=False)
     plane = vt[:2]                          # (2, 3)
-    proj = centered @ plane.T               # (N, 2)
+    proj = od @ plane.T                     # (N, 2)
 
     phi = np.arctan2(proj[:, 1], proj[:, 0])
     # atan2 wraps at +/-pi: re-center angles on their circular mean so the
