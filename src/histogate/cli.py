@@ -70,6 +70,10 @@ def train(argv: list[str] | None = None) -> None:
                    help="activation checkpointing (batch-256 convnext_tiny on 12GB)")
     p.add_argument("--resume-if-present", action="store_true",
                    help="continue from run state.json if it exists (overnight safety)")
+    p.add_argument("--train-dataset", default=TRAIN_DATASET,
+                   help="training data dir name under raw/ (e.g. NCT-CRC-HE-100K-NONORM)")
+    p.add_argument("--init-from", default=None, type=Path,
+                   help="warm-start weights from a checkpoint (domain fine-tune)")
     p.add_argument("--name", default="train")
     args = p.parse_args(argv)
     if args.ssl:
@@ -81,12 +85,14 @@ def train(argv: list[str] | None = None) -> None:
     cfg: TrainSettings = settings.train
 
     raw = settings.paths.data_dir / "raw"
-    train_idx = build_index(raw / TRAIN_DATASET)
+    train_idx = build_index(raw / args.train_dataset)
     if args.subset is not None:
         train_idx = _balanced_subset(train_idx, args.subset)
     val_idx = _balanced_subset(build_index(raw / VAL_DATASET), args.val_subset)
 
-    tag = f"nct_{len(train_idx)}" if args.subset is not None else "nct_full"
+    tag = (f"nct_{len(train_idx)}" if args.subset is not None else "nct_full") \
+        if args.train_dataset == TRAIN_DATASET else \
+        f"{args.train_dataset.lower()[:8]}_{len(train_idx) if args.subset is not None else 'full'}"
     cache_root = settings.paths.data_dir / "cache"
     train_cache = _cache_for(train_idx, cache_root / f"{tag}.bin")
     val_cache = _cache_for(val_idx, cache_root / f"crcval_{len(val_idx)}.bin")
@@ -96,6 +102,11 @@ def train(argv: list[str] | None = None) -> None:
 
     model = PatchClassifier(backbone=cfg.backbone, pretrained=not args.no_pretrained,
                             grad_checkpoint=args.grad_checkpoint)
+    if args.init_from is not None:
+        src = torch.load(args.init_from, map_location="cpu", weights_only=False)
+        model.load_state_dict(src["state_dict"])
+        print(f"[train] warm-start from {args.init_from} "
+              f"(epoch {src.get('epoch', '?')})")
     tracker = MlflowTracker(
         experiment=settings.mlflow.experiment,
         tracking_uri=str((Path.cwd() / settings.mlflow.tracking_uri).resolve())
