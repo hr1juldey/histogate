@@ -146,7 +146,10 @@ def export_bench(argv: list[str] | None = None) -> None:
 
 
 def gate(argv: list[str] | None = None) -> None:
-    raise SystemExit("histogate-gate arrives in PR-11 (regression gate)")
+    """`histogate-gate`: blocking regression gate (exit code preserved)."""
+    from histogate.gates.eval_gate import main as gate_main
+
+    raise SystemExit(gate_main(argv))
 
 
 def serve(argv: list[str] | None = None) -> None:
