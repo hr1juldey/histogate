@@ -363,3 +363,34 @@ class Trainer:
         self.tracker.log_final(metrics)
         self.tracker.log_artifacts({"metrics": self.metrics_path, "ckpt": self.ckpt_path})
         return metrics
+
+
+class AttentionMIL(nn.Module):
+    """Slide-level head over patch embeddings (gated attention pooling, Ilse 2018).
+
+    O(N) in instances — softmax over a per-instance score, never NxN — sized
+    for <=2000 patches/slide (PLAN PR-9 perf law). The PatchClassifier's
+    feature extractor feeds this; slide logits + attention weights come out.
+    """
+
+    def __init__(self, in_dim: int, n_classes: int, attn_dim: int = 128) -> None:
+        super().__init__()
+        self.V = nn.Linear(in_dim, attn_dim)
+        self.U = nn.Linear(in_dim, attn_dim)
+        self.w = nn.Linear(attn_dim, 1)
+        self.head = nn.Sequential(
+            nn.LayerNorm(in_dim),
+            nn.Linear(in_dim, 256),
+            nn.GELU(),
+            nn.Linear(256, n_classes),
+        )
+
+    def attention(self, x: torch.Tensor) -> torch.Tensor:
+        """x: (B, N, D) -> (B, N) attention weights (sum to 1 over N)."""
+        a = self.w(torch.tanh(self.V(x)) * torch.sigmoid(self.U(x))).squeeze(-1)
+        return torch.softmax(a, dim=-1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """x: (B, N, D) instance features -> (B, n_classes) slide logits."""
+        z = torch.einsum("bn,bnd->bd", self.attention(x), x)
+        return self.head(z)
