@@ -39,7 +39,7 @@ model.eval().to("cuda")
 # int8: export fp32, strip torch's declared value_info (one annotation
 # conflicts with ORT shape inference: head 768-vs-9), re-derive, quantize
 
-src32 = Path("runs/overnight-30ep/onnx/histogate-int8src.onnx")
+src32 = RUN / "onnx" / "histogate-int8src.onnx"
 export_onnx(model, src32, precision="fp32")
 g = onnx.load(str(src32))  # loads external .data into memory
 g.graph.ClearField("value_info")

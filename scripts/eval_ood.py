@@ -52,7 +52,7 @@ def energy_of(ds_patches) -> np.ndarray:
 
 
 e_clean, z_clean = energy_of(ds)
-cal = json.loads(RUN / "calibration.json".read_text())
+cal = json.loads((RUN / "calibration.json").read_text())
 T_FIT = cal["temperature"]
 
 # flag convention: energy > threshold => OOD (higher energy = less

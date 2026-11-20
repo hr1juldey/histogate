@@ -14,7 +14,7 @@ run = Path(sys.argv[1] if len(sys.argv) > 1 else "runs/overnight-30ep")
 bench = json.loads((run / "onnx" / "export_bench.json").read_text())
 domain = json.loads((run / "domain.json").read_text())
 calib = json.loads((run / "calibration.json").read_text())
-ood = json.loads((run / "ood.json").read_text())
+ood = json.loads((run / "ood_sev0.6.json").read_text())
 int8 = json.loads((run / "int8_drift.json").read_text())
 eval_best = json.loads(Path("runs/eval_best.ckpt.json").read_text())
 
