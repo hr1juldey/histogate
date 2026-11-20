@@ -138,5 +138,5 @@ out = {
     "per_kind_energy_mean": {
         k: round(float(np.mean(v)), 3) for k, v in per_kind.items()},
 }
-RUN / f"ood_sev{SEV:g}.json".write_text(json.dumps(out, indent=2) + "\n")
+(RUN / f"ood_sev{SEV:g}.json").write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))

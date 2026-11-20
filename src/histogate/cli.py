@@ -74,6 +74,8 @@ def train(argv: list[str] | None = None) -> None:
                    help="training data dir name under raw/ (e.g. NCT-CRC-HE-100K-NONORM)")
     p.add_argument("--init-from", default=None, type=Path,
                    help="warm-start weights from a checkpoint (domain fine-tune)")
+    p.add_argument("--lr", default=None, type=float,
+                   help="override train.lr (use ~1e-4 for warm-start fine-tunes)")
     p.add_argument("--name", default="train")
     args = p.parse_args(argv)
     if args.ssl:
@@ -82,6 +84,8 @@ def train(argv: list[str] | None = None) -> None:
     settings = load_settings(args.config)
     if args.epochs is not None:
         settings.train.epochs = args.epochs
+    if args.lr is not None:
+        settings.train.lr = args.lr
     cfg: TrainSettings = settings.train
 
     raw = settings.paths.data_dir / "raw"

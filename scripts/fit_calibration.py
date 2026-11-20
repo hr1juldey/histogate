@@ -64,5 +64,5 @@ out = {
     "ece_after": float(ece_cal),
     "energy_threshold_fpr05": float(e_thr),
 }
-RUN / "calibration.json".write_text(json.dumps(out, indent=2) + "\n")
+(RUN / "calibration.json").write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))

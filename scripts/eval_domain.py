@@ -56,5 +56,5 @@ out = {
     "domain_drop": round(f1_crc - macro_f1(y, pred), 4),
     "gate_domain_drop_max": 0.015,
 }
-RUN / "domain.json".write_text(json.dumps(out, indent=2) + "\n")
+(RUN / "domain.json").write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))

@@ -134,5 +134,5 @@ out = {
     "til_fp32_mean": round(float(np.mean(til_fp32_vals)), 4) if til_fp32_vals else None,
     "til_int8_mean": round(float(np.mean(til_i8_vals)), 4) if til_i8_vals else None,
 }
-RUN / "int8_drift.json".write_text(json.dumps(out, indent=2) + "\n")
+(RUN / "int8_drift.json").write_text(json.dumps(out, indent=2) + "\n")
 print(json.dumps(out, indent=2))
