@@ -291,6 +291,9 @@ class Trainer:
 
         loader = self._loader(train_ds, shuffle=True)
         epochs_out: list[dict] = []
+        global_step = 0
+        step_losses: list[float] = []
+        LOG_EVERY = 50  # steps — dense TensorBoard-style curve in mlflow
         try:
             for epoch in range(cfg.epochs):
                 inner = train_ds.dataset if isinstance(train_ds, Subset) else train_ds
@@ -307,9 +310,16 @@ class Trainer:
                     opt.zero_grad(set_to_none=True)
                     loss.backward()
                     opt.step()
+                    global_step += 1
+                    step_losses.append(float(loss.item()))
                     sched.step()
                     ema.update(model)
                     losses.append(float(loss.item()))
+                    if global_step % LOG_EVERY == 0 and step_losses:
+                        self.tracker.log_step(
+                            global_step, {"train_loss": float(np.mean(step_losses))}
+                        )
+                        step_losses = []
                 # (per-step warmup+cosine schedule stepped above)
 
                 # drain train worker IPC BEFORE validation (parent-diagnosed
@@ -327,7 +337,11 @@ class Trainer:
                     "lr": float(sched.get_last_lr()[0]),
                     **val,
                 })
-                self.tracker.log_epoch(epoch, epochs_out[-1])
+                # epoch-indexed series: val_* + lr only (train_loss lives on the
+                # dense step-indexed series — mixing both in one metric corrupts the chart)
+                self.tracker.log_epoch(
+                    epoch, {k: v for k, v in epochs_out[-1].items() if k != "train_loss"}
+                )
         finally:
             _shutdown_workers(loader)
 

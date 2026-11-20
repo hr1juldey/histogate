@@ -68,6 +68,13 @@ class MlflowTracker:
         self._require_active()
         mlflow.log_metrics({k: float(v) for k, v in metrics.items()}, step=epoch)
 
+    def log_step(self, step: int, metrics: dict[str, float]) -> None:
+        """Step-indexed history (TensorBoard-style dense loss curve)."""
+        if not self.enabled:
+            return
+        self._require_active()
+        mlflow.log_metrics({k: float(v) for k, v in metrics.items()}, step=step)
+
     def log_final(self, payload: dict[str, Any]) -> None:
         """Log run-level scalars ONLY (e.g. peak_vram_mb). The `final` dict's
         values are already in the epoch history — re-logging them would append
