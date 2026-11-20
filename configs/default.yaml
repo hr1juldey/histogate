@@ -1,0 +1,46 @@
+# HistoGate default config — mirrors docs/TESTING.md §3 gate thresholds exactly.
+# Env overrides: HISTOGATE_TRAIN__SEED=7 etc.
+
+train:
+  batch: 256
+  epochs: 10
+  lr: 0.001
+  label_smoothing: 0.1
+  amp: bf16
+  ema: 0.999
+  workers: 8
+  seed: 42
+  backbone: convnext_tiny
+  val_holdout: 0.08
+
+ssl:
+  enabled: false
+  epochs: 15
+  batch: 128
+  proj_dim: 256
+  temperature: 0.5
+  stain_jitter: 0.2
+
+gate:
+  f1_min: 0.93
+  f1_drop_domain_max: 0.015
+  ece_max: 0.05
+  ood_auroc_min: 0.90
+  tsr_drift_max: 0.05
+  til_drift_rel_max: 0.10
+  quant_agreement_min: 0.999
+  throughput_min: 40.0
+  vram_max_mb: 2048
+
+serve:
+  host: 127.0.0.1
+  port: 8000
+  precision: fp16
+  max_batch: 32
+
+paths:
+  data_dir: data
+  runs_dir: runs
+  benchmarks_dir: benchmarks
+
+dataset_revision: master
