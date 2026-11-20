@@ -34,6 +34,7 @@ dependencies = [
     "mlflow>=3.18.0",
     "psutil>=7.2.2",
     "pynvml>=13.0.1",
+    "onnxscript>=0.7.2",
 ]
 
 [project.optional-dependencies]
