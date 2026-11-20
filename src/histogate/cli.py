@@ -124,6 +124,9 @@ def eval(argv: list[str] | None = None) -> None:
     ckpt = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     model = PatchClassifier(pretrained=False, num_classes=N_CLASSES)
     model.load_state_dict(ckpt["state_dict"])
+    # evaluate() routes inputs to cuda+bfloat16 autocast when a GPU is
+    # present; the model must ride along (Trainer does this, the CLI didn't)
+    model.to("cuda" if torch.cuda.is_available() else "cpu")
 
     val_idx = _balanced_subset(
         build_index(settings.paths.data_dir / "raw" / VAL_DATASET), args.subset
