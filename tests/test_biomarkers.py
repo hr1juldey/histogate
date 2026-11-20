@@ -10,7 +10,6 @@ reference implementation):
 """
 
 import numpy as np
-import pytest
 
 from histogate.biomarkers import compute_til, compute_tsr
 from histogate.schemas.report import TissueClass as TC
@@ -71,9 +70,13 @@ def _naive_reference(grid: np.ndarray, artifact_mask: np.ndarray | None) -> dict
     stromal_lym = 0
     for y in range(h):
         for x in range(w):
-            if grid[y, x] == L and not art[y, x] and (y, x) not in tumor_region:
-                if any(grid[p] == S for p in neigh(y, x)):
-                    stromal_lym += 1
+            if (
+                grid[y, x] == L
+                and not art[y, x]
+                and (y, x) not in tumor_region
+                and any(grid[p] == S for p in neigh(y, x))
+            ):
+                stromal_lym += 1
     return {
         "tsr": tsr,
         "stroma_fraction": stroma_frac,
