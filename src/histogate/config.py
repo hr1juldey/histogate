@@ -81,6 +81,18 @@ class ServeSettings(BaseModel):
     max_batch: int = Field(default=32, ge=1)
 
 
+class MLflowSettings(BaseModel):
+    """MLflow is THE tracker (user directive 2026-11-20); runs/ JSON is secondary."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = True
+    experiment: str = "histogate"
+    # MLflow 3.x: file-store backend is maintenance-mode (hard exception unless
+    # MLFLOW_ALLOW_FILE_STORE=true) — sqlite is the sanctioned local backend.
+    tracking_uri: str = "sqlite:///mlflow.db"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="HISTOGATE_",
@@ -93,6 +105,7 @@ class Settings(BaseSettings):
     ssl: SSLSettings = SSLSettings()
     gate: GateSettings = GateSettings()
     serve: ServeSettings = ServeSettings()
+    mlflow: MLflowSettings = MLflowSettings()
     dataset_revision: str = "master"
 
     def model_post_init(self, __context: object) -> None:

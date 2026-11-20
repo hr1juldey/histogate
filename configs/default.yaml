@@ -38,6 +38,11 @@ serve:
   precision: fp16
   max_batch: 32
 
+mlflow:
+  enabled: true
+  experiment: histogate
+  tracking_uri: sqlite:///mlflow.db
+
 paths:
   data_dir: data
   runs_dir: runs

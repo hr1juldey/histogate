@@ -20,6 +20,7 @@ from histogate.data import (
     build_index,
 )
 from histogate.model import N_CLASSES, PatchClassifier, PatchDataset, Trainer, evaluate
+from histogate.tracking import MlflowTracker
 
 TRAIN_DATASET = "NCT-CRC-HE-100K"
 VAL_DATASET = "CRC-VAL-HE-7K"
@@ -93,7 +94,15 @@ def train(argv: list[str] | None = None) -> None:
 
     model = PatchClassifier(backbone=cfg.backbone, pretrained=not args.no_pretrained,
                             grad_checkpoint=args.grad_checkpoint)
-    trainer = Trainer(cfg, run_dir=settings.paths.runs_dir / args.name, run_name=args.name)
+    tracker = MlflowTracker(
+        experiment=settings.mlflow.experiment,
+        tracking_uri=str((Path.cwd() / settings.mlflow.tracking_uri).resolve())
+        if not settings.mlflow.tracking_uri.startswith(("./", "/", "file:", "http:", "sqlite:"))
+        else settings.mlflow.tracking_uri,
+        enabled=settings.mlflow.enabled,
+    )
+    trainer = Trainer(cfg, run_dir=settings.paths.runs_dir / args.name, run_name=args.name,
+                      tracker=tracker)
     metrics = trainer.fit(model, train_ds, val_ds)
     print(json.dumps({"final": metrics["final"], "peak_vram_mb": metrics["peak_vram_mb"],
                       "metrics_path": str(trainer.metrics_path)}, indent=2))

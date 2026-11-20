@@ -31,6 +31,7 @@ from torch.utils.data import DataLoader, Dataset, Subset
 from histogate.config import TrainSettings
 from histogate.data import CLASS_ORDER, CLASS_TO_IDX, CachedPatches
 from histogate.metrics import ece, macro_f1, quadratic_kappa
+from histogate.tracking import MlflowTracker
 
 N_CLASSES = len(CLASS_ORDER)
 # ImageNet normalization == timm's resolved data config for convnext_tiny pretrained
@@ -223,7 +224,8 @@ def evaluate(model: nn.Module, ds: Dataset, cfg: TrainSettings,
 
 class Trainer:
     def __init__(self, cfg: TrainSettings, run_dir: Path | str, run_name: str = "run",
-                 device: str | None = None) -> None:
+                 device: str | None = None,
+                 tracker: MlflowTracker | None = None) -> None:
         self.cfg = cfg
         self.run_dir = Path(run_dir)
         self.run_name = run_name
@@ -235,6 +237,9 @@ class Trainer:
         self.config_hash = config_hash(cfg)
         self.git_sha = _git_sha()
         self.last_metrics: dict | None = None
+        self.tracker = tracker or MlflowTracker(
+            experiment="histogate", tracking_uri="mlruns", enabled=False
+        )
 
     def _loader(self, ds: Dataset, shuffle: bool) -> DataLoader:
         g = torch.Generator()
@@ -245,6 +250,18 @@ class Trainer:
                           persistent_workers=False)
 
     def fit(self, model: nn.Module, train_ds: Dataset, val_ds: Dataset) -> dict:
+        """Train with MLflow as the primary tracker (runs/ JSON stays secondary)."""
+        with self.tracker.run(self.run_name):
+            self.tracker.log_params({
+                **self.cfg.model_dump(mode="json"),
+                "git_sha": self.git_sha,
+                "config_hash": self.config_hash,
+                "n_train": len(train_ds),
+                "n_val": len(val_ds),
+            })
+            return self._fit_inner(model, train_ds, val_ds)
+
+    def _fit_inner(self, model: nn.Module, train_ds: Dataset, val_ds: Dataset) -> dict:
         cfg = self.cfg
         seed_everything(cfg.seed)
         self.run_dir.mkdir(parents=True, exist_ok=True)
@@ -310,6 +327,7 @@ class Trainer:
                     "lr": float(sched.get_last_lr()[0]),
                     **val,
                 })
+                self.tracker.log_epoch(epoch, epochs_out[-1])
         finally:
             _shutdown_workers(loader)
 
@@ -330,6 +348,8 @@ class Trainer:
             "peak_vram_mb": round(peak_mb, 1),
         }
         self.last_metrics = metrics
+        self.tracker.annotate(metrics)  # cross-reference: where this run lives in mlflow
+        self.tracker.cur_metrics_path = str(self.metrics_path)
         self.metrics_path.write_text(json.dumps(metrics, sort_keys=True, indent=2) + "\n")
         torch.save(
             {
@@ -340,4 +360,6 @@ class Trainer:
             },
             self.ckpt_path,
         )
+        self.tracker.log_final(metrics)
+        self.tracker.log_artifacts({"metrics": self.metrics_path, "ckpt": self.ckpt_path})
         return metrics
