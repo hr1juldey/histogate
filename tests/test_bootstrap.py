@@ -38,8 +38,13 @@ def test_ruo_disclaimer_in_prd() -> None:
 
 
 def test_no_money_figures_in_public_docs() -> None:
-    """Public-money law: no absolute currency figures in repo docs.
-    Oracle: independent grep for the rupee glyph and common figures."""
+    """Public-money law: no absolute money figures in repo docs.
+    Oracle: independent regex for rupee/crore/lakh AMOUNTS (₹ adjacent to
+    digits, or 'lakh'/'crore' tokens) — quoting the rule itself is legal."""
+    import re
+
+    money = re.compile(r"₹\s*\d|\d\s*₹|\b\d+\s*(lakh|lpa|crore)\b|\b(lakh|crore)\s*\d", re.I)
     for rel in REQUIRED_DOCS:
         text = (REPO / rel).read_text()
-        assert "₹" not in text, f"currency figure found in {rel} (public-money law)"
+        hit = money.search(text)
+        assert hit is None, f"money figure {hit!r} found in {rel} (public-money law)"
