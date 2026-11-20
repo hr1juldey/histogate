@@ -112,13 +112,121 @@ def normalize_stains(img: np.ndarray, ref_matrix: np.ndarray | None = None) -> n
 from histogate.schemas.report import ArtifactKind  # noqa: E402
 
 
+def _blank_like(img: np.ndarray, value: int = 235) -> np.ndarray:
+    return np.full(img.shape, value, dtype=np.uint8)
+
+
+def _disc_mask(shape: tuple[int, int, int], cy: float, cx: float, r: float) -> np.ndarray:
+    h, w = shape[:2]
+    yy, xx = np.ogrid[:h, :w]
+    return (yy - cy) ** 2 + (xx - cx) ** 2 <= r * r
+
+
+def _band_mask(shape: tuple[int, int, int], angle: float, offset: float, width: float) -> np.ndarray:
+    h, w = shape[:2]
+    yy, xx = np.mgrid[:h, :w]
+    d = xx * np.cos(angle) + yy * np.sin(angle) - offset
+    return np.abs(d) <= width / 2
+
+
 def inject_artifact(
     img: np.ndarray, kind: str | ArtifactKind, severity: float, seed: int = 0
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Inject one AIRAQc-class artifact. severity in [0,1] (0 = identity).
-    Returns (artifacted_image, bool_mask) with mask True on artifact pixels.
-    Implemented in PR-3; the signature and identity contract are law from PR-2.
+    """Inject one AIRAQc-class artifact at severity in [0, 1] (0 = exact identity).
+
+    Returns (artifacted_image, bool_mask); mask marks artifact pixels. All
+    randomness flows from `seed` — same seed, same bytes.
     """
-    if float(severity) == 0.0:
-        return np.array(img, copy=True), np.zeros(img.shape[:2], dtype=bool)
-    raise NotImplementedError("artifact injector lands in PR-3 (tests first)")
+    kind = ArtifactKind(kind)
+    sev = float(severity)
+    if not 0.0 <= sev <= 1.0:
+        raise ValueError(f"severity must be in [0, 1], got {sev}")
+    img = np.asarray(img)
+    if img.dtype != np.uint8:
+        raise ValueError(f"expected uint8 image, got {img.dtype}")
+    if sev == 0.0:
+        return img.copy(), np.zeros(img.shape[:2], dtype=bool)
+
+    rng = np.random.default_rng(seed)
+    h, w = img.shape[:2]
+    out = img.copy()
+    mask = np.zeros((h, w), dtype=bool)
+    diag = float(np.hypot(h, w))
+
+    if kind is ArtifactKind.OUT_OF_FOCUS:
+        sigma = 1.0 + 5.0 * sev
+        from scipy.ndimage import gaussian_filter
+
+        for c in range(3):
+            out[..., c] = gaussian_filter(out[..., c], sigma=sigma).round().astype(np.uint8)
+        mask[:] = True  # whole patch affected
+
+    elif kind is ArtifactKind.NO_TISSUE:
+        noise = rng.integers(-4, 5, size=img.shape)
+        out = np.clip(_blank_like(img, 235).astype(int) + noise, 0, 255).astype(np.uint8)
+        mask[:] = True
+
+    elif kind is ArtifactKind.MISSING_TISSUE:
+        frac = 0.1 + 0.4 * sev
+        bh = max(1, int(h * (frac if frac <= 0.9 else 0.9)))
+        y0 = int(rng.integers(0, h - bh + 1))
+        region = (slice(y0, y0 + bh), slice(0, w))
+        noise = rng.integers(-4, 5, size=out[region].shape)
+        out[region] = np.clip(235 + noise, 0, 255).astype(np.uint8)
+        mask[region] = True
+
+    elif kind is ArtifactKind.PEN_MARK:
+        # random-walk marker stroke; ink is blue-black
+        width = 2 + int(10 * sev)
+        y, x = float(rng.integers(h // 4, 3 * h // 4)), float(rng.integers(w // 4, 3 * w // 4))
+        for _ in range(40):
+            y = float(np.clip(y + rng.normal(0, h / 12), 0, h - 1))
+            x = float(np.clip(x + rng.normal(0, w / 12), 0, w - 1))
+            d = _disc_mask(img.shape, y, x, width / 2)
+            out[d] = (20, 20, 60)
+            mask |= d
+
+    elif kind is ArtifactKind.AIR_BUBBLE:
+        n = 1 + int(2 * sev)
+        r = (0.10 + 0.25 * sev) * min(h, w) / 2
+        for _ in range(n):
+            cy = float(rng.uniform(r, h - r))
+            cx = float(rng.uniform(r, w - r))
+            d = _disc_mask(img.shape, cy, cx, r)
+            out[d] = 245  # bright void
+            rim = _disc_mask(img.shape, cy, cx, r) & ~_disc_mask(img.shape, cy, cx, 0.92 * r)
+            out[rim] = np.clip(out[rim].astype(int) - 60, 0, 255).astype(np.uint8)
+            mask |= d
+
+    elif kind is ArtifactKind.COVERSLIP_LINE:
+        width = 3 + 30 * sev
+        angle = float(rng.uniform(0, np.pi))
+        offset = float(rng.uniform(0.2, 0.8)) * diag
+        d = _band_mask(img.shape, angle, offset, width)
+        # multiplicative darkening: cannot clip, so every masked pixel changes
+        out[d] = (out[d].astype(np.float64) * 0.6).round().astype(np.uint8)
+        mask |= d
+
+    elif kind is ArtifactKind.KNIFE_LINE:
+        n_lines = 2 + int(28 * sev)
+        base_angle = float(rng.uniform(-0.3, 0.3))
+        for i in range(n_lines):
+            offset = diag * (0.05 + 0.9 * i / max(n_lines - 1, 1))
+            d = _band_mask(img.shape, base_angle, offset, 1.5)
+            out[d] = np.clip(out[d].astype(int) - 70, 0, 255).astype(np.uint8)
+            mask |= d
+
+    elif kind is ArtifactKind.TISSUE_FOLD:
+        width = 10 + 60 * sev
+        angle = float(rng.uniform(0, np.pi))
+        offset = float(rng.uniform(0.3, 0.7)) * diag
+        d = _band_mask(img.shape, angle, offset, width)
+        # fold: the band content is mirrored (flipped along the band axis) and darkened
+        flipped = out[::-1, ::-1].copy()
+        out[d] = np.clip(flipped[d].astype(int) - 40, 0, 255).astype(np.uint8)
+        mask |= d
+
+    else:  # pragma: no cover - enum exhaustiveness guard
+        raise ValueError(f"unhandled artifact kind: {kind}")
+
+    return out, mask
