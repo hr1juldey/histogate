@@ -249,8 +249,12 @@ class Trainer:
                           generator=g if shuffle else None, worker_init_fn=_seed_worker,
                           persistent_workers=False)
 
-    def fit(self, model: nn.Module, train_ds: Dataset, val_ds: Dataset) -> dict:
-        """Train with MLflow as the primary tracker (runs/ JSON stays secondary)."""
+    def fit(self, model: nn.Module, train_ds: Dataset, val_ds: Dataset,
+            resume: bool = False) -> dict:
+        """Train with MLflow as the primary tracker (runs/ JSON stays secondary).
+
+        resume=True continues from run_dir/state.json + last.ckpt.pt; completed
+        epochs are skipped (fail-closed if state is missing)."""
         with self.tracker.run(self.run_name):
             self.tracker.log_params({
                 **self.cfg.model_dump(mode="json"),
@@ -258,10 +262,12 @@ class Trainer:
                 "config_hash": self.config_hash,
                 "n_train": len(train_ds),
                 "n_val": len(val_ds),
+                "resume": resume,
             })
-            return self._fit_inner(model, train_ds, val_ds)
+            return self._fit_inner(model, train_ds, val_ds, resume=resume)
 
-    def _fit_inner(self, model: nn.Module, train_ds: Dataset, val_ds: Dataset) -> dict:
+    def _fit_inner(self, model: nn.Module, train_ds: Dataset, val_ds: Dataset,
+                   resume: bool = False) -> dict:
         cfg = self.cfg
         seed_everything(cfg.seed)
         self.run_dir.mkdir(parents=True, exist_ok=True)
@@ -289,13 +295,33 @@ class Trainer:
         if self.device.type == "cuda":
             torch.cuda.reset_peak_memory_stats()
 
+        # ---- resume state (fail-closed) ---------------------------------
+        state_path = self.run_dir / "state.json"
+        last_path = self.run_dir / "last.ckpt.pt"
+        best_path = self.run_dir / "best.ckpt.pt"
+        start_epoch, global_step, best_f1 = 0, 0, -1.0
+        if resume:
+            if not state_path.exists():
+                raise FileNotFoundError(
+                    f"resume requested but no state file: {state_path} (fail-closed)"
+                )
+            ck = torch.load(last_path, map_location=self.device, weights_only=False)
+            model.load_state_dict(ck["model"])
+            opt.load_state_dict(ck["opt"])
+            sched.load_state_dict(ck["sched"])
+            ema.shadow = {k: v.to(self.device) for k, v in ck["ema"].items()}
+            start_epoch = int(ck["epoch"]) + 1
+            global_step = int(ck["global_step"])
+            best_f1 = float(ck["best_f1"])
+            print(f"[resume] continuing at epoch {start_epoch} "
+                  f"(best_f1={best_f1:.4f}, step={global_step})")
+
         loader = self._loader(train_ds, shuffle=True)
         epochs_out: list[dict] = []
-        global_step = 0
         step_losses: list[float] = []
         LOG_EVERY = 50  # steps — dense TensorBoard-style curve in mlflow
         try:
-            for epoch in range(cfg.epochs):
+            for epoch in range(start_epoch, cfg.epochs):
                 inner = train_ds.dataset if isinstance(train_ds, Subset) else train_ds
                 if hasattr(inner, "set_epoch"):
                     inner.set_epoch(epoch)
@@ -327,7 +353,41 @@ class Trainer:
                 _shutdown_workers(loader)
                 ema.swap(model)  # validate EMA weights
                 val = evaluate(model, val_ds, cfg, self.device)
+                # best checkpoint captures the EMA weights WHILE they are
+                # loaded in the model (before the swap back)
+                if val["val_macro_f1"] > best_f1:
+                    best_f1 = val["val_macro_f1"]
+                    torch.save(
+                        {
+                            "state_dict": {k: v.cpu() for k, v in model.state_dict().items()},
+                            "config_hash": self.config_hash,
+                            "git_sha": self.git_sha,
+                            "metrics": {"final": {"epoch": epoch, **val}},
+                            "kind": "best-ema",
+                        },
+                        best_path,
+                    )
                 ema.swap(model)
+                # per-epoch resume state: model + optimizer + scheduler + EMA
+                torch.save(
+                    {
+                        "model": model.state_dict(),
+                        "opt": opt.state_dict(),
+                        "sched": sched.state_dict(),
+                        "ema": ema.shadow,
+                        "epoch": epoch,
+                        "global_step": global_step,
+                        "best_f1": best_f1,
+                        "config_hash": self.config_hash,
+                        "git_sha": self.git_sha,
+                    },
+                    last_path,
+                )
+                state_path.write_text(json.dumps(
+                    {"epoch": epoch, "global_step": global_step,
+                     "best_f1": best_f1, "git_sha": self.git_sha,
+                     "config_hash": self.config_hash}
+                ) + "\n")
                 if self.device.type == "cuda":
                     torch.cuda.empty_cache()  # return eval blocks before next epoch
 

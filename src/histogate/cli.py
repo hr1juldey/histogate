@@ -68,6 +68,8 @@ def train(argv: list[str] | None = None) -> None:
     p.add_argument("--no-pretrained", action="store_true")
     p.add_argument("--grad-checkpoint", action="store_true",
                    help="activation checkpointing (batch-256 convnext_tiny on 12GB)")
+    p.add_argument("--resume-if-present", action="store_true",
+                   help="continue from run state.json if it exists (overnight safety)")
     p.add_argument("--name", default="train")
     args = p.parse_args(argv)
     if args.ssl:
@@ -104,7 +106,8 @@ def train(argv: list[str] | None = None) -> None:
     )
     trainer = Trainer(cfg, run_dir=settings.paths.runs_dir / args.name, run_name=args.name,
                       tracker=tracker)
-    metrics = trainer.fit(model, train_ds, val_ds)
+    resume = args.resume_if_present and (settings.paths.runs_dir / args.name / "state.json").exists()
+    metrics = trainer.fit(model, train_ds, val_ds, resume=resume)
     print(json.dumps({"final": metrics["final"], "peak_vram_mb": metrics["peak_vram_mb"],
                       "metrics_path": str(trainer.metrics_path)}, indent=2))
 
