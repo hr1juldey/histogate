@@ -13,3 +13,4 @@
 2026-11-21T10:25:19+00:00 | P16-S2 | done | attempt 2 | 5/5 GREEN on attempt after 3 engine fails: T4 h=1.500 e=1.000 exact; T3 flip in band; T2 paired AUC in [0.5,0.65]; T1 per-dim reach+touch >=0.8; design laws documented in module docstring | f9f0731
 2026-11-21T11:01:59+00:00 | P16-S3 | done | attempt 1 | 4/4 wire tests green; explicit-kwarg-independence semantics documented; calib dumped from 400 real slides | 738d87a
 2026-11-21T11:06:10+00:00 | P16-S3 | done | attempt 1 | perf pass: 5.96 ms/img => ~20 min/epoch overhead on 200k mixed; acceptable for overnight | 2ca0d00
+2026-11-21T14:27:22+00:00 | P16-S4 | done | attempt 2 | 10ep mixed+stainaug done 19:50 IST, 3h13m; final subset F1 .9626/kappa .9838 | 29816ed

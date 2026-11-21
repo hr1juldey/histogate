@@ -74,10 +74,10 @@
       "artifact": null
     },
     "P16-S4": {
-      "status": "in_progress",
+      "status": "done",
       "attempts": 2,
-      "last_note": "",
-      "commit": null,
+      "last_note": "10ep mixed+stainaug done 19:50 IST, 3h13m; final subset F1 .9626/kappa .9838",
+      "commit": "29816ed",
       "artifact": null
     },
     "P16-S5": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T11:06:10+00:00"
+  "updated": "2026-11-21T14:27:22+00:00"
 }
