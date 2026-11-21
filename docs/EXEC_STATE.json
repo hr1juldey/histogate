@@ -62,7 +62,7 @@
     "P16-S2": {
       "status": "todo",
       "attempts": 0,
-      "last_note": "",
+      "last_note": "T1/T2: illum field shape (224,224,1) vs flat (N,3) broadcast; T3: test chained load_state_dict().eval(); T4: independent-W measurement noise+mask shift -> paired-W needed",
       "commit": null,
       "artifact": null
     },
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T10:04:16+00:00"
+  "updated": "2026-11-21T10:05:46+00:00"
 }

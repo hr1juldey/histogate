@@ -6,3 +6,4 @@
 2026-11-21T08:51:28+00:00 | P15-S5 | done | attempt 0 | GitHub hr1juldey/histogate PUBLIC + CI green (2 jobs after uvx/snapshot fixes); HF riju279/histogate: 6 files incl best.ckpt.pt + int8.onnx + rendered MODEL_CARD | e6c73c7
 2026-11-21T08:51:58+00:00 | P15-S6 | done | attempt 0 | EMAIL_DRAFT.md written at AIRA/ with both repo links; numbers sourced from RESULTS.md; user sends Monday 10AM | 5b6a692
 2026-11-21T10:04:16+00:00 | P16-S1 | done | attempt 1 | 5 tests RED as designed (ModuleNotFoundError); scanner folds = Macenko-stat KMeans clusters (filenames carry no scanner labels); sklearn dep confirmed present | 8a226af
+2026-11-21T10:05:46+00:00 | P16-S2 | todo | attempt 0 | T1/T2: illum field shape (224,224,1) vs flat (N,3) broadcast; T3: test chained load_state_dict().eval(); T4: independent-W measurement noise+mask shift -> paired-W needed
