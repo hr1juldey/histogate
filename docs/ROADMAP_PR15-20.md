@@ -228,12 +228,13 @@ P17-S1 RED tests/test_ensemble.py:
   T3 TTA-label-safety: on 500 real labeled patches, each transform in
      {identity, hflip, vflip, rot180} must keep single-model accuracy
      within 1% of identity (transform that loses > 1% is banned from TTA).
-  P17-S2 implement src/histogate/serve/ensemble.py: EnsembleEngine(paths,
-  tta=True) — mean softmax over ckpts × allowed transforms.
-  P17-S3 battery on ensemble outputs (script scripts/eval_ensemble.py
+P17-S2 IMPLEMENT ENSEMBLE ENGINE (src/histogate/serve/ensemble.py):
+  EnsembleEngine(paths, tta=True) — mean softmax over ckpts × allowed
+  transforms.
+P17-S3 BATTERY ON ENSEMBLE OUTPUTS (script scripts/eval_ensemble.py
   mirroring morning_eval stages 1,3,4); acceptance CRC-VAL >= 0.975,
   NONORM >= 0.95, throughput >= 200 p/s (measure; ensemble halves it).
-  P17-S4 docs row + serve default switch if acceptance met.
+P17-S4 DOCS ROW + SERVE DEFAULT SWITCH if acceptance met.
 
 ═════════════════════════════════════════════════════════════════════════
 PR-18 LOCAL-BLEMISH QC FROM REAL DEGRADED DATA
