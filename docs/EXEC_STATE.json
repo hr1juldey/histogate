@@ -88,10 +88,10 @@
       "artifact": null
     },
     "P16-S6": {
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "last_note": "",
-      "commit": null,
+      "last_note": "RESULTS.md pr16-mixed row rendered+parity OK; STORY verdict + README failures table updated (2 of 3 closed); zero decimals",
+      "commit": "fb5380b",
       "artifact": null
     },
     "P17-S1": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T14:27:22+00:00"
+  "updated": "2026-11-21T14:28:23+00:00"
 }
