@@ -20,6 +20,7 @@ from histogate.data import (
     build_index,
 )
 from histogate.model import N_CLASSES, PatchClassifier, PatchDataset, Trainer, evaluate
+from histogate.stainaug import StainAugmenter, StainParams
 from histogate.tracking import MlflowTracker
 
 TRAIN_DATASET = "NCT-CRC-HE-100K"
@@ -41,6 +42,15 @@ def _balanced_subset(index: PatchIndex, n: int) -> PatchIndex:
     return PatchIndex(picked[:n])
 
 
+def _stain_augmenter(args: argparse.Namespace, cfg) -> StainAugmenter | None:
+    """Build the calibrated stain augmenter when --stain-augment is set."""
+    if not getattr(args, "stain_augment", False):
+        return None
+    calib = Path("configs/stain_calib.json")
+    return StainAugmenter(StainParams.from_json(json.loads(calib.read_text())),
+                          seed=cfg.seed)
+
+
 def _cache_for(index: PatchIndex, path: Path) -> Path:
     if path.exists():
         return path
@@ -49,12 +59,8 @@ def _cache_for(index: PatchIndex, path: Path) -> Path:
     return path
 
 
-def train(argv: list[str] | None = None) -> None:
-    """`histogate-train [--config X] [--ssl]` (+ smoke-run conveniences)."""
-    # Route DataLoader worker IPC through /tmp (NVMe) instead of /dev/shm:
-    # concurrent GPU jobs on this box exhausted shm and dead workers leaked
-    # 154MB torch_* segments there (parent-diagnosed 2026-11-20).
-    torch.multiprocessing.set_sharing_strategy("file_system")
+def build_train_parser() -> argparse.ArgumentParser:
+    """Standalone train parser (P16-S3: testable CLI surface)."""
     p = argparse.ArgumentParser(prog="histogate-train")
     p.add_argument("--config", type=Path, default=None)
     p.add_argument("--ssl", action="store_true",
@@ -76,8 +82,20 @@ def train(argv: list[str] | None = None) -> None:
                    help="warm-start weights from a checkpoint (domain fine-tune)")
     p.add_argument("--lr", default=None, type=float,
                    help="override train.lr (use ~1e-4 for warm-start fine-tunes)")
+    p.add_argument("--stain-augment", action="store_true",
+                   help="physically-grounded stain jitter calibrated on real "
+                        "scanners (configs/stain_calib.json, PR-16)")
     p.add_argument("--name", default="train")
-    args = p.parse_args(argv)
+    return p
+
+
+def train(argv: list[str] | None = None) -> None:
+    """`histogate-train [--config X] [--ssl]` (+ smoke-run conveniences)."""
+    # Route DataLoader worker IPC through /tmp (NVMe) instead of /dev/shm:
+    # concurrent GPU jobs on this box exhausted shm and dead workers leaked
+    # 154MB torch_* segments there (parent-diagnosed 2026-11-20).
+    torch.multiprocessing.set_sharing_strategy("file_system")
+    args = build_train_parser().parse_args(argv)
     if args.ssl:
         raise SystemExit("--ssl: SSL backbone arrives in PR-16")
 
@@ -101,7 +119,8 @@ def train(argv: list[str] | None = None) -> None:
     train_cache = _cache_for(train_idx, cache_root / f"{tag}.bin")
     val_cache = _cache_for(val_idx, cache_root / f"crcval_{len(val_idx)}.bin")
     train_ds = PatchDataset(CachedPatches(train_cache, train_idx, 224),
-                            train=True, shuffle_labels=args.shuffle_labels, seed=cfg.seed)
+                            train=True, shuffle_labels=args.shuffle_labels, seed=cfg.seed,
+                            stain_augment=_stain_augmenter(args, cfg))
     val_ds = PatchDataset(CachedPatches(val_cache, val_idx, 224), train=False)
 
     model = PatchClassifier(backbone=cfg.backbone, pretrained=not args.no_pretrained,

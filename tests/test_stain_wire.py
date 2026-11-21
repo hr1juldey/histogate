@@ -20,12 +20,25 @@ REPO = Path(__file__).resolve().parents[1]
 CALIB = REPO / "configs" / "stain_calib.json"
 
 
+class _FakeEntry:
+    def __init__(self, label: str) -> None:
+        self.label = label
+
+
+class _FakeIndex:
+    def __init__(self, n: int) -> None:
+        self.entries = [_FakeEntry(["ADI", "BACK", "DEB", "LYM", "MUC",
+                                    "MUS", "NORM", "STR", "TUM"][i % 9])
+                        for i in range(n)]
+
+
 class _FakeCached:
     """Deterministic stand-in cache: 8 uint8 images, cycling labels."""
 
     def __init__(self) -> None:
         rng = np.random.default_rng(0)
         self.imgs = rng.integers(40, 220, size=(8, 32, 32, 3), dtype=np.uint8)
+        self.index = _FakeIndex(len(self.imgs))
 
     def __len__(self) -> int:
         return len(self.imgs)
@@ -63,7 +76,7 @@ def test_tw1_pixels_change_label_preserves_regression():
     assert y0 == y1, "label changed under stain augmentation"
     assert not np.allclose(_denorm(x0), _denorm(x1), atol=0.0), \
         "stain_augment had no pixel effect"
-    assert _denorm(x1).shape == (32, 32, 3)
+    assert _denorm(x1).shape == (3, 32, 32)  # dataset returns CHW tensors
     # regression: no augmenter => identical to historical behavior
     assert np.allclose(_denorm(x0), _denorm(plain[3][0]))
 

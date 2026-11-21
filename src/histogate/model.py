@@ -19,6 +19,7 @@ import os
 import random
 import subprocess
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")  # cublas determinism (must precede matmul handle init)
 os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")  # 12GB card fragmentation
@@ -32,6 +33,9 @@ from histogate.config import TrainSettings
 from histogate.data import CLASS_ORDER, CLASS_TO_IDX, CachedPatches
 from histogate.metrics import ece, macro_f1, quadratic_kappa
 from histogate.tracking import MlflowTracker
+
+if TYPE_CHECKING:
+    from histogate.stainaug import StainAugmenter
 
 N_CLASSES = len(CLASS_ORDER)
 # ImageNet normalization == timm's resolved data config for convnext_tiny pretrained
@@ -112,10 +116,12 @@ class PatchDataset(Dataset):
     """
 
     def __init__(self, cached: CachedPatches, train: bool = True, *,
-                 shuffle_labels: bool = False, seed: int = 42, augment: bool = True) -> None:
+                 shuffle_labels: bool = False, seed: int = 42, augment: bool = True,
+                 stain_augment: StainAugmenter | None = None) -> None:
         self.cached = cached
         self.train = train
         self.augment = augment and train
+        self.stain_augment = stain_augment if train else None
         self.seed = seed
         self.epoch = 0
         labels = np.array([CLASS_TO_IDX[e.label] for e in cached.index.entries], dtype=np.int64)
@@ -132,11 +138,16 @@ class PatchDataset(Dataset):
     def __getitem__(self, i: int) -> tuple[torch.Tensor, int]:
         img, _label = self.cached[int(i)]
         img = np.asarray(img)
+        rng = np.random.default_rng((self.seed % 1_000_003) * 4_194_319 + self.epoch * 1_000_003 + int(i))
         if self.augment:
-            rng = np.random.default_rng((self.seed % 1_000_003) * 4_194_319 + self.epoch * 1_000_003 + int(i))
             img = np.rot90(img, int(rng.integers(0, 4)))
             if rng.random() < 0.5:
                 img = img[:, ::-1]
+        if self.stain_augment is not None:
+            # AFTER geometric augs (uint8 HWC), BEFORE normalize; rng is
+            # per-(seed,epoch,index) => worker-count invariant. Explicit
+            # kwarg applies independently of the geometric `augment` flag.
+            img = self.stain_augment(np.ascontiguousarray(img), rng=rng)
         x = torch.from_numpy(np.ascontiguousarray(img.transpose(2, 0, 1))).float().div_(255.0)
         x = (x - _MEAN) / _STD
         return x, int(self.labels[i])

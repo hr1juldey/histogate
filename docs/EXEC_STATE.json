@@ -67,8 +67,8 @@
       "artifact": null
     },
     "P16-S3": {
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "last_note": "",
       "commit": null,
       "artifact": null

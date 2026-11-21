@@ -58,6 +58,26 @@ class StainParams:
     illum_amp: float           # measured low-frequency OD field std
     noise_sigma: float         # measured sensor noise std (flat regions)
 
+    def to_json(self) -> str:
+        import json
+        return json.dumps({
+            "w_h": self.w_h.tolist(), "w_e": self.w_e.tolist(),
+            "w_sigma": self.w_sigma,
+            "m_lo": self.m_lo.tolist(), "m_hi": self.m_hi.tolist(),
+            "illum_amp": self.illum_amp, "noise_sigma": self.noise_sigma,
+        })
+
+    @classmethod
+    def from_json(cls, text: str | dict) -> StainParams:
+        import json
+        d = json.loads(text) if isinstance(text, str) else text
+        return cls(
+            w_h=np.array(d["w_h"]), w_e=np.array(d["w_e"]),
+            w_sigma=float(d["w_sigma"]),
+            m_lo=np.array(d["m_lo"]), m_hi=np.array(d["m_hi"]),
+            illum_amp=float(d["illum_amp"]), noise_sigma=float(d["noise_sigma"]),
+        )
+
 
 def _conc_band(paths: list[Path]) -> tuple[np.ndarray, np.ndarray]:
     """[q05, q95] of H,E concentration ratios to the class median: the
@@ -143,45 +163,51 @@ class StainAugmenter:
                 return w[:2]
         return np.vstack([self.p.w_h, self.p.w_e])
 
-    def _illum(self, shape: tuple[int, ...]) -> np.ndarray:
+    def _illum(self, shape: tuple[int, ...],
+               rng: np.random.Generator | None = None) -> np.ndarray:
+        rng = rng if rng is not None else self.rng
         y, x = np.mgrid[0:shape[0], 0:shape[1]]
-        gy = self.rng.uniform(0, shape[0], 2)
-        gx = self.rng.uniform(0, shape[1], 2)
+        gy = rng.uniform(0, shape[0], 2)
+        gx = rng.uniform(0, shape[1], 2)
         f = sum(np.exp(-((y - a) ** 2 + (x - b) ** 2)
                        / (2 * (shape[0] / 2) ** 2)) for a, b in zip(gy, gx, strict=True))
         return 1.0 + self.p.illum_amp * (f - f.mean()) / max(f.std(), 1e-9) / 3
 
     def _apply(self, img: np.ndarray, c_h: float, c_e: float,
-               w_jitter: float, illum: bool, noise: bool) -> np.ndarray:
+               w_jitter: float, illum: bool, noise: bool,
+               rng: np.random.Generator | None = None) -> np.ndarray:
         """Exact 2-stain decomposition with per-pixel residual preserved:
         od = c_h*H + c_e*E + R. Scaling c_h moves ONLY the H coefficient
         (a 3-row basis fits OD exactly and cross-projects onto the
         non-orthogonal E axis when re-measured)."""
+        rng = rng if rng is not None else self.rng
         w2 = self._basis(img)
         if w_jitter > 0:
-            w2 = w2 + self.rng.normal(0, self.p.w_sigma * w_jitter, (2, 3))
+            w2 = w2 + rng.normal(0, self.p.w_sigma * w_jitter, (2, 3))
             w2 /= np.linalg.norm(w2, axis=1, keepdims=True)
         od = _od(img).reshape(-1, 3)
         c2 = np.linalg.lstsq(w2.T, od.T, rcond=None)[0].T
         residual = od - c2 @ w2
         od_new = (c2 * np.array([c_h, c_e])) @ w2 + residual
         if illum:
-            field = self._illum(img.shape)
+            field = self._illum(img.shape, rng)
             od_new = od_new * field.reshape(-1, 1)
         out = _rgb(od_new.reshape(img.shape))
         if noise and self.p.noise_sigma > 0:
             out = np.clip(out.astype(np.float64)
-                          + self.rng.normal(0, self.p.noise_sigma, out.shape),
+                          + rng.normal(0, self.p.noise_sigma, out.shape),
                           0, 255).astype(np.uint8)
         return out
 
-    def __call__(self, img: np.ndarray, jitter: float = 1.0) -> np.ndarray:
+    def __call__(self, img: np.ndarray, jitter: float = 1.0,
+                 rng: np.random.Generator | None = None) -> np.ndarray:
         """Random augment. jitter=0.0 must be a bitwise identity (T5)."""
         if jitter == 0.0:
             return np.ascontiguousarray(img, dtype=np.uint8)
-        m = np.exp(self.rng.uniform(np.log(self.p.m_lo), np.log(self.p.m_hi)))
+        rng = rng if rng is not None else self.rng
+        m = np.exp(rng.uniform(np.log(self.p.m_lo), np.log(self.p.m_hi)))
         return self._apply(img, float(m[0]), float(m[1]),
-                           w_jitter=jitter, illum=True, noise=True)
+                           w_jitter=jitter, illum=True, noise=True, rng=rng)
 
     def perturb(self, img: np.ndarray, c_hemo: float = 1.0,
                 c_eos: float = 1.0) -> np.ndarray:
