@@ -39,10 +39,10 @@
       "artifact": null
     },
     "P15-S5": {
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "last_note": "GitHub hr1juldey/histogate PUBLIC + CI green (2 jobs after uvx/snapshot fixes); HF riju279/histogate: 6 files incl best.ckpt.pt + int8.onnx + rendered MODEL_CARD",
+      "commit": "e6c73c7",
       "artifact": null
     },
     "P15-S6": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T08:46:06+00:00"
+  "updated": "2026-11-21T08:51:28+00:00"
 }
