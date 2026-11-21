@@ -61,8 +61,8 @@
     },
     "P16-S2": {
       "status": "todo",
-      "attempts": 1,
-      "last_note": "attempt3: single mechanical bug \u2014 illum residual reshape used FILTERED flat (3559px) into (224,224,3); blocked all 5 tests incl. previously-green T5; physics untested this round; fix = fit+residual on unfiltered od grid",
+      "attempts": 2,
+      "last_note": "T3/T4/T5 GREEN. T1: metric zip bug (6,)-margin vs (n,6) rows; T2: cross-base confound (real=NONORM vs fake=augNCT separates on biology) -> paired same-base design",
       "commit": null,
       "artifact": null
     },
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T10:17:27+00:00"
+  "updated": "2026-11-21T10:23:11+00:00"
 }
