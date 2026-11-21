@@ -25,10 +25,10 @@
       "artifact": null
     },
     "P15-S3": {
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "last_note": "snapshot 24 JSONs, parity runs==snapshot (data rows identical), CI 2 jobs; local fast-subset pytest check next",
+      "commit": "60a4bed",
       "artifact": null
     },
     "P15-S4": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T08:40:40+00:00"
+  "updated": "2026-11-21T08:41:23+00:00"
 }
