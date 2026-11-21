@@ -1,0 +1,60 @@
+/* HistoGate design tokens — biotech SV product (docs/DESIGN.md) */
+:root {
+  --bg: #08090a;
+  --panel: #0f1011;
+  --surface: #191a1b;
+  --hover-s: rgba(255, 255, 255, 0.04);
+  --t1: #f7f8f8;
+  --t2: #d0d6e0;
+  --t3: #8a8f98;
+  --t4: #62666d;
+  --brand: #5e6ad2;
+  --accent: #7170ff;
+  --accent-h: #828fff;
+  --ok: #27a644;
+  --ok2: #10b981;
+  --bad: #e08080;
+  --hema: #7c5cd6;
+  --eos: #c25b8d;
+  --b-subtle: rgba(255, 255, 255, 0.05);
+  --b-std: rgba(255, 255, 255, 0.08);
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-feature-settings: 'cv01', 'ss03'; scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--t1);
+  -webkit-font-smoothing: antialiased; line-height: 1.55;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; background: none; border: none; color: inherit; }
+img { display: block; max-width: 100%; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+section.padded { padding: 84px 0; }
+.kicker {
+  font-size: 12px; font-weight: 500; color: var(--t3);
+  text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px;
+}
+h2 {
+  font-size: clamp(26px, 3.4vw, 38px); font-weight: 500;
+  letter-spacing: -0.8px; line-height: 1.12;
+}
+.sub { font-size: 16px; color: var(--t3); max-width: 580px; margin-top: 12px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 40px;
+  padding: 0 18px; border-radius: 6px; font-size: 14px; font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+.btn.primary { background: var(--brand); color: #fff; }
+.btn.primary:hover { background: var(--accent-h); }
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.02); color: var(--t2);
+  border: 1px solid var(--b-std);
+}
+.btn.ghost:hover { color: var(--t1); background: var(--hover-s); }
+.card {
+  background: rgba(255, 255, 255, 0.02); border: 1px solid var(--b-std);
+  border-radius: 8px; padding: 22px;
+}
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }

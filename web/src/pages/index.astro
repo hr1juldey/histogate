@@ -1,0 +1,161 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LiveHero from '../components/LiveHero';
+import Journey from '../components/Journey';
+import { CaseStudies, GateGrid } from '../components/CaseStudies';
+import { apiBase, get, type Metrics, type SiteConfig, type Sample } from '../lib/api';
+
+// SSR: shell + all copy + measured numbers render server-side from the
+// backend's server-driven config — content changes never redeploy the front end.
+const cfg = await get<SiteConfig>('/site-config.json');
+const metrics = await get<Metrics>('/metrics.json');
+const samples = await get<Sample[]>('/samples').catch(() => [] as Sample[]);
+const classes = samples.filter(s => s.id !== 'nonorm');
+const m = metrics;
+const met = (v: number | string, l: string, ok = false) => ({ v, l, ok });
+const metList = [
+  met(m.crcval_f1, 'external macro-F1 · CRC-VAL'),
+  met(m.domain_f1, 'raw multi-scanner F1 · NONORM'),
+  met(m.int8_agree, 'int8 ≡ fp32 argmax', true),
+  met(`${m.throughput} p/s`, 'GPU throughput'),
+  met(m.ece, 'calibration error · ECE'),
+];
+---
+<Layout title="HistoGate — tissue AI that knows when it shouldn't answer" active="" apiBase={apiBase}>
+  <header class="hero">
+    <div class="wrap herogrid">
+      <div>
+        <span class="badge mono"><i></i>9-class colorectal H&E · calibrated · quality-gated</span>
+        <h1>{cfg.product.tagline}</h1>
+        <p class="lead">{cfg.product.hero_sub}</p>
+        <div class="row">
+          <a class="btn primary" href={cfg.product.primary_cta.href}>{cfg.product.primary_cta.label} →</a>
+          <a class="btn ghost" href={cfg.product.secondary_cta.href}>{cfg.product.secondary_cta.label}</a>
+        </div>
+      </div>
+      <LiveHero client:load />
+    </div>
+  </header>
+
+  <div class="metrics"><div class="wrap mgrid">
+    {metList.map(x => <div class="metric"><div class={`v mono ${x.ok ? 'ok' : ''}`}>{x.v}</div><div class="l">{x.l}</div></div>)}
+  </div></div>
+
+  <section class="padded"><div class="wrap">
+    <div class="kicker">How it was trained</div>
+    <h2>Four runs. Three failures. One that shipped.</h2>
+    <p class="sub">Click a stage — every number is measured on held-out data, pulled live from the artifacts.</p>
+    <Journey client:load cfg={cfg} metrics={metrics} />
+  </div></section>
+
+  <section class="padded"><div class="wrap">
+    <div class="kicker">Case studies</div>
+    <h2>Previous failure points, and how each was solved.</h2>
+    <p class="sub">{cfg.gate_note}</p>
+    <CaseStudies client:load cfg={cfg} metrics={metrics} />
+  </div></section>
+
+  <section class="padded"><div class="wrap">
+    <div class="kicker">How it works</div>
+    <h2>Gate first. Diagnose second.</h2>
+    <div class="flow">
+      <div class="card"><b>Patch in</b><p>A 224-px square of H&E tissue — one of the curated examples, or your own.</p></div>
+      <div class="card"><b>Quality gate first</b><p>Blur, pen marks, folds and out-of-distribution input are flagged before any diagnosis — a bad input never earns a confident answer.</p></div>
+      <div class="card"><b>Calibrated call, shown why</b><p>Nine classes with temperature-calibrated probabilities, plus a Grad-CAM heatmap of the regions that drove the call.</p></div>
+    </div>
+  </div></section>
+
+  <section class="padded dark"><div class="wrap">
+    <div class="kicker">Ship gate</div>
+    <h2>Measured, not promised.</h2>
+    <p class="sub">{cfg.gate_note}</p>
+    <GateGrid client:load metrics={metrics} />
+  </div></section>
+
+  <section class="padded"><div class="wrap">
+    <div class="kicker">What it reads</div>
+    <h2>Real tissue, expert-annotated.</h2>
+    <div class="classes">
+      {classes.map(s => (
+        <a class="cl" href="/demo"><img src={`${apiBase}/samples/${s.id}.png`} alt={s.why} /><span>{s.why}</span></a>
+      ))}
+    </div>
+    <div class="who card">{cfg.who}</div>
+  </div></section>
+</Layout>
+
+<style>
+  .hero { padding: 80px 0 64px; }
+  .herogrid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 44px; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #23252a; border-radius: 9999px;
+    padding: 4px 12px; font-size: 11px; color: var(--t3); margin-bottom: 22px; }
+  .badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--ok2); }
+  h1 { font-size: clamp(32px, 4.6vw, 54px); font-weight: 500; letter-spacing: -1.2px; line-height: 1.08; }
+  .lead { font-size: 17px; color: var(--t3); margin: 18px 0 28px; max-width: 520px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .metrics { border-top: 1px solid var(--b-subtle); border-bottom: 1px solid var(--b-subtle); background: var(--panel); }
+  .mgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; padding: 30px 24px; }
+  .metric { padding: 4px 20px; border-left: 1px solid var(--b-subtle); }
+  .metric:first-child { border-left: none; }
+  .metric .v { font-size: 28px; font-weight: 500; }
+  .metric .v.ok { color: var(--ok2); }
+  .metric .l { font-size: 12.5px; color: var(--t3); margin-top: 2px; }
+  .dark { background: var(--panel); border-top: 1px solid var(--b-subtle); border-bottom: 1px solid var(--b-subtle); }
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 36px; }
+  .flow b { font-size: 16px; }
+  .flow p { font-size: 14px; color: var(--t3); margin-top: 6px; }
+  .classes { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 36px; }
+  .cl { border: 1px solid var(--b-std); border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.02); }
+  .cl img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .cl span { display: block; padding: 10px 12px; font-size: 12.5px; color: var(--t3); }
+  .who { margin-top: 32px; font-size: 15px; color: var(--t3); }
+  @media (max-width: 900px) { .herogrid { grid-template-columns: 1fr; } }
+</style>
+
+<style is:global>
+  .livehero { display: flex; flex-direction: column; gap: 14px; }
+  .livehero .stack { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--b-std); }
+  .livehero .stack img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .readout { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between;
+    padding: 30px 14px 12px; font-size: 12.5px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); }
+  .readout .ok { color: #9de3b3; } .readout .warn { color: var(--bad); } .readout .dim { color: var(--t3); }
+  .rail { display: flex; gap: 8px; }
+  .rail img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; border: 2px solid transparent; opacity: 0.5; }
+  .rail img.on { border-color: var(--brand); opacity: 1; }
+  .journey { display: grid; grid-template-columns: 300px 1fr; gap: 18px; margin-top: 36px; }
+  .stages { display: flex; flex-direction: column; gap: 8px; }
+  .stages button { display: flex; align-items: center; gap: 12px; text-align: left; padding: 13px 14px;
+    border-radius: 8px; border: 1px solid var(--b-subtle); background: rgba(255,255,255,0.02); color: var(--t3); }
+  .stages button:hover { color: var(--t2); }
+  .stages button.on { border-color: var(--brand); color: var(--t1); background: rgba(94,106,210,0.08); }
+  .stages .n { color: var(--t4); font-size: 11px; }
+  .stages .t { font-size: 14px; font-weight: 500; }
+  .stages .run { margin-left: auto; font-size: 10px; color: var(--t4); }
+  .detail h3 { font-size: 20px; font-weight: 500; }
+  .detail p { font-size: 14.5px; color: var(--t3); margin-top: 8px; }
+  .detail .foot { color: var(--t2); }
+  .bars { margin-top: 18px; }
+  .barrow { display: grid; grid-template-columns: 120px 1fr 64px; gap: 12px; align-items: center; margin: 10px 0; }
+  .barrow .bl { font-size: 12.5px; color: var(--t3); text-align: right; }
+  .track { height: 12px; border-radius: 6px; background: #202636; overflow: hidden; }
+  .fill { height: 12px; border-radius: 6px; transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .fill.crc { background: linear-gradient(90deg, #3d7dca, var(--brand)); }
+  .fill.dom { background: linear-gradient(90deg, #b85c9d, var(--hema)); }
+  .bv { font-size: 13px; color: var(--t2); }
+  .cases { display: flex; flex-direction: column; gap: 10px; margin-top: 36px; }
+  .case .head { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 0; }
+  .case .title { font-size: 15.5px; font-weight: 500; }
+  .case .chev { margin-left: auto; color: var(--t3); font-size: 18px; }
+  .case .body { margin-top: 14px; border-top: 1px solid var(--b-subtle); padding-top: 14px; }
+  .case .body p { font-size: 14.5px; color: var(--t3); margin: 8px 0; }
+  .case .lab { color: var(--t1); }
+  .case .nums { color: var(--t2); font-size: 13px; }
+  .gate { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 36px; }
+  .gcell .name { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; }
+  .gcell .val { font-size: 15px; margin-top: 8px; color: var(--t2); }
+  .gcell .thr { font-size: 11px; color: var(--t4); margin-top: 2px; }
+  .tick { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+  .tick.ok { background: rgba(16,185,129,0.14); color: var(--ok2); }
+  .tick.no { background: rgba(224,128,128,0.12); color: var(--bad); }
+  @media (max-width: 820px) { .journey { grid-template-columns: 1fr; } }
+</style>

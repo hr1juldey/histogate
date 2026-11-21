@@ -19,6 +19,23 @@ def landing_metrics() -> dict:
         j("eval_best.json"), j("domain.json"), j("int8_drift.json"),
         j("gate_report.json"), j("onnx/export_bench.json"))
     tc = bench.get("torch_cuda", {})
+
+    # training journey: every checkpointed run's measured pair
+    # (external F1, raw-scanner F1) — the interactive story data
+    journey = []
+    for run_dir in sorted(RUN.parent.glob("*")):
+        evp, domp = run_dir / "eval_best.json", run_dir / "domain.json"
+        if not (evp.exists() and domp.exists()):
+            continue
+        try:
+            e, d = json.loads(evp.read_text()), json.loads(domp.read_text())
+            journey.append({
+                "run": run_dir.name,
+                "crcval_f1": round(e.get("val_macro_f1", 0.0), 4),
+                "nonorm_f1": round(d.get("nonorm_macro_f1", 0.0), 4)})
+        except (ValueError, KeyError):
+            continue
+
     return {
         "revision": f"· ship: {gate.get('checkpoint', 'pr16-mixed').split('/')[-2] if gate.get('checkpoint') else 'pr16-mixed'} ({sum(c['passed'] for c in gate.get('checks', []))}/{len(gate.get('checks', []))} gate)",
         "crcval_f1": round(ev.get("val_macro_f1", 0.0), 4),
@@ -26,6 +43,7 @@ def landing_metrics() -> dict:
         "int8_agree": round(dr.get("argmax_agreement", 0.0), 4),
         "throughput": round(tc.get("throughput_patches_s", 0.0), 1),
         "ece": round(j("calibration.json").get("ece_after", 0.0), 4),
+        "journey": journey,
         "gate_checks": [
             {"name": c["name"], "value": c["value"],
              "threshold": f"{c['comparator']} {c['threshold']}",

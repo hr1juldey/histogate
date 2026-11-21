@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Demo from '../components/Demo';
+import { apiBase } from '../lib/api';
+---
+<Layout title="HistoGate — live demo" active="demo" apiBase={apiBase}>
+  <main class="wrap">
+    <div class="kicker" style="margin-top:56px">Live demo · runs on the shipped model</div>
+    <h1>See the tissue, see the diagnosis, see why.</h1>
+    <p class="sub">Click any patch — real expert-annotated tiles from the external validation
+    cohort. The model reports calibrated confidence and shows exactly which regions drove its call.</p>
+    <Demo client:load />
+  </main>
+</Layout>
+
+<style is:global>
+  h1 { font-size: clamp(28px, 3.6vw, 40px); font-weight: 500; letter-spacing: -1px; margin: 6px 0 4px; }
+  .demo { display: grid; grid-template-columns: 330px 1fr; gap: 24px; margin-top: 34px; align-items: start; }
+  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tile { position: relative; border-radius: 12px; overflow: hidden; border: 2px solid transparent; padding: 0; }
+  .tile img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .tile span { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 5px; font-size: 10.5px;
+    font-weight: 600; text-align: center; background: linear-gradient(transparent, rgba(0,0,0,0.85)); }
+  .tile:hover { transform: translateY(-2px); }
+  .tile.on { border-color: var(--brand); }
+  .gloss { margin: 12px 0; color: var(--t3); font-size: 13px; min-height: 38px; }
+  .own { border-top: 1px dashed var(--b-subtle); padding-top: 14px; text-align: center; }
+  .verdict { border-radius: 12px; padding: 16px 18px; margin-bottom: 16px;
+    background: linear-gradient(135deg, #14231a, #0f1115); border: 1px solid #23402b; }
+  .verdict.ood { background: linear-gradient(135deg, #2a1416, #0f1115); border-color: #4a232a; }
+  .verdict .vt { font-size: 20px; font-weight: 600; }
+  .verdict .vd { color: var(--t3); font-size: 12.5px; margin-top: 4px; }
+  .stage { display: flex; gap: 20px; flex-wrap: wrap; }
+  .viewer { position: relative; width: 224px; height: 224px; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--b-std); flex: 0 0 auto; }
+  .viewer img, .viewer canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stats { flex: 1; min-width: 200px; align-self: center; }
+  .srow { display: flex; justify-content: space-between; font-size: 13px; color: var(--t3);
+    padding: 6px 0; border-bottom: 1px dashed var(--b-subtle); }
+  .srow b { color: var(--t1); font-weight: 500; }
+  .heat { display: flex; align-items: center; gap: 12px; margin-top: 14px; color: var(--t3); font-size: 13px; }
+  .heat input[type='range'] { width: 160px; accent-color: var(--brand); }
+  .bars { margin-top: 18px; }
+  .brow { display: grid; grid-template-columns: 54px 1fr 56px; gap: 10px; align-items: center; margin: 7px 0; }
+  .brow .bn { font-size: 12px; color: var(--t3); text-align: right; font-weight: 500; }
+  .brow.top .bn { color: var(--t1); }
+  .brow .track { background: #202636; }
+  .brow .fill { background: linear-gradient(90deg, #3d7dca, var(--hema)); transition: width 0.5s; }
+  .brow.top .fill { background: linear-gradient(90deg, #3d7dca, #5dbb7a); }
+  .brow .bp { font-size: 12px; color: var(--t3); }
+  @media (max-width: 900px) { .demo { grid-template-columns: 1fr; } }
+</style>

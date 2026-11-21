@@ -3,106 +3,205 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HistoGate — stain-robust tissue AI, built the hard way</title>
+<title>HistoGate — tissue AI that knows when it shouldn't answer</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f1115;--card:#161a22;--line:#232a36;--fg:#e6e6e6;--mut:#8b93a1;--acc:#4f9cf9;--good:#5dbb7a;--bad:#e08080}
+/* HistoGate design system v2 "Lab Notebook" — docs/DESIGN.md */
+:root{
+ --paper:#f5f4ed; --ivory:#faf9f5; --sand:#e8e6dc;
+ --ink:#141413; --olive:#5e5d59; --stone:#87867f;
+ --dark:#141413; --darkcard:#30302e; --ondark:#faf9f5; --ondark-m:#b0aea5;
+ --brand:#c96442; --brand-h:#d97757;
+ --pass:#3f7d4e; --fail:#b53333;
+ --border:#e8e6dc; --border-d:#30302e; --ring:#d1cfc5;
+ --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+ --sans:'Inter',system-ui,-apple-system,sans-serif;
+ --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6}
-.wrap{max-width:980px;margin:0 auto;padding:0 24px}
-nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0;position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(6px);z-index:5;border-bottom:1px solid var(--line)}
-nav b{font-size:15px}.navlinks a{color:var(--mut);text-decoration:none;margin-left:22px;font-size:14px}
-.navlinks a:hover{color:var(--fg)}
-.hero{padding:72px 0 48px;border-bottom:1px solid var(--line)}
-.chip{display:inline-block;font-size:12px;color:var(--acc);border:1px solid var(--acc);border-radius:99px;padding:3px 12px;margin-bottom:18px}
-h1{font-size:clamp(28px,4.6vw,44px);line-height:1.15;font-weight:700;letter-spacing:-.5px}
-.hero p.lead{font-size:17px;color:var(--mut);margin:18px 0 30px;max-width:640px}
-.cta{display:inline-block;background:var(--acc);color:#fff;font-weight:600;padding:13px 26px;border-radius:10px;text-decoration:none;font-size:15px}
-.cta.ghost{background:none;border:1px solid var(--line);color:var(--fg);margin-left:12px}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:40px 0 8px}
-.metric{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
-.metric .v{font-size:26px;font-weight:700}.metric .v.pass{color:var(--good)}
-.metric .l{font-size:12px;color:var(--mut);margin-top:2px}
-section{padding:56px 0;border-bottom:1px solid var(--line)}
-h2{font-size:24px;margin-bottom:8px;font-weight:650}
-.sub{color:var(--mut);font-size:15px;margin-bottom:28px;max-width:640px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px}
-.card h3{font-size:16px;margin-bottom:8px}
-.card p{font-size:14px;color:var(--mut)}
-.steps{counter-reset:s}
-.step{display:flex;gap:18px;padding:16px 0;border-bottom:1px dashed var(--line)}
-.step:last-child{border:none}
-.step .n{counter-increment:s;flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--acc);color:var(--acc);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
-.step .n::before{content:counter(s)}
-.step b{display:block;font-size:15px}.step span{font-size:14px;color:var(--mut)}
-.gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-.gcell{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px}
-.gcell b{display:block;font-size:14px}.gcell .pass{color:var(--good)}.gcell .fail{color:var(--bad)}
-footer{padding:36px 0;color:var(--mut);font-size:13px}
-footer .ruo{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:inline-block}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:rgba(245,244,237,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+nav .wrap{display:flex;align-items:center;gap:26px;height:60px}
+.mark{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:17px;font-weight:500}
+nav .links{display:flex;gap:20px;margin-left:auto}
+nav .links a{font-size:14px;color:var(--olive);transition:color .15s}
+nav .links a:hover{color:var(--ink)}
+nav .cta{background:var(--brand);color:var(--ondark);font-size:14px;font-weight:500;padding:0 16px;height:38px;line-height:38px;border-radius:12px;box-shadow:0 0 0 1px var(--brand);transition:background .15s}
+nav .cta:hover{background:var(--brand-h)}
+/* hero */
+.hero{padding:96px 0 72px}
+.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--ivory);
+ border-radius:9999px;padding:5px 14px;font-family:var(--mono);font-size:11px;color:var(--olive);letter-spacing:.04em;margin-bottom:26px}
+.badge i{width:6px;height:6px;border-radius:50%;background:var(--pass)}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(38px,5.6vw,64px);line-height:1.10;max-width:740px;letter-spacing:-0.01em}
+h1 em{font-style:italic;color:var(--brand)}
+.hero .sub{font-size:19px;line-height:1.6;color:var(--olive);max-width:580px;margin:22px 0 32px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 22px;border-radius:12px;font-size:15px;font-weight:500;transition:box-shadow .15s,background .15s}
+.btn.primary{background:var(--brand);color:var(--ondark);box-shadow:0 0 0 1px var(--brand)}
+.btn.primary:hover{background:var(--brand-h)}
+.btn.second{background:var(--sand);color:var(--ink);box-shadow:0 0 0 1px var(--ring)}
+.btn.second:hover{box-shadow:0 0 0 1px #c2c0b6}
+/* specimen duo */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:56px;max-width:800px}
+figure{background:var(--ivory);border:1px solid var(--border);border-radius:24px;overflow:hidden;
+ box-shadow:rgba(0,0,0,0.05) 0 4px 24px;transition:box-shadow .2s}
+figure:hover{box-shadow:rgba(0,0,0,0.08) 0 8px 32px}
+figure img{width:100%;aspect-ratio:1;display:block}
+figcaption{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:16px 20px;border-top:1px solid var(--border)}
+figcaption b{font-family:var(--serif);font-weight:500;font-size:17px}
+figcaption span{font-family:var(--mono);font-size:11px;color:var(--stone);text-transform:uppercase;letter-spacing:.08em}
+figcaption.bad b{color:var(--fail)}figcaption.good b{color:var(--pass)}
+/* metrics */
+.metrics{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--ivory)}
+.metrics .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0;padding:36px 24px}
+.metric{padding:8px 20px;border-left:1px solid var(--border)}
+.metric:first-child{border-left:none;padding-left:0}
+.metric .v{font-family:var(--mono);font-size:30px;font-weight:500;font-variant-numeric:tabular-nums}
+.metric .v.ok{color:var(--pass)}
+.metric .l{font-size:13px;color:var(--stone);margin-top:4px}
+/* sections */
+section{padding:96px 0}
+.kicker{font-family:var(--mono);font-size:11px;color:var(--stone);text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px}
+h2{font-family:var(--serif);font-weight:500;font-size:clamp(30px,3.6vw,44px);line-height:1.15}
+.sub{font-size:17px;color:var(--olive);max-width:560px;margin-top:14px}
+/* classes */
+.classes{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-top:44px}
+.cl{background:var(--ivory);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:box-shadow .15s}
+.cl:hover{box-shadow:0 0 0 1px var(--ring)}
+.cl img{width:100%;aspect-ratio:1;display:block}
+.cl span{display:block;padding:12px 14px;font-size:13.5px;color:var(--olive);border-top:1px solid var(--border)}
+.cl span b{display:block;color:var(--ink);font-weight:500}
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:44px}
+.step{background:var(--ivory);border:1px solid var(--border);border-radius:16px;padding:26px}
+.step .ic{width:40px;height:40px;border-radius:12px;background:var(--sand);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.step b{display:block;font-family:var(--serif);font-weight:500;font-size:20px}
+.step p{font-size:14.5px;color:var(--olive);margin-top:8px;line-height:1.6}
+/* gate — dark chapter */
+.dark-sec{background:var(--dark);color:var(--ondark)}
+.dark-sec .kicker{color:var(--ondark-m)}
+.dark-sec .sub{color:var(--ondark-m)}
+.gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:44px}
+.gcell{background:var(--darkcard);border:1px solid var(--border-d);border-radius:12px;padding:16px 18px}
+.gcell .name{font-size:14px;font-weight:500;display:flex;align-items:center;gap:9px}
+.gcell .val{font-family:var(--mono);font-size:15px;margin-top:8px;font-variant-numeric:tabular-nums}
+.gcell .thr{font-family:var(--mono);font-size:11px;color:var(--ondark-m);margin-top:3px}
+.tick{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 16px}
+.tick.ok{background:rgba(63,125,78,.2);color:#7ec492}
+.tick.no{background:rgba(181,51,51,.22);color:#e59a9a}
+/* who */
+.who{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:44px;background:var(--ivory);
+ border:1px solid var(--border);border-radius:16px;padding:22px 26px;font-size:15px;color:var(--olive)}
+.who b{color:var(--ink);font-weight:500}
+.who .sep{color:var(--ring)}
+/* footer */
+footer{border-top:1px solid var(--border);padding:40px 0 56px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--stone)}
+.ruo{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:9999px;padding:5px 14px;
+ font-family:var(--mono);font-size:11px;color:var(--olive)}
+@media(max-width:760px){nav .links{display:none}.hero{padding:64px 0 56px}.metric{border-left:none;padding-left:0}}
 </style>
 </head>
 <body>
-<nav class="wrap"><b>HistoGate</b>
-<div class="navlinks"><a href="/#how">How it works</a><a href="/#proof">Proof</a><a href="/story">Story</a><a href="/ui">Demo</a></div></nav>
 
-<header class="hero wrap">
- <span class="chip" id="chip">quality-gated · calibrated · quantized</span>
- <h1>A tissue classifier that knows<br>when it shouldn't answer.</h1>
- <p class="lead">Nine-class colorectal H&amp;E classification with a quality gate in front,
- calibrated confidence, out-of-distribution rejection and biomarker scores —
- every number on this page measured, not promised.</p>
- <a class="cta" href="/ui">Try it live — drop a patch</a>
- <a class="cta ghost" href="/story">Read how it broke</a>
- <div class="metrics" id="mets"></div>
-</header>
+<nav><div class="wrap">
+ <a class="mark" href="/">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="1" y="1" width="22" height="22" rx="7" fill="#c96442"/><path d="M6.5 15.5c1.7-4.4 3.4-6.5 5.5-6.5s3.8 2.1 5.5 6.5" stroke="#faf9f5" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="8" r="1.5" fill="#faf9f5"/></svg>
+  HistoGate</a>
+ <div class="links"><a href="/#reads">What it reads</a><a href="/story">Story</a><a href="/ui">Live demo</a><a href="https://github.com/hr1juldey/histogate">GitHub</a></div>
+ <a class="cta" href="/ui">Try the demo</a>
+</div></nav>
 
-<section class="wrap" id="how">
- <h2>How the journey works</h2>
- <p class="sub">Four steps, in the order a pathologist's workflow actually goes.
- Nothing classifies before it's checked — that ordering is the product.</p>
- <div class="steps">
-  <div class="step"><div class="n"></div><div><b>Drop a patch</b><span>Any H&amp;E square tile — or pick one of the curated examples, each chosen to show a different behaviour.</span></div></div>
-  <div class="step"><div class="n"></div><div><b>Quality gate first</b><span>Is the tile even usable? Blur, pen marks, folds and air bubbles get flagged before diagnosis — a bad input must never produce a confident answer.</span></div></div>
-  <div class="step"><div class="n"></div><div><b>Diagnosis, calibrated</b><span>Nine tissue classes with temperature-calibrated probabilities — when it says ninety-seven percent, it is ninety-seven percent.</span></div></div>
-  <div class="step"><div class="n"></div><div><b>See where it looked</b><span>A Grad-CAM heatmap shows the regions that drove the call — gland architecture, not the ink smear. Trust is earned visibly.</span></div></div>
+<header class="hero"><div class="wrap">
+ <div class="badge"><i></i>9-class colorectal H&amp;E · calibrated · quality-gated</div>
+ <h1>One of these patches is cancer.<br><em>It knows which.</em></h1>
+ <p class="sub">HistoGate reads stained biopsy patches the way a pathologist skims them —
+ tissue type, calibrated confidence, and whether the image deserves an answer at all.
+ It runs live, in your browser, right now.</p>
+ <div class="row">
+  <a class="btn primary" href="/ui">See it classify
+   <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  <a class="btn second" href="/story">How it broke, and recovered</a>
  </div>
-</section>
+ <div class="duo">
+  <a href="/ui"><figure><img src="/samples/tumor.png" alt="H&E patch of colorectal tumor epithelium — irregular crowded dark-purple glands">
+   <figcaption class="bad"><b>Cancer — tumor epithelium</b><span>TUM</span></figcaption></figure></a>
+  <a href="/ui"><figure><img src="/samples/normal.png" alt="H&E patch of healthy colonic mucosa — orderly test-tube shaped crypts">
+   <figcaption class="good"><b>Healthy — normal mucosa</b><span>NORM</span></figcaption></figure></a>
+ </div>
+</div></header>
 
-<section class="wrap" id="proof">
- <h2>Measured, gated, deployed</h2>
- <p class="sub">Every release passes a nine-check gate on held-out and out-of-distribution data
- before it ships. These are the live numbers of the current model.</p>
+<div class="metrics"><div class="wrap" id="mets"></div></div>
+
+<section id="reads"><div class="wrap">
+ <div class="kicker">What it reads</div>
+ <h2>Real tissue, expert-annotated.</h2>
+ <p class="sub">Every tile below comes from the external validation cohort — click any plate
+ to classify it live. Nine classes cover the full colorectal microenvironment.</p>
+ <div class="classes" id="classes"></div>
+</div></section>
+
+<section><div class="wrap">
+ <div class="kicker">How a read happens</div>
+ <h2>Gate first. Diagnose second.</h2>
+ <div class="flow">
+  <div class="step"><div class="ic"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="2.5" width="13" height="13" rx="2.5" stroke="#141413" stroke-width="1.4"/><circle cx="7" cy="8" r="1.4" fill="#141413"/><circle cx="11.5" cy="11" r="1.4" fill="#141413"/></svg></div>
+   <b>Patch in</b><p>A 224-px square of H&amp;E tissue — one of the curated examples, or your own.</p></div>
+  <div class="step"><div class="ic"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1.8l6.2 2.3v4.4c0 4-2.6 6.7-6.2 7.9-3.6-1.2-6.2-3.9-6.2-7.9V4.1L9 1.8z" stroke="#141413" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+   <b>Quality gate first</b><p>Blur, pen marks, folds and out-of-distribution input are flagged before any diagnosis — a bad input never earns a confident answer.</p></div>
+  <div class="step"><div class="ic"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.8" stroke="#141413" stroke-width="1.4"/><path d="M9 5.6V9l2.8 1.7" stroke="#141413" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+   <b>Calibrated call, shown why</b><p>Nine classes with temperature-calibrated probabilities, plus a heatmap of exactly which regions drove the call.</p></div>
+ </div>
+</div></section>
+
+<section class="dark-sec"><div class="wrap">
+ <div class="kicker">Ship gate</div>
+ <h2>Measured, not promised.</h2>
+ <p class="sub">Every release faces the same nine checks on held-out and out-of-distribution data.
+ Eight pass. One fails. Both are shown — hidden failures are how pathology AI loses trust.</p>
  <div class="gate" id="gate"></div>
-</section>
+</div></section>
 
-<section class="wrap">
- <h2>Who builds this</h2>
- <div class="cards">
-  <div class="card"><h3>Biologist first</h3><p>Biotechnology graduate — the tissue classes, stain physics and biomarker definitions come from domain understanding, not a leaderboard.</p></div>
-  <div class="card"><h3>Deep learning engineer</h3><p>Physics-grounded stain augmentation, calibration, energy OOD gating, int8 quantization with measured agreement, CI-enforced docs.</p></div>
-  <div class="card"><h3>Consumer-health product sense</h3><p>Shipped D2C health products at Man Matters, Bodywise and Lady Joyce — this page's funnel is that instinct applied to pathology AI.</p></div>
- </div>
-</section>
+<section><div class="wrap">
+ <div class="kicker">Who builds this</div>
+ <h2>Biologist first, engineer second.</h2>
+ <div class="who"><span><b>Biotechnology graduate</b> turned deep-learning engineer</span><span class="sep">·</span>
+  <span>shipped consumer-health products at <b>Man Matters, Bodywise, Lady&nbsp;Joyce</b></span><span class="sep">·</span>
+  <span>open code, checkpoints &amp; failures on <b>GitHub</b></span></div>
+</div></section>
 
-<footer class="wrap">
- <div class="ruo">Research Use Only — not for use in diagnostic procedures.</div><br>
- Open source: code, checkpoints, measurements and failures.
+<footer><div class="wrap">
+ <span class="ruo">Research Use Only — not for use in diagnostic procedures</span>
  <span id="src"></span>
-</footer>
+</div></footer>
 
 <script>
 fetch('/metrics.json').then(r=>r.json()).then(d=>{
- const M=(v,l,p)=>`<div class="metric"><div class="v ${p?'pass':''}">${v}</div><div class="l">${l}</div></div>`;
+ const M=(v,l,ok)=>`<div class="metric"><div class="v ${ok?'ok':''}">${v}</div><div class="l">${l}</div></div>`;
  document.getElementById('mets').innerHTML=
-  M(d.crcval_f1,'CRC-VAL macro-F1 (external)')+
-  M(d.domain_f1,'raw multi-scanner macro-F1')+
-  M(d.int8_agree,'int8 vs fp32 agreement',true)+
+  M(d.crcval_f1,'external macro-F1 · CRC-VAL')+
+  M(d.domain_f1,'raw multi-scanner F1 · NONORM')+
+  M(d.int8_agree,'int8 ≡ fp32 argmax',1)+
   M(d.throughput+' p/s','GPU throughput')+
-  M(d.ece,'calibration error (ECE)');
- const G=(n,v,t,ok)=>`<div class="gcell"><b>${n}</b><span class="${ok?'pass':'fail'}">${v}</span> <span style="color:var(--mut)">${t}</span></div>`;
- document.getElementById('gate').innerHTML=d.gate_checks.map(c=>G(c.name,c.value,c.threshold,c.passed)).join('');
- document.getElementById('src').textContent=' '+d.revision;
+  M(d.ece,'calibration error · ECE');
+ const T=ok=>ok
+  ?`<span class="tick ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5.5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`
+  :`<span class="tick no"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>`;
+ document.getElementById('gate').innerHTML=d.gate_checks.map(c=>
+  `<div class="gcell"><div class="name">${T(c.passed)}${c.name}</div>
+   <div class="val">${c.value}</div><div class="thr">${c.threshold}</div></div>`).join('');
+ document.getElementById('src').textContent=d.revision;
+});
+fetch('/samples').then(r=>r.json()).then(list=>{
+ const NAMES={tumor:'Cancer epithelium',normal:'Healthy mucosa',stroma:'Connective stroma',
+  lymph:'Immune clusters',mucus:'Mucin lakes',debris:'Necrotic debris'};
+ document.getElementById('classes').innerHTML=list.filter(s=>NAMES[s.id]).map(s=>
+  `<a class="cl" href="/ui"><img src="/samples/${s.id}.png" alt="${s.why}">
+   <span><b>${NAMES[s.id]}</b>${s.why.split('—')[1]?s.why.split('—')[1].trim().split(',')[0]:''}</span></a>`).join('');
 });
 </script>
 </body>

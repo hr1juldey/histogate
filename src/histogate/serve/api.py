@@ -25,6 +25,13 @@ def create_app(engine: LockedEngine, slides_root: Path,
                patch_analyzer: PatchAnalyzer | None = None,
                legacy_analyzer: PatchAnalyzer | None = None) -> FastAPI:
     app = FastAPI(title="HistoGate", version="0.1.0")
+    from fastapi.middleware.cors import CORSMiddleware
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # demo front end (Vercel / local) — read-only inference
+        allow_methods=["*"], allow_headers=["*"],
+    )
     engine.warm(slides_root)
 
     def _resolve(slide_path: str) -> Path:
@@ -67,6 +74,30 @@ def create_app(engine: LockedEngine, slides_root: Path,
     def metrics() -> dict[str, Any]:
         from histogate.serve.metrics import landing_metrics
         return landing_metrics()
+
+    @app.get("/site-config.json")
+    def site_config() -> dict[str, Any]:
+        from histogate.serve.sitecfg import site_config as cfg
+        return cfg()
+
+    @app.post("/contact")
+    async def contact(
+        name: str = Form(...), email: str = Form(...),
+        message: str = Form(""), resume: UploadFile | None = None,
+    ) -> dict[str, str]:
+        out_dir = Path("contact_submissions")
+        out_dir.mkdir(exist_ok=True)
+        import re
+        import time
+
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        safe = re.sub(r"\W+", "-", name)[:40]
+        (out_dir / f"{stamp}-{safe}.txt").write_text(
+            f"name: {name}\nemail: {email}\n\n{message}\n")
+        if resume is not None and resume.filename:
+            dest = out_dir / f"{stamp}-{safe}-{Path(resume.filename).name}"
+            dest.write_bytes(await resume.read())
+        return {"status": "received"}
 
     if patch_analyzer is not None:
         SAMPLES = [

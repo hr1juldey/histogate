@@ -1,0 +1,61 @@
+---
+import '../styles/tokens.css';
+interface Props { title: string; active?: string; apiBase: string; }
+const { title, active = '' } = Astro.props;
+const nav = [
+  { href: '/', label: 'Overview', id: '' },
+  { href: '/story', label: 'Story', id: 'story' },
+  { href: '/demo', label: 'Live demo', id: 'demo' },
+  { href: '/contact', label: 'Contact', id: 'contact' },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{title}</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <nav>
+    <div class="wrap navrow">
+      <a class="mark" href="/">
+        <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><use href="/favicon.svg#_h" /></svg>
+        <img src="/favicon.svg" width="22" height="22" alt="" />
+        HistoGate
+      </a>
+      <div class="links">
+        {nav.map(n => <a href={n.href} class={active === n.id ? 'on' : ''}>{n.label}</a>)}
+        <a href="https://github.com/hr1juldey/histogate" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <a class="btn primary navcta" href="/demo">Try the demo</a>
+    </div>
+  </nav>
+  <slot />
+  <footer>
+    <div class="wrap footrow">
+      <span class="ruo mono">Research Use Only — not for use in diagnostic procedures</span>
+      <span class="src">HistoGate · every number measured, not promised</span>
+    </div>
+  </footer>
+</body>
+<style>
+  nav { position: sticky; top: 0; z-index: 40; background: rgba(8,9,10,0.82);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--b-subtle); }
+  .navrow { display: flex; align-items: center; gap: 24px; height: 58px; }
+  .mark { display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 600; }
+  .mark svg { display: none; }
+  .links { display: flex; gap: 18px; margin-left: auto; }
+  .links a { font-size: 13.5px; color: var(--t3); }
+  .links a:hover, .links a.on { color: var(--t1); }
+  .navcta { height: 34px; padding: 0 14px; font-size: 13px; }
+  footer { border-top: 1px solid var(--b-subtle); margin-top: 40px; }
+  .footrow { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    align-items: center; padding-top: 26px; padding-bottom: 34px; font-size: 13px; color: var(--t4); }
+  .ruo { border: 1px solid #23252a; border-radius: 9999px; padding: 5px 13px; font-size: 11px; color: var(--t3); }
+  @media (max-width: 760px) { .links { display: none; } }
+</style>
+</html>
