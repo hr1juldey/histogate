@@ -4,10 +4,10 @@
   "current_pr": "PR-15",
   "subtasks": {
     "P15-S0": {
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "last_note": "",
-      "commit": null,
+      "last_note": "engine green: 7/7 adversarial tests (drift/orphan/ghost-artifact/park-flap/determinism/append-only), ruff clean",
+      "commit": "e7fffa3",
       "artifact": null
     },
     "P15-S1": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T08:37:53+00:00"
+  "updated": "2026-11-21T08:38:01+00:00"
 }
