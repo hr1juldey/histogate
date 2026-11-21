@@ -90,9 +90,8 @@ def test_t1_error_overlap():
 
 @needs_all
 def test_t2_gain_localization():
-    from histogate.serve.ensemble import EnsembleEngine
-
     from histogate.data import CLASS_TO_IDX
+    from histogate.serve.ensemble import EnsembleEngine
 
     paths = _paths(2000)
     labels = np.array([CLASS_TO_IDX[p.parent.name] for p in paths])
@@ -101,7 +100,7 @@ def test_t2_gain_localization():
     def acc(preds: np.ndarray, idx: list[int]) -> float:
         return float((preds[idx] == labels[idx]).mean())
 
-    ens = engine.predict_labels(_batch(paths))
+    ens = engine.predict_labels(_batch(paths)).numpy()
     single_preds = []
     for ck in CKPTS:
         m = _model(ck)
