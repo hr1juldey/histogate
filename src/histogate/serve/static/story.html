@@ -186,7 +186,10 @@ async function loadPix(url){const i=new Image();i.crossOrigin='anonymous';i.src=
  const c=document.createElement('canvas');c.width=c.height=224;c.getContext('2d').drawImage(i,0,0,224,224);
  return c.getContext('2d').getImageData(0,0,224,224).data;}
 function deconvolve(src){ // once per tile: concentrations + residual
- const N=src.length/4,cH=new Float32Array(N),cE=new Float32Array(N),res=new Float32Array(N*3);
+ // NOTE: res is indexed by the PACKED pixel offset i (0,4,8,…N*4) to match
+ // the render loop — size src.length, NOT N*3 (that truncates the last
+ // quarter silently → NaN → black rows; caught from a live screenshot).
+ const N=src.length/4,cH=new Float32Array(N),cE=new Float32Array(N),res=new Float32Array(src.length);
  for(let i=0,p=0;p<N;p++,i+=4){
   const od=[src[i]>1?-Math.log(src[i]/255):0,
             src[i+1]>1?-Math.log(src[i+1]/255):0,
