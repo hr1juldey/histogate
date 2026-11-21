@@ -12,6 +12,7 @@ const metrics = await get<Metrics>('/metrics.json');
 const samples = await get<Sample[]>('/samples').catch(() => [] as Sample[]);
 const classes = samples.filter(s => s.id !== 'nonorm');
 const m = metrics;
+const ood = m.gate_checks.find(g => g.name === 'ood_auroc')?.value ?? '—';
 const met = (v: number | string, l: string, tech: string, ok = false) => ({ v, l, tech, ok });
 const metList = [
   met(m.crcval_f1, 'names the tissue right — a hospital it never saw', 'external macro-F1'),
@@ -19,6 +20,7 @@ const metList = [
   met(m.int8_agree, 'runs 4× cheaper, identical answers', 'int8 ≡ fp32 argmax', true),
   met(`${m.throughput} patches/s`, 'reads hundreds of patches a second', 'GPU throughput'),
   met(m.ece, 'when it says 97% sure, it is right 97% of the time', 'expected calibration error'),
+  met(ood, 'the one check that fails — spotting pictures unlike its training', 'OOD AUROC · gate ≥ 0.90', false),
 ];
 ---
 <Layout title="HistoGate — tissue AI that knows when it shouldn't answer" active="" apiBase={apiBase}>
@@ -37,9 +39,30 @@ const metList = [
     </div>
   </header>
 
-  <div class="metrics"><div class="wrap mgrid">
-    {metList.map(x => <div class="metric"><div class={`v mono ${x.ok ? 'ok' : ''}`}>{x.v}</div><div class="l">{x.l}</div><div class="tech mono">{x.tech}</div></div>)}
+  <div class="metrics"><div class="wrap">
+    <div class="mgrid">
+      {metList.map((x, i) => (
+        <div class={`metric ${i % 3 > 0 ? 'div' : ''} ${i >= 3 ? 'row2' : ''}`}>
+          <div class={`v mono ${x.ok ? 'ok' : (i === 5 ? 'bad' : '')}`}>{x.v}</div>
+          <div class="l">{x.l}</div>
+          <div class="tech mono">{x.tech}</div>
+        </div>
+      ))}
+    </div>
   </div></div>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="tk">
+      {[0,1].map(_ => (
+        <span class="tk-run">
+          <em>color-deconvolution stain physics</em> + <em>9-class expert-annotated training</em> +
+          <em> temperature-calibrated confidence</em> + <em>int8 ≡ fp32 parity</em> +
+          <em> 455 patches/sec</em> + <em>failures published, not hidden</em> +
+          <em> open code &amp; model</em> +
+        </span>
+      ))}
+    </div>
+  </div>
 
   <section class="padded"><div class="wrap">
     <div class="kicker">How it was trained</div>
@@ -94,13 +117,29 @@ const metList = [
   .lead { font-size: 17px; color: var(--t3); margin: 18px 0 28px; max-width: 520px; }
   .row { display: flex; gap: 12px; flex-wrap: wrap; }
   .metrics { border-top: 1px solid var(--b-subtle); border-bottom: 1px solid var(--b-subtle); background: var(--panel); }
-  .mgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; padding: 30px 24px; }
-  .metric { padding: 4px 20px; border-left: 1px solid var(--b-subtle); }
-  .metric:first-child { border-left: none; }
-  .metric .v { font-size: 28px; font-weight: 500; }
+  .mgrid { display: grid; grid-template-columns: repeat(3, 1fr);
+    padding: 34px 24px; }
+  .metric { padding: 14px 22px; }
+  .metric.div { border-left: 1px solid var(--b-subtle); }
+  .metric .v { font-size: 34px; font-weight: 600; letter-spacing: -1px; }
   .metric .v.ok { color: var(--ok2); }
-  .metric .l { font-size: 12.5px; color: var(--t3); margin-top: 2px; }
-  .metric .tech { font-size: 10px; color: var(--t4); margin-top: 3px; }
+  .metric .v.bad { color: var(--bad); }
+  .metric .l { font-size: 12.5px; color: var(--t3); margin-top: 6px; line-height: 1.45; }
+  .metric .tech { font-size: 10px; color: var(--t4); margin-top: 5px; }
+  .metric.row2 { border-top: 1px solid var(--b-subtle); }
+  @media (max-width: 820px) {
+    .mgrid { grid-template-columns: 1fr; }
+    .metric.div { border-left: none; }
+    .metric.row2 { border-top: none; }
+    .metric { border-top: 1px solid var(--b-subtle); }
+    .metric:first-child { border-top: none; }
+  }
+  .ticker { overflow: hidden; border-bottom: 1px solid var(--b-subtle);
+    background: rgba(124,92,214,0.06); }
+  .tk { display: flex; width: max-content; animation: tk 36s linear infinite; }
+  .tk-run { white-space: nowrap; padding: 11px 0; font-size: 12.5px; color: var(--t3); }
+  .tk em { font-style: normal; color: var(--t2); }
+  @keyframes tk { to { transform: translateX(-50%); } }
   .dark { background: var(--panel); border-top: 1px solid var(--b-subtle); border-bottom: 1px solid var(--b-subtle); }
   .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 36px; }
   .flow b { font-size: 16px; }

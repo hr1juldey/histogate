@@ -93,32 +93,30 @@ def _default() -> dict:
         "about": {
             "name": "Hrijul Dey",
             "role": "AI & Backend Engineer — production agents, APIs, and measurement",
-            "photo_caption": "At work, 2026. The day job is agent infrastructure; this site is the biology half.",
+            "photo_caption": "Thane, 2026.",
             "timeline": [
                 {"year": "2018–22", "title": "B.Tech, Biotechnology", "org": "Vellore Institute of Technology",
-                 "note": "The formal biology half — the degree the tissue on this site comes from."},
+                 "note": "Formal training in the domain this project works in."},
                 {"year": "2019–23", "title": "Biomedical R&D — computer vision & data science", "org": "Ashva, biomedical devices",
-                 "note": "The work that matters here: estimated knee and ankle joint loading from multi-sensor motion data, including immature, partially-calibrated sensors; posture detection and gait analysis on the CMU motion-capture database; test design, validation and documentation against regulated standards. This is where 'measurement or it didn't happen' was learned — on medical devices, not slide decks."},
+                 "note": "Estimated knee and ankle joint loading from multi-sensor motion data, including partially-calibrated sensors. Posture detection and gait analysis on the CMU motion-capture database. Test design, validation and documentation against regulated medical-device standards."},
                 {"year": "2025", "title": "Product Manager & Software Engineer", "org": "Lilypad — EV marketplace",
-                 "note": "Shipped production LLM features on India's first MCP-driven marketplace: tool integration, APIs, data flow. Owned requirements through release, prioritized by business impact and technical feasibility."},
+                 "note": "Production LLM features on India's first MCP-driven marketplace: tool integration, APIs, data flow. Owned requirements through release."},
                 {"year": "2026–", "title": "Product Engineer, AI Platform", "org": "Mosaic Wellness",
-                 "note": "Owns 'Kai' end-to-end — the agent platform a 500-person organization runs daily: an MCP gateway federating hundreds of tool servers behind one governed endpoint. Cut organization-wide LLM token cost ~93% (15x) while reliability held at org-wide scale. Trained small task models, measured them, rolled them back when the numbers favored deterministic routing. Built the automated failure-handling loop that ships micro-fixes behind adversarial tests."},
+                 "note": "Owns 'Kai' end-to-end, the agent platform serving a 500-person organization daily: an MCP gateway federating hundreds of tool servers behind one governed endpoint. Reduced organization-wide LLM token cost by ~93% while reliability held at org-wide scale. Built the automated failure-handling pipeline that ships fixes behind adversarial test gates."},
                 {"year": "Nov 2026", "title": "Open source", "org": "22 PRs across 6 orgs in four days",
                  "note": "Token-accounting fix merged upstream in Hugging Face smolagents (PR #3206); 13 PRs in Trail-Code; 5 in NousResearch hermes-agent — found by running the agent daily on itself."},
-                {"year": "This site", "title": "HistoGate", "org": "The two halves, joined",
-                 "note": "A biotechnologist's tissue problem, attacked with a production engineer's release discipline. Every number measured, every failure published."},
+                {"year": "This site", "title": "HistoGate", "org": "Independent project",
+                 "note": "A colorectal tissue classifier with quality gating and biomarker scoring, held to the same release standard as production work: measured results, published failures."},
             ],
             "links": [
                 {"label": "GitHub — all code", "href": "https://github.com/hr1juldey"},
                 {"label": "LinkedIn", "href": "https://www.linkedin.com/in/dey-h-ml972"},
-                {"label": "ctx-gateway — public eval harness", "href": "https://github.com/hr1juldey/ctx-gateway"},
-                {"label": "This project on GitHub", "href": "https://github.com/hr1juldey/histogate"},
-                {"label": "This project on Hugging Face", "href": "https://huggingface.co/riju279/histogate"},
+                {"label": "This project — code, training runs, failures", "href": "https://github.com/hr1juldey/histogate"},
+                {"label": "This project — model & artifacts", "href": "https://huggingface.co/riju279/histogate"},
             ],
             "faith": (
-                "Clinical AI has one unforgivable sin: confident wrong answers. "
-                "So this system is built to say 'I can't judge this picture' — "
-                "and this page is built to show where it failed and what it cost. "
-                "That is the standard I want to build to, and be hired to."),
+                "Clinical AI has one unforgivable failure mode: the confident wrong answer. "
+                "The system is built to refuse input it cannot judge, and this site "
+                "documents where it falls short. That discipline is the work."),
         },
     }
