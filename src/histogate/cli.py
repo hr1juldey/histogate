@@ -235,9 +235,11 @@ def serve(argv: list[str] | None = None) -> None:
 
         from histogate.serve.api import create_app
         from histogate.serve.engine import LockedEngine
+        from histogate.serve.patch_demo import PatchAnalyzer
 
         app = create_app(engine=LockedEngine(analyze=analyze),
-                         slides_root=settings.paths.data_dir)
+                         slides_root=settings.paths.data_dir,
+                         patch_analyzer=PatchAnalyzer(ckpt, calib))
         uvicorn.run(app, host=settings.serve.host, port=settings.serve.port)
         return
     raise SystemExit("histogate-serve: pass --api or --mcp")
