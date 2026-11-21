@@ -15,10 +15,11 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RUNS = ("overnight-30ep", "nonorm-ft", "nonorm-ft2")
+RUNS = ("overnight-30ep", "nonorm-ft", "nonorm-ft2", "pr16-mixed")
 LABELS = {"overnight-30ep": "v1 base (normalized only)",
           "nonorm-ft": "ft1 (1 high-LR NONORM epoch)",
-          "nonorm-ft2": "ft2 SHIP (1 low-LR NONORM epoch)"}
+          "nonorm-ft2": "ft2 (1 low-LR NONORM epoch)",
+          "pr16-mixed": "pr16-mixed (mixed 200k + calibrated stain aug)"}
 
 
 def _read(p: Path) -> dict | None:

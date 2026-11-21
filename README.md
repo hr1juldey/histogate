@@ -37,9 +37,9 @@ CRC-VAL-HE-7K under `data/raw/`.
 
 | Check | Verdict | One-line reading |
 |---|---|---|
-| Domain drop | FAIL, near-threshold | normalized-training collapse; one low-LR epoch on raw data recovers nearly all; full fix is calibrated stain augmentation |
+| Domain drop | **CLOSED by PR-16** | normalized-training collapse; recovered, then closed by mixed training + calibrated stain augmentation — the mixed model now scores higher on raw scanners than on the cleaned set |
 | OOD AUROC | FAIL, scope | energy catches whole-image corruption, not local blemishes — that's a segmentation task (PR-18), not a threshold to lower |
-| int8 argmax | FAIL, marginal | a fraction of patch labels flip; TSR/TIL biomarker drift is exactly zero |
+| int8 argmax | **CLOSED by PR-16** | earlier runs flipped a fraction of patch labels (biomarker drift always zero); the mixed model's int8 argmax agreement is perfect |
 
 Exact values: [docs/RESULTS.md](docs/RESULTS.md).
 

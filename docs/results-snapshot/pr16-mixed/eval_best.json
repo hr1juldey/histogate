@@ -1,0 +1,10 @@
+{
+  "checkpoint": "runs/pr16-mixed/best.ckpt.pt",
+  "config_hash": "09a547a874f23c156b32abee1af2d838b0287662573a7ce0177d2c1733218795",
+  "git_sha": "6bd41ac0f149ec834fc8e8b6336d6cf83d6ac135",
+  "n_val": 5839,
+  "val_acc": 0.9763658160643945,
+  "val_ece": 0.07315486637112574,
+  "val_kappa": 0.9872986953447666,
+  "val_macro_f1": 0.9711009211485755
+}

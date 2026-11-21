@@ -1,0 +1,13 @@
+{
+  "macro_f1": 0.9711009211485755,
+  "macro_f1_domain": 0.9776,
+  "ece": 0.006382234604530969,
+  "ood_auroc": 0.7972,
+  "tsr_fp32": 1.0,
+  "tsr_int8": 1.0,
+  "til_fp32": 2.2152,
+  "til_int8": 2.2152,
+  "quant_agreement": 1.0,
+  "patches_per_s": 455.9,
+  "peak_vram_mb": 554.5
+}

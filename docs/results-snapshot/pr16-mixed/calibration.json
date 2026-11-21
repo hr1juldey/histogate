@@ -1,0 +1,9 @@
+{
+  "checkpoint": "runs/pr16-mixed/best.ckpt.pt",
+  "git_sha": "6bd41ac0f149ec834fc8e8b6336d6cf83d6ac135",
+  "n_fit": 5839,
+  "temperature": 0.6815141120181452,
+  "ece_before": 0.07315486637112574,
+  "ece_after": 0.006382234604530969,
+  "energy_threshold_fpr05": -3.7368021268890788
+}

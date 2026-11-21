@@ -1,0 +1,11 @@
+{
+  "checkpoint": "runs/pr16-mixed/best.ckpt.pt",
+  "n": 7000,
+  "nonorm_acc": 0.9774,
+  "nonorm_macro_f1": 0.9776,
+  "nonorm_kappa": 0.9794,
+  "nonorm_ece": 0.0908,
+  "crcval_macro_f1": 0.9711009211485755,
+  "domain_drop": -0.0065,
+  "gate_domain_drop_max": 0.015
+}

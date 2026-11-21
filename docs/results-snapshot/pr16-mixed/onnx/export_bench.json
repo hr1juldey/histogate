@@ -1,0 +1,34 @@
+{
+  "checkpoint": "runs/pr16-mixed/best.ckpt.pt",
+  "git_sha": "6bd41ac0f149ec834fc8e8b6336d6cf83d6ac135",
+  "batch": 32,
+  "vram_ceiling_mb": 2048.0,
+  "fp32": {
+    "path": "runs/pr16-mixed/onnx/histogate-fp32.onnx",
+    "size_mb": 112.1,
+    "p95_ms": 1623.35,
+    "throughput_patches_s": 21.7,
+    "peak_vram_mb": 0.0,
+    "vram_within_ceiling": true
+  },
+  "fp16": {
+    "path": "runs/pr16-mixed/onnx/histogate-fp16_fp16.onnx",
+    "size_mb": 56.5,
+    "p95_ms": 3566.7,
+    "throughput_patches_s": 9.2,
+    "peak_vram_mb": 0.0,
+    "vram_within_ceiling": true
+  },
+  "execution_providers": [
+    "CPUExecutionProvider"
+  ],
+  "torch_cuda": {
+    "batch": 32,
+    "throughput_patches_s": 455.9,
+    "mean_latency_ms": 70.2,
+    "peak_vram_mb": 554.5
+  },
+  "fp32_argmax_agreement_vs_torch": 1.0,
+  "fp32_max_abs_delta": 1.0728836059570312e-05,
+  "fp16_argmax_agreement_vs_fp32": 1.0
+}

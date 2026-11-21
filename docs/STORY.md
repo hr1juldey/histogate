@@ -59,8 +59,14 @@ leaving real stain space, stay indistinguishable from real images to a
 blind discriminator, preserve the classifier's error rate inside a band,
 and scale the hematoxylin dye by half again as much — measuring back
 exactly as applied, with zero leak into eosin. It failed three designs
-before passing all of them. Its measured verdict is in the results table
-alongside every earlier run.
+before passing all of them.
+
+**The verdict:** the domain failure closed — the mixed-trained model now
+scores *higher* on raw multi-scanner input than on the cleaned benchmark —
+while external accuracy held and int8 argmax agreement reached perfection.
+The one remaining red on the scorecard is the documented OOD scope
+finding, which belongs to the QC-head work, not this model. Measured
+values: [RESULTS.md](RESULTS.md).
 
 ---
 
