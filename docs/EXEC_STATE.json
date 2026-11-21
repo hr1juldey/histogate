@@ -53,8 +53,8 @@
       "artifact": null
     },
     "P16-S1": {
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "last_note": "",
       "commit": null,
       "artifact": null
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T08:51:58+00:00"
+  "updated": "2026-11-21T10:03:09+00:00"
 }
