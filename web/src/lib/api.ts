@@ -22,7 +22,10 @@ export interface SiteConfig {
   journey: { run: string; title: string; note: string }[];
   cases: { id: string; title: string; what: string; fix: string; metric: string }[];
   gate_note: string; who: string;
-  contact: { headline: string; sub: string };
+  about: {
+    name: string; role: string;
+    why: string[]; what: string[]; faith: string;
+  };
 }
 
 export const apiBase: string =

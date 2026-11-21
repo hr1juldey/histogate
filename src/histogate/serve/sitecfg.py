@@ -90,10 +90,31 @@ def _default() -> dict:
         "who": ("Built by a biologist who became a deep-learning engineer — the "
                 "tissue, the stains and the machines are the familiar part, and "
                 "the AI is the part built to pass measurable bars."),
-        "contact": {
-            "headline": "Want a walkthrough, or the person who built this?",
-            "sub": ("HistoGate is a working research prototype — open code, real "
-                    "measurements, failures included. Reach out for a live "
-                    "walkthrough, the full build log, or the résumé behind it."),
+        "about": {
+            "name": "Hrijul Dey",
+            "role": "Biotechnologist who became a deep-learning engineer",
+            "why": [
+                "I trained as a biotechnologist first. The stains, the scanners and "
+                "the tissue on this site are not a dataset I downloaded and "
+                "guessed at — they are the part I have held under a microscope.",
+                "Then I spent years shipping production software, and shipping "
+                "teaches you one thing above all: everything fails, and the only "
+                "systems worth trusting are the ones built to fail honestly.",
+                "HistoGate is those two halves of me in one project: the biology "
+                "of the problem, and the engineering discipline of the answer.",
+            ],
+            "what": [
+                "A nine-class colorectal tissue classifier with tumor-stroma and "
+                "immune-cell biomarkers, a quality gate that refuses bad input, "
+                "and a nine-check release bar it must pass before anything ships.",
+                "Every number on this site is measured, every failed training run "
+                "is published, and the code and model are open. An honest "
+                "prototype beats a polished demo.",
+            ],
+            "faith": (
+                "Clinical AI has one unforgivable sin: confident wrong answers. "
+                "So this system is built to say 'I can't judge this picture' — "
+                "and this page is built to show where it failed and what it cost. "
+                "That is the standard I want to build to, and be hired to."),
         },
     }

@@ -78,25 +78,6 @@ def create_app(engine: LockedEngine, slides_root: Path,
         from histogate.serve.sitecfg import site_config as cfg
         return cfg()
 
-    @app.post("/contact")
-    async def contact(
-        name: str = Form(...), email: str = Form(...),
-        message: str = Form(""), resume: UploadFile | None = None,
-    ) -> dict[str, str]:
-        out_dir = Path("contact_submissions")
-        out_dir.mkdir(exist_ok=True)
-        import re
-        import time
-
-        stamp = time.strftime("%Y%m%d-%H%M%S")
-        safe = re.sub(r"\W+", "-", name)[:40]
-        (out_dir / f"{stamp}-{safe}.txt").write_text(
-            f"name: {name}\nemail: {email}\n\n{message}\n")
-        if resume is not None and resume.filename:
-            dest = out_dir / f"{stamp}-{safe}-{Path(resume.filename).name}"
-            dest.write_bytes(await resume.read())
-        return {"status": "received"}
-
     if patch_analyzer is not None:
         SAMPLES = [
             ("tumor", "TUM — tumor epithelium: the cancer cells themselves",
