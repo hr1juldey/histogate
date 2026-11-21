@@ -81,10 +81,10 @@
       "artifact": null
     },
     "P16-S5": {
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "last_note": "8/9 GATE: crcval .9711 PASS, domain drop -0.0065 PASS (NONORM .9776 > CRC-VAL; ft2's 0.0159 FAIL CLOSED), ece .0064 PASS, ood .797 FAIL (scope, PR-18), quant 1.0 PASS (ft2 was .998), tsr/til drift 0.0, 455.9 p/s, 554.5MB. Refine hook NOT triggered (drop negative). pr16-mixed = new ship candidate",
+      "commit": "4619f0d",
       "artifact": null
     },
     "P16-S6": {
