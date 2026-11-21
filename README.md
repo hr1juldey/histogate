@@ -71,8 +71,9 @@ not staining. The augmentation had to survive adversarial tests written
 before it existed: it must cover a held-out scanner's stain statistics
 without leaving real stain space, stay indistinguishable from real images
 to a blind discriminator, preserve the classifier's error rate inside a
-band, and apply a ×1.5 hematoxylin scaling that measures back as exactly
-×1.5 with zero leak into eosin. It failed three designs before passing
+band, and scale the hematoxylin dye by half again as much — a scaling
+that must measure back exactly as applied, with zero leak into eosin. It
+failed three designs before passing
 all of them. Training on both color worlds plus physically plausible dye
 variation closes the loop; its measured verdict is in the results table
 alongside every earlier run.
