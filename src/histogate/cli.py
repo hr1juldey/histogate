@@ -220,8 +220,8 @@ def serve(argv: list[str] | None = None) -> None:
 
     from histogate.serve.inference import build_analyze
 
-    ckpt = Path("runs/nonorm-ft2/best.ckpt.pt")
-    calib = Path("runs/nonorm-ft2/calibration.json")
+    ckpt = Path("runs/pr16-mixed/best.ckpt.pt")
+    calib = Path("runs/pr16-mixed/calibration.json")
     analyze = build_analyze(ckpt, calib,
                             device="cuda" if torch.cuda.is_available() else "cpu")
 

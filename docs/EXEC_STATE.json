@@ -95,8 +95,8 @@
       "artifact": null
     },
     "P17-S1": {
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "last_note": "",
       "commit": null,
       "artifact": null

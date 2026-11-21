@@ -27,7 +27,7 @@ import tifffile
 REPO = Path(__file__).resolve().parents[1]
 NONORM = REPO / "data" / "raw" / "NCT-CRC-HE-100K-NONORM"
 NCT = REPO / "data" / "raw" / "NCT-CRC-HE-100K"
-CKPT = REPO / "runs" / "nonorm-ft2" / "best.ckpt.pt"
+CKPT = REPO / "runs" / "pr16-mixed" / "best.ckpt.pt"
 
 needs_data = pytest.mark.skipif(
     not NONORM.exists() or not NCT.exists(), reason="datasets not on this machine")

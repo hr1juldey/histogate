@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SNAP = ROOT / "docs" / "results-snapshot" / "nonorm-ft2"
+SNAP = ROOT / "docs" / "results-snapshot" / "pr16-mixed"
 
 
 def main() -> None:
@@ -26,12 +26,14 @@ tags:
 - computational-pathology
 ---
 
-# HistoGate patch classifier (nonorm-ft2)
+# HistoGate patch classifier (pr16-mixed)
 
 9-class H&E tissue patch classifier (NCT-CRC-HE-100K classes) with
 temperature calibration and energy-based OOD gating. ConvNeXt-Tiny backbone,
-trained on stain-normalized NCT-CRC-HE-100K, then one low-LR epoch on the
-unnormalized NCT-CRC-HE-100K-NONORM (6 scanners) for stain robustness.
+warm-started from the normalized-data base model, then trained on the mixed
+200k set: stain-normalized NCT-CRC-HE-100K + unnormalized
+NCT-CRC-HE-100K-NONORM (6 scanners) + calibrated physically-grounded stain
+augmentation (Beer-Lambert dye-concentration jitter measured on real slides).
 
 ## Measured performance (external CRC-VAL-HE-7K, n={eval_['n_val']})
 

@@ -19,8 +19,8 @@ import pytest
 import tifffile
 
 REPO = Path(__file__).resolve().parents[1]
-CKPT = REPO / "runs" / "nonorm-ft2" / "best.ckpt.pt"
-CALIB = REPO / "runs" / "nonorm-ft2" / "calibration.json"
+CKPT = REPO / "runs" / "pr16-mixed" / "best.ckpt.pt"
+CALIB = REPO / "runs" / "pr16-mixed" / "calibration.json"
 RAW = REPO / "data" / "raw" / "CRC-VAL-HE-7K" / "TUM"
 
 
