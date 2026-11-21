@@ -95,10 +95,10 @@
       "artifact": null
     },
     "P17-S1": {
-      "status": "in_progress",
-      "attempts": 1,
-      "last_note": "",
-      "commit": null,
+      "status": "done",
+      "attempts": 2,
+      "last_note": "T1/T3 live-measured PASS on 2000/500 CRC-VAL patches (both real ckpts); T2 import-RED",
+      "commit": "0831d1b",
       "artifact": null
     },
     "P17-S2": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T14:28:23+00:00"
+  "updated": "2026-11-21T15:11:37+00:00"
 }
