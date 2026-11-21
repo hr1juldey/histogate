@@ -67,10 +67,10 @@
       "artifact": null
     },
     "P16-S3": {
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "last_note": "",
-      "commit": null,
+      "last_note": "4/4 wire tests green; explicit-kwarg-independence semantics documented; calib dumped from 400 real slides",
+      "commit": "738d87a",
       "artifact": null
     },
     "P16-S4": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T10:25:19+00:00"
+  "updated": "2026-11-21T11:01:59+00:00"
 }

@@ -11,3 +11,4 @@
 2026-11-21T10:17:27+00:00 | P16-S2 | todo | attempt 1 | attempt3: single mechanical bug — illum residual reshape used FILTERED flat (3559px) into (224,224,3); blocked all 5 tests incl. previously-green T5; physics untested this round; fix = fit+residual on unfiltered od grid
 2026-11-21T10:23:11+00:00 | P16-S2 | todo | attempt 2 | T3/T4/T5 GREEN. T1: metric zip bug (6,)-margin vs (n,6) rows; T2: cross-base confound (real=NONORM vs fake=augNCT separates on biology) -> paired same-base design
 2026-11-21T10:25:19+00:00 | P16-S2 | done | attempt 2 | 5/5 GREEN on attempt after 3 engine fails: T4 h=1.500 e=1.000 exact; T3 flip in band; T2 paired AUC in [0.5,0.65]; T1 per-dim reach+touch >=0.8; design laws documented in module docstring | f9f0731
+2026-11-21T11:01:59+00:00 | P16-S3 | done | attempt 1 | 4/4 wire tests green; explicit-kwarg-independence semantics documented; calib dumped from 400 real slides | 738d87a
