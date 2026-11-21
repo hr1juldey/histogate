@@ -18,10 +18,10 @@
       "artifact": null
     },
     "P15-S2": {
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "last_note": "README written; grep for decimal literals = 0 outside none; all numbers via RESULTS.md link",
+      "commit": "6761e37",
       "artifact": null
     },
     "P15-S3": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T08:39:28+00:00"
+  "updated": "2026-11-21T08:40:40+00:00"
 }
