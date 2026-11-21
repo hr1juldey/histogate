@@ -7,7 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 from PIL import Image
 from pydantic import BaseModel
@@ -22,7 +22,8 @@ class AnalyzeRequest(BaseModel):
 
 
 def create_app(engine: LockedEngine, slides_root: Path,
-               patch_analyzer: PatchAnalyzer | None = None) -> FastAPI:
+               patch_analyzer: PatchAnalyzer | None = None,
+               legacy_analyzer: PatchAnalyzer | None = None) -> FastAPI:
     app = FastAPI(title="HistoGate", version="0.1.0")
     engine.warm(slides_root)
 
@@ -49,15 +50,18 @@ def create_app(engine: LockedEngine, slides_root: Path,
 
     @app.get("/ui", response_class=FileResponse)
     def ui() -> FileResponse:
-        return FileResponse(Path(__file__).parent / "static" / "index.html")
+        return FileResponse(Path(__file__).parent / "static" / "index.html",
+                            headers={"Cache-Control": "no-cache"})
 
     @app.get("/", response_class=FileResponse)
     def landing() -> FileResponse:
-        return FileResponse(Path(__file__).parent / "static" / "landing.html")
+        return FileResponse(Path(__file__).parent / "static" / "landing.html",
+                            headers={"Cache-Control": "no-cache"})
 
     @app.get("/story", response_class=FileResponse)
     def story() -> FileResponse:
-        return FileResponse(Path(__file__).parent / "static" / "story.html")
+        return FileResponse(Path(__file__).parent / "static" / "story.html",
+                            headers={"Cache-Control": "no-cache"})
 
     @app.get("/metrics.json")
     def metrics() -> dict[str, Any]:
@@ -78,6 +82,8 @@ def create_app(engine: LockedEngine, slides_root: Path,
              "CRC-VAL-HE-7K/MUC/MUC-TCGA-AADHFQAT.tif"),
             ("debris", "DEB — necrosis/debris: ugly but real tissue",
              "CRC-VAL-HE-7K/DEB/DEB-TCGA-AANNAWLE.tif"),
+            ("nonorm", "TUM tile from a RAW scanner (no lab normalization) — the data that broke the first model",
+             "NCT-CRC-HE-100K-NONORM/TUM/TUM-AACHEHDV.tif"),
         ]
 
         @app.get("/samples")
@@ -108,11 +114,15 @@ def create_app(engine: LockedEngine, slides_root: Path,
             raise HTTPException(404, "unknown sample")
 
         @app.post("/analyze-patch")
-        async def analyze_patch(file: UploadFile) -> dict[str, Any]:
+        async def analyze_patch(file: UploadFile,
+                                model: str = Form("ship")) -> dict[str, Any]:
             try:
                 img = Image.open(file.file)
                 img.load()
-                return patch_analyzer.analyze(img)
+                analyzer = patch_analyzer
+                if model == "v1" and legacy_analyzer is not None:
+                    analyzer = legacy_analyzer
+                return analyzer.analyze(img)
             except Exception as e:  # noqa: BLE001 — demo surface, 422 contract
                 raise HTTPException(422, f"bad image: {e}") from e
 

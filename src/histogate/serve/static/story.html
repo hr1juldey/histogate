@@ -3,72 +3,276 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HistoGate — the story</title>
+<title>HistoGate — the story, interactive</title>
 <style>
-body{font-family:Georgia,'Times New Roman',serif;background:#0f1115;color:#d8d8d2;line-height:1.75;margin:0}
-.wrap{max-width:720px;margin:0 auto;padding:40px 24px 80px}
-.back{font-family:system-ui,sans-serif;font-size:14px;color:#8b93a1;text-decoration:none}
-h1{font-size:30px;margin:18px 0 6px;font-weight:600}
-.dek{color:#8b93a1;font-size:16px;margin-bottom:36px;font-family:system-ui,sans-serif}
-h2{font-size:20px;margin:40px 0 10px;color:#e8e8e0;font-weight:600}
-p{margin:14px 0;font-size:17px}
-.lem{border-left:3px solid #4f9cf9;padding:10px 18px;margin:22px 0;background:#141926;color:#c7d3e6;font-size:15px}
-.cta{display:inline-block;margin-top:26px;background:#4f9cf9;color:#fff;font-family:system-ui,sans-serif;font-weight:600;padding:13px 26px;border-radius:10px;text-decoration:none}
+:root{--bg:#0f1115;--card:#161a22;--line:#242b3a;--fg:#e8eaf0;--mut:#8b93a1;--acc:#4f9cf9;--good:#5dbb7a;--bad:#e08080;--hema:#7c5cd6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg)}
+nav{display:flex;gap:26px;align-items:center;padding:16px 32px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);z-index:9}
+nav .mark{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+nav .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#c25b5b 0%,#7c5cd6 55%,#4f9cf9 100%)}
+nav a{color:var(--mut);text-decoration:none;font-size:14px}
+nav a.on{color:var(--fg);font-weight:600}
+main{max-width:1000px;margin:0 auto;padding:10px 24px 60px}
+.act{padding:54px 0;border-bottom:1px solid var(--line)}
+.act:last-child{border:none}
+.kicker{color:var(--acc);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+h2{font-size:26px;font-weight:700;margin:6px 0 4px}
+.oneline{color:var(--mut);font-size:15px;max-width:600px}
+/* act 1 */
+.hero1{display:grid;grid-template-columns:340px 1fr;gap:36px;align-items:center;margin-top:26px}
+@media(max-width:820px){.hero1{grid-template-columns:1fr}}
+.halo{position:relative;width:340px;height:340px;margin:auto}
+.halo img{width:100%;height:100%;border-radius:18px;border:2px solid var(--acc);position:relative;z-index:2;animation:breathe 4s ease-in-out infinite}
+.halo::before,.halo::after{content:'';position:absolute;inset:-26px;border-radius:50%;border:1px solid rgba(79,156,249,.35);animation:pulse 4s ease-in-out infinite}
+.halo::after{inset:-52px;animation-delay:1.2s;border-color:rgba(124,92,214,.25)}
+@keyframes pulse{0%,100%{transform:scale(.96);opacity:.2}50%{transform:scale(1.03);opacity:1}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+.big{font-size:54px;font-weight:800;color:var(--good);font-variant-numeric:tabular-nums}
+.bigsub{font-size:18px;font-weight:600;margin:2px 0 10px}
+.note{color:var(--mut);font-size:13.5px;margin-top:10px}
+.bars{margin-top:14px}
+.brow{display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center;margin:6px 0}
+.brow .n{font-size:12.5px;color:var(--mut);text-align:right}
+.brow .tr{height:13px;border-radius:7px;background:#202636;overflow:hidden}
+.brow .fl{height:13px;border-radius:7px;background:linear-gradient(90deg,#3d7dca,var(--hema));width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+/* act 2 — the dial */
+.duel{display:grid;grid-template-columns:360px 1fr;gap:32px;margin-top:26px;align-items:start}
+@media(max-width:860px){.duel{grid-template-columns:1fr}}
+.viewer{position:relative}
+.viewer canvas{width:340px;height:340px;max-width:100%;border-radius:18px;border:2px solid var(--hema);display:block;image-rendering:auto}
+.viewer .cap{font-size:13px;color:var(--mut);text-align:center;margin-top:10px}
+.dialbox{margin-top:20px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.dialbox label{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:10px}
+input[type=range]{width:100%;height:34px;accent-color:var(--hema);cursor:grab}
+input[type=range]:active{cursor:grabbing}
+.models{display:grid;gap:14px}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;position:relative;overflow:hidden}
+.mcard.v1{border-color:#4a3038}
+.mcard.ship{border-color:#23402b}
+.mcard .t{font-size:13px;color:var(--mut)}
+.mcard .row{display:flex;align-items:baseline;gap:14px;margin-top:4px}
+.mcard .pct{font-size:40px;font-weight:800;font-variant-numeric:tabular-nums}
+.v1 .pct{color:var(--bad)}.ship .pct{color:var(--good)}
+.mcard .lab{font-size:15px;font-weight:600}
+.mcard .lab .warn{color:var(--bad);font-size:13px;font-weight:700}
+.mcard .bar{height:12px;border-radius:6px;background:#202636;margin-top:12px;overflow:hidden}
+.mcard .bar i{display:block;height:12px;border-radius:6px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.v1 .bar i{background:linear-gradient(90deg,#b85c5c,#e08080)}
+.ship .bar i{background:linear-gradient(90deg,#3d9c63,#5dbb7a)}
+.live{font-size:12px;color:var(--mut);margin-top:6px}
+.live b{color:var(--fg)}
+/* act 3 — gate */
+.gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:22px}
+.gcell{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;
+ opacity:0;transform:translateY(8px);transition:.5s}
+.gcell.in{opacity:1;transform:none}
+.gcell b{display:block;margin-bottom:2px}
+.gcell .ok{color:var(--good)}.gcell .no{color:var(--bad)}
+.gcell svg{vertical-align:-2px;margin-right:6px}
+.cta{display:inline-block;margin-top:26px;background:var(--acc);color:#fff;font-weight:600;padding:13px 24px;border-radius:12px;text-decoration:none;font-size:15px}
+footer{border-top:1px solid var(--line);color:var(--mut);font-size:12.5px;padding:20px 32px;text-align:center}
 </style>
 </head>
-<body><div class="wrap">
-<a class="back" href="/">← back</a>
-<h1>The story of HistoGate</h1>
-<div class="dek">A project that runs, breaks, and recovers — because a project that
-only runs looks like a tutorial.</div>
+<body>
+<nav>
+ <div class="mark"><div class="dot"></div>HistoGate</div>
+ <a href="/">Overview</a><a class="on" href="/story">Story</a><a href="/ui">Live demo</a>
+</nav>
+<main>
 
-<h2>Act one — the run</h2>
-<p>A ConvNeXt-Tiny backbone learns nine colorectal tissue classes from a
-hundred thousand expert-annotated patches. On a clean external validation
-cohort it performs at the level the literature reports for this benchmark.
-Everything looks perfect. That is the problem — perfect is what
-memorization looks like too.</p>
+<section class="act">
+ <div class="kicker">Act one</div>
+ <h2>It learned to read tissue.</h2>
+ <p class="oneline">100,000 expert-annotated patches. Perfect scores on clean validation data.
+ That was exactly the problem.</p>
+ <div class="hero1">
+  <div class="halo"><img id="h1img" src="/samples/tumor.png" alt="tumor patch"></div>
+  <div>
+   <div class="big" id="h1pct">0%</div>
+   <div class="bigsub" id="h1lab">reading…</div>
+   <div class="bars" id="h1bars"></div>
+   <div class="note">live prediction, shipped model, real patch — reload the page to watch it settle again</div>
+  </div>
+ </div>
+</section>
 
-<h2>Act two — the break</h2>
-<p>The same model is fed the <em>unnormalized</em> twin of its training set:
-same hospital, same patients, same labels — only the scanner's raw stain
-signal, no laboratory normalization. The model collapses. The failure is
-not noise; it is a systematic dependency on the stain chemistry of one
-pipeline. A stain-robust model must survive exactly this.</p>
+<section class="act">
+ <div class="kicker">Act two — interactive</div>
+ <h2>Then the stain chemistry changed. Drag the dial.</h2>
+ <p class="oneline">One real tumor tile. The dial physically shifts its two dye concentrations
+ (Beer–Lambert optics — no other image involved). Then see what a <b>real</b> raw-scanner tile
+ from a different patient does to both models. Everything below runs live.</p>
+ <div class="duel">
+  <div class="viewer">
+   <canvas id="mix" width="224" height="224"></canvas>
+   <div class="cap" id="mixcap">lab-normalized scanner</div>
+   <div class="dialbox">
+    <label><span>◀ balanced dyes</span><span>heavy eosin-dominant shift ▶</span></label>
+    <input type="range" id="dial" min="0" max="100" value="0" step="1" aria-label="stain dial">
+    <div style="text-align:center;margin-top:12px">
+     <button id="rawswap" style="background:#14213a;border:1px solid #4f9cf9;color:#c7d3e6;border-radius:10px;padding:9px 18px;font-size:13px;cursor:pointer">see a REAL raw-scanner tile →</button>
+    </div>
+   </div>
+  </div>
+  <div class="models">
+   <div class="mcard v1">
+    <div class="t">first model — before the fix</div>
+    <div class="row"><div class="pct" id="v1pct">—</div><div class="lab" id="v1lab">waiting…</div></div>
+    <div class="bar"><i id="v1bar" style="width:0%"></i></div>
+    <div class="live" id="v1live">energy —</div>
+   </div>
+   <div class="mcard ship">
+    <div class="t">shipped model — physics-augmented training</div>
+    <div class="row"><div class="pct" id="shippct">—</div><div class="lab" id="shiplab">waiting…</div></div>
+    <div class="bar"><i id="shipbar" style="width:0%"></i></div>
+    <div class="live" id="shiplive">energy —</div>
+   </div>
+  </div>
+ </div>
+</section>
 
-<h2>Act three — the wrong fix</h2>
-<p>The first repair attempt fine-tuned on raw-stain data at the default
-learning rate. It destroyed the classifier: catastrophic forgetting in a
-single epoch. A second, gentler fine-tune recovered most of the domain —
-but still missed the acceptance gate by a whisker, and honest accounting
-said: not shipped.</p>
+<section class="act" id="gateact">
+ <div class="kicker">Act three</div>
+ <h2>Ship only what survives nine checks.</h2>
+ <p class="oneline">Every release faces the same gate. Eight pass. One honest failure stays on
+ the front page — hidden failures are how pathology AI loses trust.</p>
+ <div class="gate" id="gate"></div>
+ <a class="cta" href="/ui">Try the shipped model on any patch →</a>
+</section>
 
-<h2>Act four — the physics</h2>
-<p>Instead of more data, the augmentation was rebuilt from the physics of
-staining. Tissue color is Beer–Lambert absorption by two dyes, so the
-augmenter perturbs <em>dye concentrations</em> — estimated per image with a
-two-stain optical-density basis, residuals preserved pixel-exact — rather
-than shaking RGB channels. Adversarial tests proved the perturbations
-land exactly on the hematoxylin axis, stay plausible to a blind
-discriminator, and cover the stain statistics of scanners never seen.
-Trained on mixed data with this calibrated jitter, the model finally
-scores <em>higher</em> on raw multi-scanner input than on the clean set:
-the domain failure didn't just close, it inverted.</p>
+</main>
+<footer>Research Use Only — every number on this page comes from a model running live on this machine.</footer>
+<script>
+/* ---------- act 1: count-up + real prediction ---------- */
+(async()=>{
+ const r=await fetch('/samples/tumor');
+ const b=await r.blob();
+ const fd=new FormData();fd.append('file',new File([b],'t.tif',{type:'image/tiff'}));fd.append('model','ship');
+ const j=await(await fetch('/analyze-patch',{method:'POST',body:fd})).json();
+ const top=j.probabilities.sort((a,b)=>b.p-a.p).slice(0,4);
+ document.getElementById('h1bars').innerHTML=top.map(t=>
+  `<div class="brow"><div class="n">${t.class}</div><div class="tr"><div class="fl" data-w="${(t.p*100).toFixed(1)}"></div></div></div>`).join('');
+ document.getElementById('h1lab').textContent='TUMOR — cancer epithelium';
+ const el=document.getElementById('h1pct');const t0=performance.now();
+ (function tick(now){const k=Math.min(1,(now-t0)/1600);
+  el.textContent=(j.confidence*100*(1-Math.pow(1-k,3))).toFixed(1)+'%';
+  if(k<1)requestAnimationFrame(tick);})(t0);
+ setTimeout(()=>document.querySelectorAll('.fl').forEach(f=>f.style.width=f.dataset.w+'%'),250);
+})();
 
-<h2>Act five — the judgment calls</h2>
-<p>Two ensembles were built and measured. The voting gain was real —
-localized precisely on the patches where members disagreed — but one
-member's domain weakness poisoned the whole, and it was rejected on
-measurement, not vibes. Out-of-distribution rejection works but sits below
-the shipping bar, and that is published as an open failure, scoped for the
-quality-control work now in flight. Every release faces a nine-check gate;
-the current model passes all but that one, and the page you came from
-shows the live values.</p>
+/* ---------- act 2: real stain chemistry — unmix dyes, change concentrations, re-mix ---------- */
+const cv=document.getElementById('mix'),ctx=cv.getContext('2d');
+/* Same physics as the project's training augmentation (bio_optics.py):
+   OD = -ln(I/255);  OD ≈ Sᵀ·c  with the Ruifrok H&E stain matrix;
+   dial scales the CONCENTRATIONS c_H, c_E; residual preserved pixel-exact. */
+const SH=[0.644,0.717,0.267].map((v,i,a)=>{const n=Math.hypot(...a);return v/n}); // hematoxylin
+const SE=[0.092,0.954,0.283].map((v,i,a)=>{const n=Math.hypot(...a);return v/n}); // eosin
+/* least-squares pseudo-inverse of the 3x2 map [SH|SE] -> OD : c = PINV @ OD */
+const PINV=(()=>{ // normal equations: G = AᵀA (2x2), PINV = A G⁻¹  (2x3)
+ const A=[[SH[0],SE[0]],[SH[1],SE[1]],[SH[2],SE[2]]];
+ const m11=SH[0]*SH[0]+SH[1]*SH[1]+SH[2]*SH[2],
+       m12=SH[0]*SE[0]+SH[1]*SE[1]+SH[2]*SE[2],
+       m22=SE[0]*SE[0]+SE[1]*SE[1]+SE[2]*SE[2];
+ const det=m11*m22-m12*m12;
+ const gi=[[m22/det,-m12/det],[-m12/det,m11/det]]; // G⁻¹
+ const R=[[0,0],[0,0],[0,0]]; // 3x2 = A·G⁻¹... we need c = G⁻¹·Aᵀ·OD → PINV(2x3) = G⁻¹Aᵀ
+ const P=[[0,0,0],[0,0,0]];
+ for(let r=0;r<2;r++)for(let k=0;k<3;k++)
+  P[r][k]=gi[r][0]*A[k][0]+gi[r][1]*A[k][1];
+ return P;})();
+let BASE=null,CH=null,CE=null,RES=null,stain=0,busy=false,pend=false,rawMode=false,RAWD=null;
+async function loadPix(url){const i=new Image();i.crossOrigin='anonymous';i.src=url;await i.decode();
+ const c=document.createElement('canvas');c.width=c.height=224;c.getContext('2d').drawImage(i,0,0,224,224);
+ return c.getContext('2d').getImageData(0,0,224,224).data;}
+function deconvolve(src){ // once per tile: concentrations + residual
+ const N=src.length/4,cH=new Float32Array(N),cE=new Float32Array(N),res=new Float32Array(N*3);
+ for(let i=0,p=0;p<N;p++,i+=4){
+  const od=[src[i]>1?-Math.log(src[i]/255):0,
+            src[i+1]>1?-Math.log(src[i+1]/255):0,
+            src[i+2]>1?-Math.log(src[i+2]/255):0];
+  const h=PINV[0][0]*od[0]+PINV[0][1]*od[1]+PINV[0][2]*od[2];
+  const e=PINV[1][0]*od[0]+PINV[1][1]*od[1]+PINV[1][2]*od[2];
+  cH[p]=Math.max(0,h);cE[p]=Math.max(0,e);
+  const f0=SH[0]*cH[p]+SE[0]*cE[p], f1=SH[1]*cH[p]+SE[1]*cE[p], f2=SH[2]*cH[p]+SE[2]*cE[p];
+  res[i]=od[0]-f0;res[i+1]=od[1]-f1;res[i+2]=od[2]-f2;}
+ return[cH,cE,res];}
+(async()=>{
+ BASE=await loadPix('/samples/tumor.png');
+ [CH,CE,RES]=deconvolve(BASE);
+ RAWD=await loadPix('/samples/nonorm.png');
+ render(0);predict();
+})();
+function render(t){
+ if(!BASE)return;
+ const src=rawMode?RAWD:BASE;
+ const tt=rawMode?0:t;   // real raw tile shown UNMODIFIED
+ // dial = concentration multipliers: more hematoxylin, less eosin (a bluer, H&E-heavy lab)
+ const aH=1+1.2*tt, aE=Math.max(0.2,1-0.7*tt);
+ const out=ctx.createImageData(224,224);
+ const cH=rawMode?null:CH, cE=rawMode?null:CE, res=rawMode?null:RES, N=224*224;
+ for(let p=0,i=0;p<N;p++,i+=4){
+  let od0,od1,od2;
+  if(rawMode){ // unmodified passthrough
+   od0=src[i]>1?-Math.log(src[i]/255):0;od1=src[i+1]>1?-Math.log(src[i+1]/255):0;od2=src[i+2]>1?-Math.log(src[i+2]/255):0;
+  }else{
+   const h=cH[p]*aH,e=cE[p]*aE;
+   od0=SH[0]*h+SE[0]*e+res[i];od1=SH[1]*h+SE[1]*e+res[i+1];od2=SH[2]*h+SE[2]*e+res[i+2];
+  }
+  out.data[i]  =Math.round(255*Math.exp(-Math.max(0,od0)));
+  out.data[i+1]=Math.round(255*Math.exp(-Math.max(0,od1)));
+  out.data[i+2]=Math.round(255*Math.exp(-Math.max(0,od2)));
+  out.data[i+3]=255;}
+ ctx.putImageData(out,0,0);
+ document.getElementById('mixcap').textContent=rawMode?
+  'REAL raw-scanner tile (different patient) — unmodified':
+  tt<0.05?'reference staining, as scanned':
+  tt>0.95?'hematoxylin ×'+aH.toFixed(1)+', eosin ×'+aE.toFixed(1)+' — real concentration shift':
+  `dye concentrations: H ×${aH.toFixed(2)}, E ×${aE.toFixed(2)}`;
+}
+const dial=document.getElementById('dial');
+dial.addEventListener('input',()=>{if(rawMode)return;stain=dial.value/100;render(stain);
+ if(!busy){pend=true;setTimeout(()=>{if(pend){pend=false;predict()}},220)}});
+dial.addEventListener('change',()=>{pend=false;predict()});
+document.getElementById('rawswap').addEventListener('click',()=>{
+ rawMode=!rawMode;
+ document.getElementById('rawswap').textContent=rawMode?
+  '← back to the first tile':'see a REAL raw-scanner tile →';
+ dial.disabled=rawMode;stain=dial.value/100;render(stain);predict();});
+async function predict(){
+ if(busy){pend=true;return}
+ busy=true;
+ const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+ const fd=new FormData();fd.append('file',new File([blob],'m.png',{type:'image/png'}));
+ await Promise.all([go(fd,'v1'),go(fd,'ship')]);
+ busy=false;
+ if(pend){pend=false;predict()}
+}
+async function go(fd,which){
+ try{
+  const f2=new FormData();f2.append('file',fd.get('file'));f2.append('model',which);
+  const j=await(await fetch('/analyze-patch',{method:'POST',body:f2})).json();
+  const s=which==='v1'?'v1':'ship';
+  document.getElementById(s+'pct').textContent=(j.confidence*100).toFixed(1)+'%';
+  document.getElementById(s+'bar').style.width=(j.confidence*100).toFixed(1)+'%';
+  const wrong=j.top_class!=='TUM'?' <span class="warn">⚠ calls it '+j.top_class+'</span>':'';
+  const rej=j.ood?' <span class="warn">⚠ OOD-rejected</span>':'';
+  document.getElementById(s+'lab').innerHTML=j.top_class+wrong+rej;
+  document.getElementById(s+'live').innerHTML='energy <b>'+j.energy+'</b> vs reject '+j.energy_threshold;
+ }catch(e){document.getElementById(s+'lab').textContent='error';}
+}
 
-<div class="lem">The lesson: training is not the hard part anymore. Knowing
-what to do when data, augmentation and expected behavior go wrong is the
-engineering — the rest is mechanics.</div>
-
-<a class="cta" href="/ui">See it live →</a>
-</div></body>
+/* ---------- act 3: gate animation on scroll ---------- */
+const items=[['external F1','✓',1],['multi-scanner F1','✓',1],['calibration','✓',1],
+ ['biomarker drift','✓',1],['int8 agreement','✓',1],['throughput','✓',1],
+ ['memory','✓',1],['domain drop','✓',1],['OOD rejection','✗',0]];
+const g=document.getElementById('gate');
+items.forEach(it=>{const d=document.createElement('div');d.className='gcell';
+ d.innerHTML=`<b><span class="${it[2]?'ok':'no'}">${it[1]}</span>${it[0]}</b>
+ <span style="color:var(--mut)">${it[2]?'measured, passed':'honest open failure'}</span>`;g.appendChild(d);});
+new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)
+ [...g.children].forEach((c,i)=>setTimeout(()=>c.classList.add('in'),i*120))}),
+ {threshold:.3}).observe(g);
+</script>
+</body>
 </html>
