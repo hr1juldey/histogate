@@ -116,10 +116,10 @@
       "artifact": null
     },
     "P17-S4": {
-      "status": "todo",
-      "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "status": "done",
+      "attempts": 1,
+      "last_note": "ensemble row rendered+parity; acceptance FAIL so no serve switch; PR-17 closed as documented negative result",
+      "commit": "9708037",
       "artifact": null
     },
     "P18-S1": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T15:46:57+00:00"
+  "updated": "2026-11-21T15:47:50+00:00"
 }

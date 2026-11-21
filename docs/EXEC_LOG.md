@@ -19,3 +19,4 @@
 2026-11-21T15:11:37+00:00 | P17-S1 | done | attempt 2 | T1/T3 live-measured PASS on 2000/500 CRC-VAL patches (both real ckpts); T2 import-RED | 0831d1b
 2026-11-21T15:33:30+00:00 | P17-S2 | done | attempt 2 | T1/T2/T3 all GREEN; T2 confirms ensemble gain >=2x on disagreement subset (real voting) | 7881c44
 2026-11-21T15:46:57+00:00 | P17-S3 | done | attempt 0 | MEASURED FAIL: notta 0.9724/0.9551/239.6, tta 0.9735/0.9532/60.1 — compromise average; v1 domain collapse drags NONORM; serve stays pr16-mixed | 69a6cd5
+2026-11-21T15:47:50+00:00 | P17-S4 | done | attempt 1 | ensemble row rendered+parity; acceptance FAIL so no serve switch; PR-17 closed as documented negative result | 9708037
