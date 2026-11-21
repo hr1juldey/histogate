@@ -17,3 +17,4 @@
 2026-11-21T14:27:22+00:00 | P16-S5 | done | attempt 0 | 8/9 GATE: crcval .9711 PASS, domain drop -0.0065 PASS (NONORM .9776 > CRC-VAL; ft2's 0.0159 FAIL CLOSED), ece .0064 PASS, ood .797 FAIL (scope, PR-18), quant 1.0 PASS (ft2 was .998), tsr/til drift 0.0, 455.9 p/s, 554.5MB. Refine hook NOT triggered (drop negative). pr16-mixed = new ship candidate | 4619f0d
 2026-11-21T14:28:23+00:00 | P16-S6 | done | attempt 1 | RESULTS.md pr16-mixed row rendered+parity OK; STORY verdict + README failures table updated (2 of 3 closed); zero decimals | fb5380b
 2026-11-21T15:11:37+00:00 | P17-S1 | done | attempt 2 | T1/T3 live-measured PASS on 2000/500 CRC-VAL patches (both real ckpts); T2 import-RED | 0831d1b
+2026-11-21T15:33:30+00:00 | P17-S2 | done | attempt 2 | T1/T2/T3 all GREEN; T2 confirms ensemble gain >=2x on disagreement subset (real voting) | 7881c44

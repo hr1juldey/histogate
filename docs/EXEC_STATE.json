@@ -102,10 +102,10 @@
       "artifact": null
     },
     "P17-S2": {
-      "status": "todo",
-      "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "status": "done",
+      "attempts": 2,
+      "last_note": "T1/T2/T3 all GREEN; T2 confirms ensemble gain >=2x on disagreement subset (real voting)",
+      "commit": "7881c44",
       "artifact": null
     },
     "P17-S3": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T15:11:37+00:00"
+  "updated": "2026-11-21T15:33:30+00:00"
 }
