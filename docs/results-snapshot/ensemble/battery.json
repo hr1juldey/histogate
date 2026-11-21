@@ -1,0 +1,12 @@
+{
+  "ckpts": [
+    "runs/pr16-mixed/best.ckpt.pt",
+    "runs/overnight-30ep/best.ckpt.pt"
+  ],
+  "crcval_f1_notta": 0.9724243301105013,
+  "nonorm_f1_notta": 0.9550814366685968,
+  "throughput_notta": 239.6479655664306,
+  "crcval_f1_tta": 0.9734529674654687,
+  "nonorm_f1_tta": 0.9532186966095462,
+  "throughput_tta": 60.14214548860523
+}

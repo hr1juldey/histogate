@@ -18,6 +18,15 @@ _Rendered by `scripts/render_readme_numbers.py`. Source: `docs/results-snapshot`
 | ft2 (1 low-LR NONORM epoch) | 0.998047 | 0.0000 | 0.0000 | 28.7 | 475.2 | 554.5 |
 | pr16-mixed (mixed 200k + calibrated stain aug) | 1.000000 | 0.0000 | 0.0000 | 28.7 | 455.9 | 554.5 |
 
+## Ensemble (PR-17, negative result)
+
+Two-member mean-softmax ensemble (pr16-mixed + v1). TTA gates proved the transforms label-safe and the voting gain localized on member-disagreement patches, but acceptance failed: v1's collapsed domain score drags NONORM down and CRC-VAL lands between the members. Ship stays single-model pr16-mixed.
+
+| config | CRC-VAL macro-F1 | NONORM F1 | throughput p/s |
+|---|---|---|---|
+| 2-model, no TTA | 0.9724 | 0.9551 | 239.6 |
+| 2-model + TTA | 0.9735 | 0.9532 | 60.1 |
+
 ## Gate detail (last battery per run)
 
 ### overnight-30ep

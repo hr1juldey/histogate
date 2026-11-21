@@ -49,7 +49,7 @@ def _cell(d: dict | None, key: str, nd: int = 4) -> str:
     return _fmt(v, nd) if isinstance(v, (int, float)) else "MISSING"
 
 
-def render(runs: dict[str, dict]) -> str:
+def render(runs: dict[str, dict], src: Path) -> str:
     out = ["# Measured results (generated — do not edit by hand)", "",
            f"_Rendered by `scripts/render_readme_numbers.py`. Source: "
            f"`{os.environ.get('RESULTS_SOURCE', 'runs/')}`. "
@@ -86,6 +86,23 @@ def render(runs: dict[str, dict]) -> str:
             f"| {_cell(d['int8'], 'til_rel_drift_max')} "
             f"| {_cell(d['int8'], 'int8_size_mb', 1)} "
             f"| {tps_cell} | {vr_cell} |")
+    out += ["", "## Ensemble (PR-17, negative result)", "",
+            "Two-member mean-softmax ensemble (pr16-mixed + v1). TTA gates "
+            "proved the transforms label-safe and the voting gain localized "
+            "on member-disagreement patches, but acceptance failed: v1's "
+            "collapsed domain score drags NONORM down and CRC-VAL lands "
+            "between the members. Ship stays single-model pr16-mixed.", "",
+            "| config | CRC-VAL macro-F1 | NONORM F1 | throughput p/s |", "|---|---|---|---|"]
+    ens = _read(src / "ensemble" / "battery.json")
+    if ens:
+        for tag, label in (("notta", "2-model, no TTA"), ("tta", "2-model + TTA")):
+            if f"crcval_f1_{tag}" in ens:
+                out.append(
+                    f"| {label} | {ens[f'crcval_f1_{tag}']:.4f} "
+                    f"| {ens[f'nonorm_f1_{tag}']:.4f} "
+                    f"| {ens[f'throughput_{tag}']:.1f} |")
+    else:
+        out.append("| MISSING | MISSING | MISSING | MISSING |")
     out += ["", "## Gate detail (last battery per run)", ""]
     for name, d in runs.items():
         out.append(f"### {name}")
@@ -104,7 +121,7 @@ def render(runs: dict[str, dict]) -> str:
 def main() -> None:
     src = ROOT / os.environ.get("RESULTS_SOURCE", "runs")
     runs = {name: load_run(src / name) for name in RUNS}
-    (ROOT / "docs" / "RESULTS.md").write_text(render(runs))
+    (ROOT / "docs" / "RESULTS.md").write_text(render(runs, src))
     print(f"rendered docs/RESULTS.md from {src}")
 
 
