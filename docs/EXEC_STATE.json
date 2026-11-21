@@ -60,10 +60,10 @@
       "artifact": null
     },
     "P16-S2": {
-      "status": "todo",
+      "status": "done",
       "attempts": 2,
-      "last_note": "T3/T4/T5 GREEN. T1: metric zip bug (6,)-margin vs (n,6) rows; T2: cross-base confound (real=NONORM vs fake=augNCT separates on biology) -> paired same-base design",
-      "commit": null,
+      "last_note": "5/5 GREEN on attempt after 3 engine fails: T4 h=1.500 e=1.000 exact; T3 flip in band; T2 paired AUC in [0.5,0.65]; T1 per-dim reach+touch >=0.8; design laws documented in module docstring",
+      "commit": "f9f0731",
       "artifact": null
     },
     "P16-S3": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T10:23:11+00:00"
+  "updated": "2026-11-21T10:25:19+00:00"
 }
