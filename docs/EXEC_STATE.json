@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "roadmap": "docs/ROADMAP_PR15-20.md",
+  "current_pr": "PR-15",
+  "subtasks": {
+    "P15-S0": {
+      "status": "in_progress",
+      "attempts": 1,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P15-S1": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P15-S2": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P15-S3": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P15-S4": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P15-S5": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P15-S6": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P16-S1": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P16-S2": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P16-S3": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P16-S4": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P16-S5": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P16-S6": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P17-S1": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P17-S2": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P17-S3": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P17-S4": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P18-S1": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P18-S2": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P18-S3": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P18-S4": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P19-S1": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P19-S2": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    },
+    "P19-S3": {
+      "status": "todo",
+      "attempts": 0,
+      "last_note": "",
+      "commit": null,
+      "artifact": null
+    }
+  },
+  "parked": [],
+  "updated": "2026-11-21T08:37:53+00:00"
+}
