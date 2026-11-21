@@ -1,0 +1,80 @@
+{
+  "overall_pass": false,
+  "checks": [
+    {
+      "name": "macro_f1",
+      "value": 0.963691,
+      "threshold": 0.93,
+      "comparator": ">=",
+      "passed": true,
+      "detail": "patch macro-F1 on CRC-VAL-HE-7K (fp32)"
+    },
+    {
+      "name": "f1_domain_drop",
+      "value": -0.007309,
+      "threshold": 0.015,
+      "comparator": "<=",
+      "passed": true,
+      "detail": "normalized minus NONORM-scanner domain drop"
+    },
+    {
+      "name": "ece",
+      "value": 0.004962,
+      "threshold": 0.05,
+      "comparator": "<=",
+      "passed": true,
+      "detail": "post-temperature-scaling ECE"
+    },
+    {
+      "name": "ood_auroc",
+      "value": 0.659,
+      "threshold": 0.9,
+      "comparator": ">=",
+      "passed": false,
+      "detail": "artifact/OOD rejection (energy score)"
+    },
+    {
+      "name": "tsr_drift",
+      "value": 0.0,
+      "threshold": 0.05,
+      "comparator": "<=",
+      "passed": true,
+      "detail": "TSR biomarker drift fp32 -> int8"
+    },
+    {
+      "name": "til_drift_rel",
+      "value": 0.0,
+      "threshold": 0.1,
+      "comparator": "<=",
+      "passed": true,
+      "detail": "TIL density relative drift fp32 -> int8"
+    },
+    {
+      "name": "quant_agreement",
+      "value": 0.998047,
+      "threshold": 0.999,
+      "comparator": ">=",
+      "passed": false,
+      "detail": "argmax agreement fp32 vs int8"
+    },
+    {
+      "name": "throughput",
+      "value": 468.2,
+      "threshold": 40.0,
+      "comparator": ">=",
+      "passed": true,
+      "detail": "serving throughput floor"
+    },
+    {
+      "name": "vram",
+      "value": 554.5,
+      "threshold": 2048.0,
+      "comparator": "<=",
+      "passed": true,
+      "detail": "int8 inference VRAM ceiling"
+    }
+  ],
+  "model_revision": "see-artifacts",
+  "dataset_revision": "NCT-CRC-HE-100K/CRC-VAL-HE-7K",
+  "timestamp": "2026-11-20T23:36:48.550117+00:00"
+}

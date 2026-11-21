@@ -1,0 +1,9 @@
+{
+  "checkpoint": "runs/overnight-30ep/best.ckpt.pt",
+  "git_sha": "3f41c4ed4d91b4d26cc626c50b9228c289c0de15",
+  "n_fit": 5839,
+  "temperature": 0.6820899561011043,
+  "ece_before": 0.06999324431106269,
+  "ece_after": 0.00409262508259639,
+  "energy_threshold_fpr05": -3.7187640349080944
+}

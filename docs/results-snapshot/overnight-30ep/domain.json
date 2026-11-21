@@ -1,0 +1,11 @@
+{
+  "checkpoint": "runs/overnight-30ep/best.ckpt.pt",
+  "n": 7000,
+  "nonorm_acc": 0.79,
+  "nonorm_macro_f1": 0.7842,
+  "nonorm_kappa": 0.8736,
+  "nonorm_ece": 0.0713,
+  "crcval_macro_f1": 0.9740633373198769,
+  "domain_drop": 0.1898,
+  "gate_domain_drop_max": 0.015
+}

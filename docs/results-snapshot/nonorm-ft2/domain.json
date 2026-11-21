@@ -1,0 +1,11 @@
+{
+  "checkpoint": "runs/nonorm-ft2/best.ckpt.pt",
+  "n": 7000,
+  "nonorm_acc": 0.9551,
+  "nonorm_macro_f1": 0.9554,
+  "nonorm_kappa": 0.956,
+  "nonorm_ece": 0.0851,
+  "crcval_macro_f1": 0.97126362297936,
+  "domain_drop": 0.0158,
+  "gate_domain_drop_max": 0.015
+}

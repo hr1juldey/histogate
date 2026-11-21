@@ -1,0 +1,17 @@
+{
+  "int8_path": "runs/overnight-30ep/onnx/histogate-int8.onnx",
+  "int8_size_mb": 28.7,
+  "n_slides": 24,
+  "grid": 8,
+  "argmax_agreement": 0.998047,
+  "tsr_pairs": 5,
+  "tsr_abs_drift_max": 0.0,
+  "tsr_abs_drift_mean": 0.0,
+  "til_pairs": 24,
+  "til_rel_drift_max": 0.0,
+  "til_rel_drift_mean": 0.0,
+  "tsr_fp32_mean": 0.9692,
+  "tsr_int8_mean": 0.9692,
+  "til_fp32_mean": 2.2152,
+  "til_int8_mean": 2.2152
+}

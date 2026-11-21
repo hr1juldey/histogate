@@ -1,0 +1,37 @@
+{
+  "n_id": 1024,
+  "n_ood": 1024,
+  "artifact_severity": 0.6,
+  "energy_auroc": 0.659,
+  "energy_auroc_global_kinds": 0.5816,
+  "global_kinds": [
+    "no_tissue",
+    "out_of_focus",
+    "missing_tissue"
+  ],
+  "threshold_fpr05": -3.2261016418536115,
+  "clean_fpr_at_threshold": 0.0771,
+  "artifact_flag_rate_at_threshold": 0.2715,
+  "energy_mean_clean": -3.85,
+  "energy_mean_artifact": -3.592,
+  "per_kind_flag_rate": {
+    "tissue_fold": 0.312,
+    "pen_mark": 0.398,
+    "air_bubble": 0.336,
+    "coverslip_line": 0.289,
+    "knife_line": 0.32,
+    "out_of_focus": 0.164,
+    "no_tissue": 0.0,
+    "missing_tissue": 0.352
+  },
+  "per_kind_energy_mean": {
+    "tissue_fold": -3.518,
+    "pen_mark": -3.434,
+    "air_bubble": -3.536,
+    "coverslip_line": -3.57,
+    "knife_line": -3.506,
+    "out_of_focus": -3.763,
+    "no_tissue": -3.916,
+    "missing_tissue": -3.498
+  }
+}

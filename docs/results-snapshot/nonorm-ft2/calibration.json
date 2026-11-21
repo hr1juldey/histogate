@@ -1,0 +1,9 @@
+{
+  "checkpoint": "runs/nonorm-ft2/best.ckpt.pt",
+  "git_sha": "a680bfed9d992001d973b56674fd1209e5351bde",
+  "n_fit": 5839,
+  "temperature": 0.6866271176394351,
+  "ece_before": 0.06944918458548902,
+  "ece_after": 0.005466661005518074,
+  "energy_threshold_fpr05": -3.717582567798216
+}

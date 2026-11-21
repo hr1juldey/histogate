@@ -1,0 +1,10 @@
+{
+  "checkpoint": "runs/nonorm-ft2/best.ckpt.pt",
+  "config_hash": "575e14e71b3830b291e199278f6b64daae3c48f63b6c893344a53b7b5ff14f2b",
+  "git_sha": "a680bfed9d992001d973b56674fd1209e5351bde",
+  "n_val": 5839,
+  "val_acc": 0.9763658160643945,
+  "val_ece": 0.06944918458548902,
+  "val_kappa": 0.985427637905794,
+  "val_macro_f1": 0.97126362297936
+}

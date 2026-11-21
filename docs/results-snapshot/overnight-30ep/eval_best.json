@@ -1,0 +1,10 @@
+{
+  "checkpoint": "runs/overnight-30ep/best.ckpt.pt",
+  "config_hash": "a098d1119ee781ca408a72e821108413259e55e8e697f6a759da0d52187361fb",
+  "git_sha": "3f41c4ed4d91b4d26cc626c50b9228c289c0de15",
+  "n_val": 5839,
+  "val_acc": 0.9784209624935777,
+  "val_ece": 0.06999324431106269,
+  "val_kappa": 0.9871879376077992,
+  "val_macro_f1": 0.9740633373198769
+}

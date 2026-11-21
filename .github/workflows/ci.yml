@@ -1,0 +1,31 @@
+name: ci
+on:
+  push: { branches: [main, master] }
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # Fast deterministic subset; heavy training-integration tests are
+      # excluded (they run locally on the GPU box per docs/EXEC_ENGINE.md).
+      - run: uv run pytest -q tests/test_next_step.py tests/test_gate.py
+              tests/test_biomarkers.py tests/test_bio_optics.py
+              tests/test_config.py tests/test_data.py tests/test_calib.py
+      - run: uv run ruff check src scripts tests
+
+  docs-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # RESULTS.md must be byte-identical to a fresh render from the
+      # committed snapshot — hand-edited or stale numbers fail the build.
+      - run: uv run python scripts/render_readme_numbers.py
+      - run: git diff --exit-code docs/RESULTS.md

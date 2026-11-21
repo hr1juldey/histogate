@@ -1,6 +1,6 @@
 # Measured results (generated — do not edit by hand)
 
-_Rendered by `scripts/render_readme_numbers.py`. Source: `runs/`. A `MISSING` cell means the artifact file does not exist.
+_Rendered by `scripts/render_readme_numbers.py`. Source: `docs/results-snapshot`. A `MISSING` cell means the artifact file does not exist.
 
 | run | CRC-VAL macro-F1 | CRC-VAL acc | kappa | NONORM F1 | domain drop | OOD AUROC | ECE (calibrated) | gate |
 |---|---|---|---|---|---|---|---|---|
