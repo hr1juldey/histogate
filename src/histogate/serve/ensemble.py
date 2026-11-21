@@ -48,11 +48,11 @@ class EnsembleEngine:
     @torch.no_grad()
     def predict_proba(self, x: torch.Tensor, batch: int = 128) -> torch.Tensor:
         """Mean softmax over (model, transform). x: normalized (N,3,H,W)."""
-        probs = torch.zeros(x.shape[0], N_CLASSES)
+        probs = torch.zeros(x.shape[0], N_CLASSES, device=x.device)
         n_views = len(self.models) * len(self.transforms)
         for i in range(0, x.shape[0], batch):
             xb = x[i:i + batch]
-            acc = torch.zeros(xb.shape[0], N_CLASSES)
+            acc = torch.zeros(xb.shape[0], N_CLASSES, device=xb.device)
             for m in self.models:
                 for tf in self.transforms:
                     acc += torch.softmax(m(_apply_tf(xb, tf)), dim=1)
