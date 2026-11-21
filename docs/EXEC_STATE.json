@@ -109,10 +109,10 @@
       "artifact": null
     },
     "P17-S3": {
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "last_note": "MEASURED FAIL: notta 0.9724/0.9551/239.6, tta 0.9735/0.9532/60.1 \u2014 compromise average; v1 domain collapse drags NONORM; serve stays pr16-mixed",
+      "commit": "69a6cd5",
       "artifact": null
     },
     "P17-S4": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T15:33:30+00:00"
+  "updated": "2026-11-21T15:46:57+00:00"
 }
