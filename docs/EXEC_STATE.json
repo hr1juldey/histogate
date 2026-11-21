@@ -53,10 +53,10 @@
       "artifact": null
     },
     "P16-S1": {
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "last_note": "",
-      "commit": null,
+      "last_note": "5 tests RED as designed (ModuleNotFoundError); scanner folds = Macenko-stat KMeans clusters (filenames carry no scanner labels); sklearn dep confirmed present",
+      "commit": "8a226af",
       "artifact": null
     },
     "P16-S2": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T10:03:09+00:00"
+  "updated": "2026-11-21T10:04:16+00:00"
 }
