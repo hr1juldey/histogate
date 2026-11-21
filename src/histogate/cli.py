@@ -185,12 +185,19 @@ def serve(argv: list[str] | None = None) -> None:
     args = p.parse_args(argv)
     settings = load_settings(args.config)
 
+    import torch
+
+    from histogate.serve.inference import build_analyze
+
+    ckpt = Path("runs/nonorm-ft2/best.ckpt.pt")
+    calib = Path("runs/nonorm-ft2/calibration.json")
+    analyze = build_analyze(ckpt, calib,
+                            device="cuda" if torch.cuda.is_available() else "cpu")
+
     if args.mcp:
         from histogate.serve.mcp import build_mcp
 
-        def _analyze(_path: Path):
-            raise NotImplementedError("wire real engine after tonight's checkpoint")
-        build_mcp(analyze=_analyze).run()
+        build_mcp(analyze=analyze).run()
         return
     if args.api:
         import uvicorn
@@ -198,10 +205,8 @@ def serve(argv: list[str] | None = None) -> None:
         from histogate.serve.api import create_app
         from histogate.serve.engine import LockedEngine
 
-        def _analyze(_path: Path):
-            raise NotImplementedError("wire real engine after tonight's checkpoint")
-        app = create_app(engine=LockedEngine(analyze=_analyze),
+        app = create_app(engine=LockedEngine(analyze=analyze),
                          slides_root=settings.paths.data_dir)
         uvicorn.run(app, host=settings.serve.host, port=settings.serve.port)
         return
-    raise SystemExit("histogate-serve: pass --api or --mcp (real engine wired post-training)")
+    raise SystemExit("histogate-serve: pass --api or --mcp")
