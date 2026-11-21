@@ -61,8 +61,8 @@
     },
     "P16-S2": {
       "status": "todo",
-      "attempts": 0,
-      "last_note": "attempt2: T1 box-metric too brittle (0.00; 6D min/max box + Macenko re-est noise); T2 NaN from washed-out aug (unbounded c draws); T3 flip .179 (c_sigma /4 hand-fudge, cross-class spread=biology); T4 1.61 (mean-W basis vs image basis cross-leak). Fixes: per-image Macenko basis, within-class bounded c calibration, per-dim coverage metric, NaN guard",
+      "attempts": 1,
+      "last_note": "attempt3: single mechanical bug \u2014 illum residual reshape used FILTERED flat (3559px) into (224,224,3); blocked all 5 tests incl. previously-green T5; physics untested this round; fix = fit+residual on unfiltered od grid",
       "commit": null,
       "artifact": null
     },
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T10:09:25+00:00"
+  "updated": "2026-11-21T10:17:27+00:00"
 }
