@@ -92,24 +92,30 @@ def _default() -> dict:
                 "the AI is the part built to pass measurable bars."),
         "about": {
             "name": "Hrijul Dey",
-            "role": "Biotechnologist who became a deep-learning engineer",
-            "why": [
-                "I trained as a biotechnologist first. The stains, the scanners and "
-                "the tissue on this site are not a dataset I downloaded and "
-                "guessed at — they are the part I have held under a microscope.",
-                "Then I spent years shipping production software, and shipping "
-                "teaches you one thing above all: everything fails, and the only "
-                "systems worth trusting are the ones built to fail honestly.",
-                "HistoGate is those two halves of me in one project: the biology "
-                "of the problem, and the engineering discipline of the answer.",
+            "role": "AI & Backend Engineer — production agents, APIs, and measurement",
+            "photo_caption": "At work, 2026. The day job is agent infrastructure; this site is the biology half.",
+            "timeline": [
+                {"year": "2019", "title": "Physics first", "org": "Variable Energy Cyclotron Centre, Dept. of Atomic Energy",
+                 "note": "Summer intern in Kolkata. Before any of the AI: particle accelerators."},
+                {"year": "2019–2023", "title": "Biology + computer vision", "org": "Ashva — biomedical devices, Vellore",
+                 "note": "R&D specialist while finishing the degree. Estimated knee and ankle joint loading from motion sensors, posture detection, gait analysis on the CMU motion-capture database — with test design and validation against regulated standards. This is where 'measurement or it didn't happen' started."},
+                {"year": "2022", "title": "B.Tech, Biotechnology", "org": "Vellore Institute of Technology",
+                 "note": "The formal biology half."},
+                {"year": "2025", "title": "Into production LLMs", "org": "Lilypad — EV marketplace",
+                 "note": "Product manager and engineer. Shipped production LLM features on India's first MCP-driven marketplace — tools, APIs, data flow."},
+                {"year": "2026–", "title": "Agent infrastructure at scale", "org": "Mosaic Wellness — AI Platform",
+                 "note": "Owns 'Kai', the agent platform a 500-person organization runs on daily: hundreds of federated tool servers behind one governed endpoint. Cut organization-wide LLM token cost ~93% while reliability held. Small task models trained, measured, and rolled back when the numbers said so."},
+                {"year": "Nov 2026", "title": "Open source", "org": "22 PRs across 6 orgs in four days",
+                 "note": "Token-accounting fix merged upstream in Hugging Face smolagents; 13 PRs in Trail-Code; 5 in NousResearch hermes-agent — found by running the agent daily on itself."},
+                {"year": "This site", "title": "HistoGate", "org": "The two halves, joined",
+                 "note": "A biotechnologist's tissue problem, attacked with a production engineer's release discipline. Every number measured, every failure published."},
             ],
-            "what": [
-                "A nine-class colorectal tissue classifier with tumor-stroma and "
-                "immune-cell biomarkers, a quality gate that refuses bad input, "
-                "and a nine-check release bar it must pass before anything ships.",
-                "Every number on this site is measured, every failed training run "
-                "is published, and the code and model are open. An honest "
-                "prototype beats a polished demo.",
+            "links": [
+                {"label": "GitHub — all code", "href": "https://github.com/hr1juldey"},
+                {"label": "LinkedIn", "href": "https://www.linkedin.com/in/dey-h-ml972"},
+                {"label": "ctx-gateway — public eval harness", "href": "https://github.com/hr1juldey/ctx-gateway"},
+                {"label": "This project on GitHub", "href": "https://github.com/hr1juldey/histogate"},
+                {"label": "This project on Hugging Face", "href": "https://huggingface.co/riju279/histogate"},
             ],
             "faith": (
                 "Clinical AI has one unforgivable sin: confident wrong answers. "
