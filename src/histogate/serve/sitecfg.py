@@ -1,6 +1,11 @@
 """Server-driven UI config: the Astro front end renders its sections and copy
 from this endpoint, so content changes ship as backend config — no front-end
-redeploy. Numbers still flow from measured artifacts via /metrics.json."""
+redeploy. Numbers still flow from measured artifacts via /metrics.json.
+
+COPY LAW (user, 2026-11-22): understandable by common humans FIRST, specialists
+second. Every claim gets a plain sentence; the technical term rides along as the
+small secondary label. Nobody was ever hired by jargon.
+"""
 from __future__ import annotations
 
 import json
@@ -23,53 +28,72 @@ def _default() -> dict:
             "name": "HistoGate",
             "tagline": "One of these patches is cancer. It knows which.",
             "hero_sub": (
-                "HistoGate reads stained biopsy patches the way a pathologist "
-                "skims them — tissue type, calibrated confidence, and whether "
-                "the image deserves an answer at all. It runs live, right now."),
-            "primary_cta": {"label": "See it classify", "href": "/demo"},
-            "secondary_cta": {"label": "How it broke, and recovered",
+                "Show it a magnified piece of a biopsy. It tells you what kind of "
+                "tissue that is, how sure it is — and when the picture is too poor "
+                "or too strange to judge, it says so instead of guessing. "
+                "It's running live, right now, on this page."),
+            "primary_cta": {"label": "See it work", "href": "/demo"},
+            "secondary_cta": {"label": "How it failed, and how we fixed it",
                               "href": "/story"},
         },
         "journey": [
-            {"run": "overnight-30ep", "title": "The run",
-             "note": "100,000 expert-annotated patches. Perfect on clean data."},
-            {"run": "nonorm-ft", "title": "The wrong fix",
-             "note": "Default learning rate destroyed the classifier — "
-                     "catastrophic forgetting in one epoch."},
-            {"run": "nonorm-ft2", "title": "The gentle fix",
-             "note": "Recovered most of the domain; still missed the gate."},
-            {"run": "pr16-mixed", "title": "The physics fix",
-             "note": "Beer-Lambert dye-concentration augmentation; the domain "
-                     "failure didn't just close — it inverted."},
+            {"run": "overnight-30ep", "title": "The first try",
+             "note": "We taught it with 100,000 tissue pictures that doctors had "
+                     "already labeled. Perfect grades on the test — but the test "
+                     "was too easy. It had only ever seen one hospital's machines."},
+            {"run": "nonorm-ft", "title": "The fix that backfired",
+             "note": "We showed it pictures from other machines — but pushed too "
+                     "hard, and it forgot almost everything in a single night of "
+                     "training. A classic mistake, kept here on purpose."},
+            {"run": "nonorm-ft2", "title": "The careful fix",
+             "note": "Slower, gentler retraining. It kept most of its skill and "
+                     "learned the new machines — but not well enough to ship. "
+                     "Close isn't shipped."},
+            {"run": "pr16-mixed", "title": "The fix that worked",
+             "note": "Instead of just more data, we taught it the physics of how "
+                     "tissue staining works — so a different machine reads as a "
+                     "different color, not a different disease. Now it scores "
+                     "better on machines it has never seen than on its own "
+                     "homework."},
         ],
         "cases": [
-            {"id": "collapse", "title": "Domain collapse on raw scanners",
-             "what": "The first model scored near-ceiling on its own hospital's data "
-                     "and collapsed on the same patients scanned without lab normalization.",
-             "fix": "Stain physics augmentation (dye-concentration jitter measured on "
-                    "real slides), trained on mixed normalized + raw data.",
-             "metric": "raw-scanner F1"},
-            {"id": "forgetting", "title": "Catastrophic forgetting",
-             "what": "The obvious fix — fine-tune on raw data at the default "
-                     "learning rate — destroyed the classifier in a single epoch.",
-             "fix": "Warm-start at 1e-4 with a measured acceptance gate; the failed "
-                    "runs are kept in the journey as documented negative results.",
-             "metric": "external F1"},
-            {"id": "ensemble", "title": "The ensemble that didn't ship",
-             "what": "Voting gain was real and localized on disagreement patches — "
-                     "but one member's domain weakness poisoned the aggregate.",
-             "fix": "Rejected on measurement, not vibes. Published as a negative "
-                    "result with the full battery.",
-             "metric": "acceptance gate"},
+            {"id": "collapse", "title": "It failed on machines it hadn't seen",
+             "what": "Same patients, same doctors' labels — but the slide was "
+                     "scanned by a different machine, and the AI's answers fell "
+                     "apart. In a hospital, that's the difference between a tool "
+                     "and a liability.",
+             "fix": "We rebuilt its training around the chemistry of staining "
+                    "itself, so a change of machine reads as a change of color, "
+                    "not a change of disease.",
+             "metric": "raw-scanner score"},
+            {"id": "forgetting", "title": "The obvious fix destroyed it",
+             "what": "Retrain it on the new pictures — the obvious move. Done "
+                     "carelessly, the AI forgets its old skills almost "
+                     "overnight. Ours did, and we kept the failed run so nobody "
+                     "has to take our word for it.",
+             "fix": "Gentle retraining with a hard pass/fail bar before anything "
+                    "ships. The failed attempts stay visible on this page.",
+             "metric": "familiar-hospital score"},
+            {"id": "ensemble", "title": "Two AIs voting was worse than one",
+             "what": "We built a committee of models to vote on each picture. "
+                     "The idea is sound — the votes really did help on the hard "
+                     "pictures — but one weak member dragged the group below "
+                     "the single best model.",
+             "fix": "We measured it, it failed the bar, we didn't ship it. "
+                    "Published as an honest negative result.",
+             "metric": "ship gate"},
         ],
-        "gate_note": ("Every release faces the same nine checks on held-out and "
-                      "out-of-distribution data. Eight pass. One fails. Both are shown."),
-        "who": ("Biotechnology graduate turned deep-learning engineer; shipped "
-                "consumer-health products at Man Matters, Bodywise and Lady Joyce."),
+        "gate_note": ("Before anything ships, it must pass nine safety and quality "
+                      "checks. Eight pass. One honestly fails, and we show that "
+                      "too — an AI that hides its weaknesses in a hospital is a "
+                      "liability, not a product."),
+        "who": ("Built by a biologist who became a deep-learning engineer — the "
+                "tissue, the stains and the machines are the familiar part, and "
+                "the AI is the part built to pass measurable bars."),
         "contact": {
-            "headline": "Working on digital pathology or computational biology?",
-            "sub": ("HistoGate is a research prototype — open code, checkpoints and "
-                    "failures. Reach out for a walkthrough, the full build log, or "
-                    "the résumé behind it."),
+            "headline": "Want a walkthrough, or the person who built this?",
+            "sub": ("HistoGate is a working research prototype — open code, real "
+                    "measurements, failures included. Reach out for a live "
+                    "walkthrough, the full build log, or the résumé behind it."),
         },
     }

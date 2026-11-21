@@ -55,20 +55,18 @@ def create_app(engine: LockedEngine, slides_root: Path,
             "ruo_disclaimer": engine.ruo,
         }
 
-    @app.get("/ui", response_class=FileResponse)
-    def ui() -> FileResponse:
-        return FileResponse(Path(__file__).parent / "static" / "index.html",
-                            headers={"Cache-Control": "no-cache"})
-
-    @app.get("/", response_class=FileResponse)
-    def landing() -> FileResponse:
-        return FileResponse(Path(__file__).parent / "static" / "landing.html",
-                            headers={"Cache-Control": "no-cache"})
-
-    @app.get("/story", response_class=FileResponse)
-    def story() -> FileResponse:
-        return FileResponse(Path(__file__).parent / "static" / "story.html",
-                            headers={"Cache-Control": "no-cache"})
+    @app.get("/")
+    def root() -> dict[str, Any]:
+        """API gateway root — this service is REST/MCP only.
+        The human UI lives on the Astro front end (Vercel / local dev)."""
+        return {
+            "service": "HistoGate",
+            "kind": "REST + MCP inference gateway",
+            "endpoints": ["/health", "/analyze", "/analyze-patch",
+                          "/samples", "/metrics.json", "/site-config.json",
+                          "/contact", "/docs"],
+            "ruo_disclaimer": engine.ruo,
+        }
 
     @app.get("/metrics.json")
     def metrics() -> dict[str, Any]:

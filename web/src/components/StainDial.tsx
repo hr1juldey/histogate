@@ -102,9 +102,9 @@ export default function StainDial() {
     }
     ctx.putImageData(out, 0, 0);
     setCap(rawRef.current
-      ? 'REAL raw-scanner tile (different patient) — unmodified'
-      : t < 0.05 ? 'reference staining, as scanned'
-      : `hematoxylin ×${aH.toFixed(2)}, eosin ×${aE.toFixed(2)}`);
+      ? 'a REAL picture from a different machine — unmodified'
+      : t < 0.05 ? 'as the lab scanned it'
+      : `purple dye ×${aH.toFixed(2)}, pink dye ×${aE.toFixed(2)}`);
   }
 
   async function predict() {
@@ -156,18 +156,18 @@ export default function StainDial() {
         <canvas ref={cv} width="224" height="224" />
         <p className="cap">{cap}</p>
         <div className="dialbox">
-          <div className="ends"><span>◀ balanced dyes</span><span>hematoxylin-heavy ▶</span></div>
+          <div className="ends"><span>◀ normal staining</span><span>heavy purple stain ▶</span></div>
           <input type="range" min={0} max={100} value={stain * 100} disabled={rawMode}
             onChange={e => onDial(+(e.target as HTMLInputElement).value / 100)}
             onPointerUp={predict} aria-label="stain dial" />
           <button className="btn ghost rawbtn" onClick={toggleRaw}>
-            {rawMode ? '← back to the first tile' : 'see a REAL raw-scanner tile →'}
+            {rawMode ? '← back to the first tile' : 'see a REAL picture from a different machine →'}
           </button>
         </div>
       </div>
       <div className="models">
-        {card('first model (v1) — the one that broke', v1, 'bad')}
-        {card('shipped model — physics-augmented training', ship, 'good')}
+        {card('first model — the one that broke', v1, 'bad')}
+        {card('shipped model — trained on the physics of staining', ship, 'good')}
         <p className="note">both models run live right now — numbers update as you drag</p>
       </div>
     </div>

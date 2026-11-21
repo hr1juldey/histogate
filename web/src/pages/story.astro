@@ -9,25 +9,25 @@ const cfg = await get<SiteConfig>('/site-config.json');
     <section class="act">
       <div class="kicker" style="margin-top:40px">Act one</div>
       <h1>It learned to read tissue.</h1>
-      <p class="sub">100,000 expert-annotated patches. Perfect scores on clean validation data.
-      That was exactly the problem.</p>
+      <p class="sub">100,000 pictures of tissue, each already labeled by doctors.
+      Perfect grades on its test. That was exactly the problem — the test was too easy.</p>
     </section>
 
     <section class="act">
       <div class="kicker">Act two — interactive</div>
-      <h1>Then the stain chemistry changed. Drag the dial.</h1>
-      <p class="sub">One real tumor tile. The dial physically shifts its two dye concentrations
-      (Beer-Lambert optics — the same physics as the training augmentation; no other image involved).
-      Then see what a real raw-scanner tile from a different patient does to both models.
-      Everything runs live.</p>
+      <h1>Then the stain changed. Drag the dial.</h1>
+      <p class="sub">This is one real tumor picture. The dial shifts the two dyes in the
+      tissue — the purple and the pink — exactly the way a different lab machine does it.
+      Both AIs below are running live as you drag. Then press the button to see a real
+      picture from a genuinely different machine.</p>
       <StainDial client:load />
     </section>
 
     <section class="act">
       <div class="kicker">Act three</div>
-      <h1>Ship only what survives nine checks.</h1>
+      <h1>Nothing ships until it passes nine checks.</h1>
       <p class="sub">{cfg.gate_note}</p>
-      <a class="btn primary" href="/demo">Try the shipped model on any patch →</a>
+      <a class="btn primary" href="/demo">Try it on any picture →</a>
     </section>
   </main>
 </Layout>

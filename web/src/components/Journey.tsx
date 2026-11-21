@@ -23,7 +23,6 @@ export default function Journey({ cfg, metrics }: { cfg: SiteConfig; metrics: Me
           <button key={s.run} className={i === sel ? 'on' : ''} onClick={() => setSel(i)}>
             <span className="n mono">{String(i + 1).padStart(2, '0')}</span>
             <span className="t">{s.title}</span>
-            <span className="run mono">{s.run}</span>
           </button>
         ))}
       </div>
@@ -31,15 +30,15 @@ export default function Journey({ cfg, metrics }: { cfg: SiteConfig; metrics: Me
         <h3>{stage.title}</h3>
         <p>{stage.note}</p>
         <div className="bars">
-          {bar(data.crcval_f1, 'external F1', 'crc')}
-          {bar(data.nonorm_f1, 'raw-scanner F1', 'dom')}
+          {bar(data.crcval_f1, "score on the test it studied for", 'crc')}
+          {bar(data.nonorm_f1, 'score on machines it never saw', 'dom')}
         </div>
         <p className="foot">
           {data.nonorm_f1 < 0.9
-            ? '↑ The gap is the failure: same patients, different scanner.'
+            ? 'The gap is the failure: same patients, different machine — and it falls apart.'
             : data.nonorm_f1 > data.crcval_f1
-              ? '↑ The failure inverted: raw scanners now score higher than clean data.'
-              : '↑ Both domains hold — but the external bar was the cost.'}
+              ? 'The failure flipped: it now does better on machines it never saw than on its own homework.'
+              : 'Both hold — but regaining the new machines cost it some edge at home.'}
         </p>
       </div>
     </div>

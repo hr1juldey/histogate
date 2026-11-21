@@ -78,16 +78,16 @@ export default function Demo() {
       <div className="right card">
         <div className={`verdict ${j?.ood ? 'ood' : ''}`}>
           <div className="vt">{j ? j.verdict : err ?? 'analyzing…'}</div>
-          {j && <div className="vd mono">calibrated {(j.confidence * 100).toFixed(1)}% · energy {j.energy} (reject above {j.energy_threshold})</div>}
+          {j && <div className="vd mono">really {j.confidence >= 0.9 ? 'is' : 'is not'} bluffing: {(j.confidence * 100).toFixed(1)}% · refuses when the picture is too strange (energy {j.energy})</div>}
         </div>
         {src && (
           <div className="stage">
             <div className="viewer"><img src={src} alt="patch" /><canvas ref={camRef} width={448} height={448} /></div>
             <div className="stats">
-              <div className="srow"><span>prediction quality</span><b>{j ? `${(j.confidence * 100).toFixed(1)}% calibrated` : '—'}</b></div>
-              <div className="srow"><span>OOD energy</span><b className="mono">{j?.energy ?? '—'}</b></div>
-              <div className="srow"><span>decision</span><b>{j ? (j.ood ? 'rejected' : 'accepted') : '—'}</b></div>
-              <label className="heat">explanation heat
+              <div className="srow"><span>how sure it really is</span><b>{j ? `${(j.confidence * 100).toFixed(1)}%` : '—'}</b></div>
+              <div className="srow"><span>"is this picture strange?" gauge</span><b className="mono">{j?.energy ?? '—'}</b></div>
+              <div className="srow"><span>decision</span><b>{j ? (j.ood ? 'refused — too strange to judge' : 'answered') : '—'}</b></div>
+              <label className="heat">how much of the reasoning to show
                 <input type="range" min="0" max="100" value={alpha * 100} onInput={e => setAlpha(+(e.target as HTMLInputElement).value / 100)} />
               </label>
             </div>

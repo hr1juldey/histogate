@@ -5,10 +5,11 @@ import { apiBase } from '../lib/api';
 ---
 <Layout title="HistoGate — live demo" active="demo" apiBase={apiBase}>
   <main class="wrap">
-    <div class="kicker" style="margin-top:56px">Live demo · runs on the shipped model</div>
-    <h1>See the tissue, see the diagnosis, see why.</h1>
-    <p class="sub">Click any patch — real expert-annotated tiles from the external validation
-    cohort. The model reports calibrated confidence and shows exactly which regions drove its call.</p>
+    <div class="kicker" style="margin-top:56px">Live demo · the model that actually shipped</div>
+    <h1>See the tissue, see the answer, see why.</h1>
+    <p class="sub">Click any picture — each is a real piece of a cancer biopsy, labeled by
+    doctors. The AI says what it sees, how sure it really is, and lights up the exact
+    regions that drove its call.</p>
     <Demo client:load />
   </main>
 </Layout>

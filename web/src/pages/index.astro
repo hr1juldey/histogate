@@ -12,20 +12,20 @@ const metrics = await get<Metrics>('/metrics.json');
 const samples = await get<Sample[]>('/samples').catch(() => [] as Sample[]);
 const classes = samples.filter(s => s.id !== 'nonorm');
 const m = metrics;
-const met = (v: number | string, l: string, ok = false) => ({ v, l, ok });
+const met = (v: number | string, l: string, tech: string, ok = false) => ({ v, l, tech, ok });
 const metList = [
-  met(m.crcval_f1, 'external macro-F1 · CRC-VAL'),
-  met(m.domain_f1, 'raw multi-scanner F1 · NONORM'),
-  met(m.int8_agree, 'int8 ≡ fp32 argmax', true),
-  met(`${m.throughput} p/s`, 'GPU throughput'),
-  met(m.ece, 'calibration error · ECE'),
+  met(m.crcval_f1, 'names the tissue right — a hospital it never saw', 'external macro-F1'),
+  met(m.domain_f1, 'holds up on machines it never saw', 'raw multi-scanner macro-F1'),
+  met(m.int8_agree, 'runs 4× cheaper, identical answers', 'int8 ≡ fp32 argmax', true),
+  met(`${m.throughput} patches/s`, 'reads hundreds of patches a second', 'GPU throughput'),
+  met(m.ece, 'when it says 97% sure, it is right 97% of the time', 'expected calibration error'),
 ];
 ---
 <Layout title="HistoGate — tissue AI that knows when it shouldn't answer" active="" apiBase={apiBase}>
   <header class="hero">
     <div class="wrap herogrid">
       <div>
-        <span class="badge mono"><i></i>9-class colorectal H&E · calibrated · quality-gated</span>
+        <span class="badge mono"><i></i>reads cancer tissue · tells you when it's unsure · live on this page</span>
         <h1>{cfg.product.tagline}</h1>
         <p class="lead">{cfg.product.hero_sub}</p>
         <div class="row">
@@ -38,43 +38,43 @@ const metList = [
   </header>
 
   <div class="metrics"><div class="wrap mgrid">
-    {metList.map(x => <div class="metric"><div class={`v mono ${x.ok ? 'ok' : ''}`}>{x.v}</div><div class="l">{x.l}</div></div>)}
+    {metList.map(x => <div class="metric"><div class={`v mono ${x.ok ? 'ok' : ''}`}>{x.v}</div><div class="l">{x.l}</div><div class="tech mono">{x.tech}</div></div>)}
   </div></div>
 
   <section class="padded"><div class="wrap">
     <div class="kicker">How it was trained</div>
-    <h2>Four runs. Three failures. One that shipped.</h2>
-    <p class="sub">Click a stage — every number is measured on held-out data, pulled live from the artifacts.</p>
+    <h2>Four attempts. Three failures. One that shipped.</h2>
+    <p class="sub">Click a stage to see what happened and the measured numbers. Nothing here is a claim — every number comes from the real training logs.</p>
     <Journey client:load cfg={cfg} metrics={metrics} />
   </div></section>
 
   <section class="padded"><div class="wrap">
     <div class="kicker">Case studies</div>
-    <h2>Previous failure points, and how each was solved.</h2>
-    <p class="sub">{cfg.gate_note}</p>
+    <h2>Where it broke — and what we did about it.</h2>
+    <p class="sub">Click a card to open it.</p>
     <CaseStudies client:load cfg={cfg} metrics={metrics} />
   </div></section>
 
   <section class="padded"><div class="wrap">
     <div class="kicker">How it works</div>
-    <h2>Gate first. Diagnose second.</h2>
+    <h2>Check the picture first. Answer second.</h2>
     <div class="flow">
-      <div class="card"><b>Patch in</b><p>A 224-px square of H&E tissue — one of the curated examples, or your own.</p></div>
-      <div class="card"><b>Quality gate first</b><p>Blur, pen marks, folds and out-of-distribution input are flagged before any diagnosis — a bad input never earns a confident answer.</p></div>
-      <div class="card"><b>Calibrated call, shown why</b><p>Nine classes with temperature-calibrated probabilities, plus a Grad-CAM heatmap of the regions that drove the call.</p></div>
+      <div class="card"><b>A picture goes in</b><p>A small magnified square of stained tissue — one of the examples, or one you upload.</p></div>
+      <div class="card"><b>The quality check happens first</b><p>Blurry, marked, folded or plain strange pictures get flagged before any diagnosis — a bad picture should never produce a confident answer.</p></div>
+      <div class="card"><b>The answer, with its reasons</b><p>What kind of tissue, how sure it really is, and a heat map showing exactly which parts of the picture drove the call.</p></div>
     </div>
   </div></section>
 
   <section class="padded dark"><div class="wrap">
-    <div class="kicker">Ship gate</div>
-    <h2>Measured, not promised.</h2>
+    <div class="kicker">The shipping bar</div>
+    <h2>Nothing ships until it passes nine checks.</h2>
     <p class="sub">{cfg.gate_note}</p>
     <GateGrid client:load metrics={metrics} />
   </div></section>
 
   <section class="padded"><div class="wrap">
     <div class="kicker">What it reads</div>
-    <h2>Real tissue, expert-annotated.</h2>
+    <h2>Real tissue, labeled by doctors.</h2>
     <div class="classes">
       {classes.map(s => (
         <a class="cl" href="/demo"><img src={`${apiBase}/samples/${s.id}.png`} alt={s.why} /><span>{s.why}</span></a>
@@ -100,6 +100,7 @@ const metList = [
   .metric .v { font-size: 28px; font-weight: 500; }
   .metric .v.ok { color: var(--ok2); }
   .metric .l { font-size: 12.5px; color: var(--t3); margin-top: 2px; }
+  .metric .tech { font-size: 10px; color: var(--t4); margin-top: 3px; }
   .dark { background: var(--panel); border-top: 1px solid var(--b-subtle); border-bottom: 1px solid var(--b-subtle); }
   .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 36px; }
   .flow b { font-size: 16px; }

@@ -38,12 +38,12 @@ export function CaseStudies({ cfg, metrics }: { cfg: SiteConfig; metrics: Metric
             </button>
             {isOpen && (
               <div className="body">
-                <p><b className="lab">What failed.</b> {c.what}</p>
-                <p><b className="lab">How it was solved.</b> {c.fix}</p>
+                <p><b className="lab">What went wrong.</b> {c.what}</p>
+                <p><b className="lab">What we did.</b> {c.fix}</p>
                 {c.id === 'collapse' && metrics.journey.length >= 4 && (
-                  <p className="mono nums">
-                    {metrics.journey.find(j => j.run === 'overnight-30ep')?.nonorm_f1} →{' '}
-                    {metrics.journey.find(j => j.run === 'pr16-mixed')?.nonorm_f1} raw-scanner F1
+                  <p className="nums">
+                    On unseen machines: <span className="mono">{metrics.journey.find(j => j.run === 'overnight-30ep')?.nonorm_f1}</span>
+                    {' '}→ <span className="mono">{metrics.journey.find(j => j.run === 'pr16-mixed')?.nonorm_f1}</span> (higher is better)
                   </p>
                 )}
               </div>
