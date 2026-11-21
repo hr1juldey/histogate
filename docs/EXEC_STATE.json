@@ -11,10 +11,10 @@
       "artifact": null
     },
     "P15-S1": {
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "last_note": "RESULTS.md complete: 3 runs x 8 metrics + gate detail, 0 MISSING cells; renderer ruff-clean",
+      "commit": "666a113",
       "artifact": null
     },
     "P15-S2": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T08:38:01+00:00"
+  "updated": "2026-11-21T08:39:28+00:00"
 }
