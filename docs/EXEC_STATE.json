@@ -32,10 +32,10 @@
       "artifact": null
     },
     "P15-S4": {
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
-      "last_note": "",
-      "commit": null,
+      "last_note": "2 adversarial real-ckpt tests + 8 api/mcp green; live server smoke /health=200 with real engine; TUM mosaic classified via measured ckpt",
+      "commit": "76838f6",
       "artifact": null
     },
     "P15-S5": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T08:41:23+00:00"
+  "updated": "2026-11-21T08:46:06+00:00"
 }
