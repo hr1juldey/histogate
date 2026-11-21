@@ -1,4 +1,25 @@
-# HistoGate Runbook PR-15..PR-20 — v2 EXPLICIT (2026-11-21)
+# HistoGate Runbook PR-15..PR-20 — v2.1 EXPLICIT (2026-11-21)
+
+EXECUTION IS DRIVEN BY docs/EXEC_ENGINE.md (the step loop: call → do → test
+→ pass/fail → report → document; crash recovery; retry/park policy).
+Sub-task completeness index (a missing line here = plan corruption —
+restore it before executing anything):
+  P15-S0 engine bootstrap (next_step.py + state + log + engine tests)
+  P15-S1 render script        P15-S2 README        P15-S3 CI+snapshot
+  P15-S4 serve wiring         P15-S5 HF+GitHub     P15-S6 email numbers
+  P16-S1 RED stainaug tests   P16-S2 calibration+impl  P16-S3 wire training
+  P16-S4 mixed train run      P16-S5 battery+gate  P16-S6 docs row
+  P17-S1 RED ensemble tests   P17-S2 EnsembleEngine  P17-S3 battery
+  P17-S4 docs + serve switch
+  P18-S1 acquire real QC data P18-S2 RED qc tests  P18-S3 qc_head impl
+  P18-S4 battery+gate+docs
+  P19-S1 RED leakage test    P19-S2 wsi_eval impl   P19-S3 slide-level docs
+  P20 (conditional scale-up; same discipline)
+refine: hooks (the ONLY places a second iteration is allowed):
+  P16-S5 refine: if domain drop in (0.015, 0.020] → ONE rerun with σ×1.5.
+  P17-S3 refine: if CRC-VAL in [0.974, 0.975) → add rot90/270 to TTA set
+  (only transforms passing P17-S1 T3 label-safety).
+
 
 HOW TO USE THIS FILE: Every sub-task has an ID (e.g. P16-S3), a goal, exact
 files with signatures, exact commands, a PASS criterion, and an ON-FAIL
@@ -41,6 +62,17 @@ Existing modules you will touch (verified locations):
 ═════════════════════════════════════════════════════════════════════════
 PR-15 PUBLISH v1.0  (deadline: Monday 10:00 IST email)
 ═════════════════════════════════════════════════════════════════════════
+P15-S0 ENGINE BOOTSTRAP
+  Files: scripts/next_step.py, docs/EXEC_STATE.json (init all IDs todo),
+  docs/EXEC_LOG.md (empty), tests/test_next_step.py (T-N1..T-N5 from
+  EXEC_ENGINE.md). next_step.py modes: default (print next sub-task +
+  commands + pass criterion, reading ROADMAP spec line range), --done ID
+  --note, --fail ID --note, --verify (V1..V5).
+  PASS: `uv run pytest tests/test_next_step.py -q` green; `uv run python
+  scripts/next_step.py` prints P15-S0 as in_progress (self-referential
+  first run) — after commit, prints P15-S1.
+  ON-FAIL: fix engine before ANY project sub-task. The engine is load-bearing.
+
 P15-S1 RENDER-SCRIPT
   Create scripts/render_readme_numbers.py:
     def load_run(run_dir: Path) -> dict   # reads gate_report.json, eval_best.json,
