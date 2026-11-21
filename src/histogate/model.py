@@ -147,7 +147,10 @@ class PatchDataset(Dataset):
             # AFTER geometric augs (uint8 HWC), BEFORE normalize; rng is
             # per-(seed,epoch,index) => worker-count invariant. Explicit
             # kwarg applies independently of the geometric `augment` flag.
-            img = self.stain_augment(np.ascontiguousarray(img), rng=rng)
+            # basis_key=i: memmap index is stable per image => Macenko
+            # basis cached across epochs (perf; 18.8 -> ~7 ms/img).
+            img = self.stain_augment(np.ascontiguousarray(img), rng=rng,
+                                     basis_key=int(i))
         x = torch.from_numpy(np.ascontiguousarray(img.transpose(2, 0, 1))).float().div_(255.0)
         x = (x - _MEAN) / _STD
         return x, int(self.labels[i])

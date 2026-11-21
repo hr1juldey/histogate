@@ -152,6 +152,7 @@ class StainAugmenter:
     def __init__(self, params: StainParams, seed: int) -> None:
         self.p = params
         self.rng = np.random.default_rng(seed)
+        self._basis_cache: dict[int, np.ndarray] = {}
 
     def _basis(self, img: np.ndarray) -> np.ndarray:
         """(2,3) Macenko H,E basis of THIS image; calibrated-mean fallback."""
@@ -175,23 +176,30 @@ class StainAugmenter:
 
     def _apply(self, img: np.ndarray, c_h: float, c_e: float,
                w_jitter: float, illum: bool, noise: bool,
-               rng: np.random.Generator | None = None) -> np.ndarray:
+               rng: np.random.Generator | None = None,
+               basis_key: int | None = None) -> np.ndarray:
         """Exact 2-stain decomposition with per-pixel residual preserved:
         od = c_h*H + c_e*E + R. Scaling c_h moves ONLY the H coefficient
         (a 3-row basis fits OD exactly and cross-projects onto the
-        non-orthogonal E axis when re-measured)."""
+        non-orthogonal E axis when re-measured).
+
+        Perf: closed-form 2x2 solve (not lstsq SVD); optional basis_key
+        caches the per-image Macenko basis (same image -> same basis)."""
         rng = rng if rng is not None else self.rng
-        w2 = self._basis(img)
+        w2 = self._cached_basis(img, basis_key)
         if w_jitter > 0:
             w2 = w2 + rng.normal(0, self.p.w_sigma * w_jitter, (2, 3))
             w2 /= np.linalg.norm(w2, axis=1, keepdims=True)
-        od = _od(img).reshape(-1, 3)
-        c2 = np.linalg.lstsq(w2.T, od.T, rcond=None)[0].T
-        residual = od - c2 @ w2
-        od_new = (c2 * np.array([c_h, c_e])) @ w2 + residual
+        w2f = w2.astype(np.float32)
+        od = _od(img).reshape(-1, 3).astype(np.float32)
+        wtw = w2f @ w2f.T                                  # (2,2) Gram
+        wto = od @ w2f.T                                   # (N,2)
+        c2 = np.linalg.solve(wtw, wto.T).T                 # (N,2)
+        residual = od - c2 @ w2f
+        od_new = (c2 * np.array([c_h, c_e], dtype=np.float32)) @ w2f + residual
         if illum:
             field = self._illum(img.shape, rng)
-            od_new = od_new * field.reshape(-1, 1)
+            od_new = od_new * field.reshape(-1, 1).astype(np.float32)
         out = _rgb(od_new.reshape(img.shape))
         if noise and self.p.noise_sigma > 0:
             out = np.clip(out.astype(np.float64)
@@ -199,15 +207,24 @@ class StainAugmenter:
                           0, 255).astype(np.uint8)
         return out
 
+    def _cached_basis(self, img: np.ndarray, key: int | None) -> np.ndarray:
+        if key is None:
+            return self._basis(img)
+        if key not in self._basis_cache:
+            self._basis_cache[key] = self._basis(img)
+        return self._basis_cache[key]
+
     def __call__(self, img: np.ndarray, jitter: float = 1.0,
-                 rng: np.random.Generator | None = None) -> np.ndarray:
+                 rng: np.random.Generator | None = None,
+                 basis_key: int | None = None) -> np.ndarray:
         """Random augment. jitter=0.0 must be a bitwise identity (T5)."""
         if jitter == 0.0:
             return np.ascontiguousarray(img, dtype=np.uint8)
         rng = rng if rng is not None else self.rng
         m = np.exp(rng.uniform(np.log(self.p.m_lo), np.log(self.p.m_hi)))
         return self._apply(img, float(m[0]), float(m[1]),
-                           w_jitter=jitter, illum=True, noise=True, rng=rng)
+                           w_jitter=jitter, illum=True, noise=True, rng=rng,
+                           basis_key=basis_key)
 
     def perturb(self, img: np.ndarray, c_hemo: float = 1.0,
                 c_eos: float = 1.0) -> np.ndarray:
