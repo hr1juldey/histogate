@@ -69,8 +69,8 @@
     "P16-S3": {
       "status": "done",
       "attempts": 1,
-      "last_note": "4/4 wire tests green; explicit-kwarg-independence semantics documented; calib dumped from 400 real slides",
-      "commit": "738d87a",
+      "last_note": "perf pass: 5.96 ms/img => ~20 min/epoch overhead on 200k mixed; acceptable for overnight",
+      "commit": "2ca0d00",
       "artifact": null
     },
     "P16-S4": {
@@ -173,5 +173,5 @@
     }
   },
   "parked": [],
-  "updated": "2026-11-21T11:01:59+00:00"
+  "updated": "2026-11-21T11:06:10+00:00"
 }
