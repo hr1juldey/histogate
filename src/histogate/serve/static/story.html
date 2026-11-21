@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HistoGate — the story</title>
+<style>
+body{font-family:Georgia,'Times New Roman',serif;background:#0f1115;color:#d8d8d2;line-height:1.75;margin:0}
+.wrap{max-width:720px;margin:0 auto;padding:40px 24px 80px}
+.back{font-family:system-ui,sans-serif;font-size:14px;color:#8b93a1;text-decoration:none}
+h1{font-size:30px;margin:18px 0 6px;font-weight:600}
+.dek{color:#8b93a1;font-size:16px;margin-bottom:36px;font-family:system-ui,sans-serif}
+h2{font-size:20px;margin:40px 0 10px;color:#e8e8e0;font-weight:600}
+p{margin:14px 0;font-size:17px}
+.lem{border-left:3px solid #4f9cf9;padding:10px 18px;margin:22px 0;background:#141926;color:#c7d3e6;font-size:15px}
+.cta{display:inline-block;margin-top:26px;background:#4f9cf9;color:#fff;font-family:system-ui,sans-serif;font-weight:600;padding:13px 26px;border-radius:10px;text-decoration:none}
+</style>
+</head>
+<body><div class="wrap">
+<a class="back" href="/">← back</a>
+<h1>The story of HistoGate</h1>
+<div class="dek">A project that runs, breaks, and recovers — because a project that
+only runs looks like a tutorial.</div>
+
+<h2>Act one — the run</h2>
+<p>A ConvNeXt-Tiny backbone learns nine colorectal tissue classes from a
+hundred thousand expert-annotated patches. On a clean external validation
+cohort it performs at the level the literature reports for this benchmark.
+Everything looks perfect. That is the problem — perfect is what
+memorization looks like too.</p>
+
+<h2>Act two — the break</h2>
+<p>The same model is fed the <em>unnormalized</em> twin of its training set:
+same hospital, same patients, same labels — only the scanner's raw stain
+signal, no laboratory normalization. The model collapses. The failure is
+not noise; it is a systematic dependency on the stain chemistry of one
+pipeline. A stain-robust model must survive exactly this.</p>
+
+<h2>Act three — the wrong fix</h2>
+<p>The first repair attempt fine-tuned on raw-stain data at the default
+learning rate. It destroyed the classifier: catastrophic forgetting in a
+single epoch. A second, gentler fine-tune recovered most of the domain —
+but still missed the acceptance gate by a whisker, and honest accounting
+said: not shipped.</p>
+
+<h2>Act four — the physics</h2>
+<p>Instead of more data, the augmentation was rebuilt from the physics of
+staining. Tissue color is Beer–Lambert absorption by two dyes, so the
+augmenter perturbs <em>dye concentrations</em> — estimated per image with a
+two-stain optical-density basis, residuals preserved pixel-exact — rather
+than shaking RGB channels. Adversarial tests proved the perturbations
+land exactly on the hematoxylin axis, stay plausible to a blind
+discriminator, and cover the stain statistics of scanners never seen.
+Trained on mixed data with this calibrated jitter, the model finally
+scores <em>higher</em> on raw multi-scanner input than on the clean set:
+the domain failure didn't just close, it inverted.</p>
+
+<h2>Act five — the judgment calls</h2>
+<p>Two ensembles were built and measured. The voting gain was real —
+localized precisely on the patches where members disagreed — but one
+member's domain weakness poisoned the whole, and it was rejected on
+measurement, not vibes. Out-of-distribution rejection works but sits below
+the shipping bar, and that is published as an open failure, scoped for the
+quality-control work now in flight. Every release faces a nine-check gate;
+the current model passes all but that one, and the page you came from
+shows the live values.</p>
+
+<div class="lem">The lesson: training is not the hard part anymore. Knowing
+what to do when data, augmentation and expected behavior go wrong is the
+engineering — the rest is mechanics.</div>
+
+<a class="cta" href="/ui">See it live →</a>
+</div></body>
+</html>

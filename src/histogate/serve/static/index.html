@@ -2,85 +2,166 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>HistoGate — patch demo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HistoGate — live demo</title>
 <style>
- body{font-family:system-ui,sans-serif;background:#0f1115;color:#e6e6e6;margin:0;padding:24px}
- h1{font-size:20px;margin:0 0 4px} .sub{color:#8b93a1;font-size:13px;margin-bottom:20px}
- #drop{border:2px dashed #444;border-radius:12px;padding:40px;text-align:center;color:#8b93a1;cursor:pointer;transition:.2s}
- #drop.hot{border-color:#4f9cf9;color:#4f9cf9}
- .wrap{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
- .card{background:#161a22;border-radius:12px;padding:16px;flex:1;min-width:320px}
- canvas{width:224px;height:224px;border-radius:8px;image-rendering:pixelated}
- .bar{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}
- .bar .lbl{width:52px;text-align:right;color:#aab}
- .bar .tr{flex:1;background:#222834;border-radius:4px;height:14px}
- .bar .fl{height:14px;border-radius:4px;background:#3d7dca}
- .verdict{font-size:16px;font-weight:600;padding:10px;border-radius:8px;background:#1d2620;margin-bottom:12px}
- .verdict.ood{background:#2d1d1d;color:#ff9d9d}
- .meta{color:#8b93a1;font-size:12px;line-height:1.7}
- input[type=range]{width:224px}
+:root{--bg:#0f1115;--card:#161a22;--line:#242b3a;--fg:#e8eaf0;--mut:#8b93a1;--acc:#4f9cf9;--good:#5dbb7a;--hema:#7c5cd6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg)}
+nav{display:flex;gap:26px;align-items:center;padding:16px 32px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);z-index:9}
+nav .mark{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+nav .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#c25b5b 0%,#7c5cd6 55%,#4f9cf9 100%)}
+nav a{color:var(--mut);text-decoration:none;font-size:14px}
+nav a.on{color:var(--fg);font-weight:600}
+main{max-width:1180px;margin:0 auto;padding:36px 24px 80px}
+.kicker{color:var(--acc);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:30px;font-weight:700;letter-spacing:-.4px;margin:8px 0 6px}
+.sub{color:var(--mut);font-size:15px;max-width:560px}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:34px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.panel h2{font-size:13px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{position:relative;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:.15s}
+.tile img{width:100%;aspect-ratio:1;display:block;object-fit:cover}
+.tile:hover{transform:translateY(-2px)}
+.tile.on{border-color:var(--acc)}
+.tile .tag{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:11px;font-weight:700;padding:14px 8px 6px;text-align:center}
+.gloss{margin-top:12px;color:var(--mut);font-size:13px;line-height:1.5;min-height:36px}
+.own{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px;text-align:center}
+.own label{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:8px 16px;font-size:13px;color:var(--mut);cursor:pointer}
+.own label:hover{border-color:var(--acc);color:var(--fg)}
+.verdict{border-radius:14px;padding:18px 20px;margin-bottom:16px;background:linear-gradient(135deg,#14231a,#0f1115);border:1px solid #23402b}
+.verdict.ood{background:linear-gradient(135deg,#2a1416,#0f1115);border-color:#4a232a}
+.verdict .vt{font-size:22px;font-weight:700}
+.verdict .vd{color:var(--mut);font-size:13px;margin-top:4px}
+.stage{display:flex;gap:20px;flex-wrap:wrap}
+.viewer{position:relative;width:224px;height:224px;border-radius:14px;overflow:hidden;border:1px solid var(--line);flex:0 0 auto}
+.viewer img,.viewer canvas{position:absolute;inset:0;width:100%;height:100%}
+.thermo{position:absolute;top:8px;right:8px;left:8px;height:5px;border-radius:4px;background:rgba(255,255,255,.15);overflow:hidden}
+.thermo i{display:block;height:100%;background:linear-gradient(90deg,var(--good),var(--hema))}
+.energy{flex:1;min-width:220px;align-self:center}
+.energy .row{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);padding:6px 0;border-bottom:1px dashed var(--line)}
+.energy .row b{color:var(--fg)}
+.bars{margin-top:18px}
+.brow{display:grid;grid-template-columns:56px 1fr 58px;align-items:center;gap:12px;margin:7px 0}
+.brow .n{font-size:12px;font-weight:600;color:var(--mut);text-align:right}
+.brow.top .n{color:var(--fg)}
+.brow .tr{height:12px;border-radius:6px;background:#202636;overflow:hidden}
+.brow .fl{height:12px;border-radius:6px;background:linear-gradient(90deg,#3d7dca,var(--hema))}
+.brow.top .fl{background:linear-gradient(90deg,#3d7dca,#5dbb7a)}
+.brow .p{font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
+.camrow{display:flex;align-items:center;gap:12px;margin-top:14px;color:var(--mut);font-size:13px}
+input[type=range]{width:160px;accent-color:var(--acc)}
+footer{border-top:1px solid var(--line);color:var(--mut);font-size:12.5px;padding:20px 32px;text-align:center}
+footer a{color:var(--mut)}
+.spin{width:224px;height:224px;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:14px}
 </style>
 </head>
 <body>
-<h1>HistoGate — stain-robust colorectal tissue classifier</h1>
-<div class="sub">9-class patch diagnosis · temperature-calibrated confidence ·
-energy OOD gate · Grad-CAM localization — Research Use Only</div>
-<div id="drop">drop an H&amp;E patch (224×224 or any square) — or click to pick</div>
-<input type="file" id="file" accept="image/*" hidden>
-<div class="wrap">
- <div class="card">
-  <canvas id="img" width="224" height="224"></canvas>
-  <div class="meta">Grad-CAM blend <input type="range" id="alpha" min="0" max="100" value="45"></div>
+<nav>
+ <div class="mark"><div class="dot"></div>HistoGate</div>
+ <a href="/">Overview</a><a href="/story">Story</a><a class="on" href="/ui">Live demo</a>
+</nav>
+<main>
+ <div class="kicker">Live demo · runs on the shipped model</div>
+ <h1>See the tissue, see the diagnosis, see why.</h1>
+ <p class="sub">Pick any patch below — each is a real expert-annotated tile from the external
+ validation cohort. The model reports calibrated confidence and shows exactly
+ which regions drove its call.</p>
+
+ <div class="grid">
+  <section class="panel">
+   <h2>Example patches</h2>
+   <div class="gallery" id="gallery"></div>
+   <div class="gloss" id="gloss">Click a patch to analyze it.</div>
+   <div class="own">
+    <label>…or upload your own H&amp;E patch<input type="file" id="file" accept="image/*" hidden></label>
+   </div>
+  </section>
+
+  <section class="panel" id="result">
+   <h2>Analysis</h2>
+   <div id="body"><div class="spin">analyzing…</div></div>
+  </section>
  </div>
- <div class="card">
-  <div class="verdict" id="verdict">awaiting patch…</div>
-  <div id="bars"></div>
-  <div class="meta" id="meta"></div>
- </div>
-</div>
+</main>
+<footer>Research Use Only — not for use in diagnostic procedures ·
+every number measured on held-out data · <a href="/">how it was built</a></footer>
+
 <script>
-const drop=document.getElementById('drop'),file=document.getElementById('file');
-const cv=document.getElementById('img'),ctx=cv.getContext('2d');
-let srcImg=null,cam=null;
-drop.onclick=()=>file.click();
-drop.ondragover=e=>{e.preventDefault();drop.classList.add('hot')};
-drop.ondragleave=()=>drop.classList.remove('hot');
-drop.ondrop=e=>{e.preventDefault();drop.classList.remove('hot');
-  const f=e.dataTransfer.files[0];if(f)send(f)};
-file.onchange=()=>file.files[0]&&send(file.files[0]);
-async function send(f){
-  srcImg=await createImageBitmap(f);
-  cam=null;draw();
-  const fd=new FormData();fd.append('file',f);
-  const r=await fetch('/analyze-patch',{method:'POST',body:fd});
-  const j=await r.json();render(j);
+const GLOSS={tumor:'Malignant epithelium — the cancer cells themselves. In H&E they show as irregular, crowded, dark-purple glands.',
+ normal:'Healthy mucosal glands: neat, test-tube shaped crypts with orderly nuclei.',
+ stroma:'Connective-tissue framework around glands — the soil a tumor invades. It carries the prognostic TSR biomarker.',
+ lymph:'Dense immune-cell clusters. Their density inside tumor regions is the TIL biomarker.',
+ mucus:'Pale mucin lakes secreted by some tumors — visually unlike anything else in the panel.',
+ debris:'Necrotic cells and waste. Ugly under the microscope, but real biology — a quality gate must not flag it.'};
+let cur=null;
+const gallery=document.getElementById('gallery');
+fetch('/samples').then(r=>r.json()).then(list=>{
+ for(const s of list){
+  const d=document.createElement('div');d.className='tile';d.dataset.id=s.id;
+  d.innerHTML=`<img src="/samples/${s.id}.png" alt="${s.id}"><div class="tag">${s.id.toUpperCase()}</div>`;
+  d.onclick=()=>pick(s.id,d);
+  gallery.appendChild(d);
+ }
+ pick(list[0].id,gallery.querySelector('.tile'));
+});
+async function pick(id,el){
+ document.querySelectorAll('.tile').forEach(t=>t.classList.remove('on'));
+ el.classList.add('on');
+ document.getElementById('gloss').textContent=GLOSS[id]||'';
+ document.getElementById('body').innerHTML='<div class="spin">analyzing…</div>';
+ const r=await fetch('/samples/'+id);
+ const blob=await r.blob();
+ run(new File([blob],id+'.tif',{type:'image/tiff'}),'/samples/'+id+'.png');
 }
-function draw(){
-  if(!srcImg)return;
-  ctx.drawImage(srcImg,0,0,224,224);
-  if(cam){const a=+document.getElementById('alpha').value/100;
-    const tmp=document.createElement('canvas');tmp.width=tmp.height=224;
-    const tc=tmp.getContext('2d');
-    const d=tc.createImageData(224,224);
-    for(let i=0;i<224*224;i++){const v=cam[i];
-      d.data[i*4]=255*v;d.data[i*4+1]=40*v;d.data[i*4+2]=40*v;d.data[i*4+3]=255*Math.min(1,v*1.4)*a}
-    tc.putImageData(d,0,0);ctx.drawImage(tmp,0,0)}
+document.getElementById('file').onchange=e=>e.target.files[0]&&run(e.target.files[0]);
+async function run(f,displayUrl){
+ try{cur=await createImageBitmap(f)}catch(e){cur=null}
+ const fd=new FormData();fd.append('file',f);
+ const j=await(await fetch('/analyze-patch',{method:'POST',body:fd})).json();
+ render(j,displayUrl);
 }
-document.getElementById('alpha').oninput=draw;
-function render(j){
-  cam=j.gradcam.flat();draw();
-  const v=document.getElementById('verdict');
-  v.textContent=j.verdict;v.className='verdict'+(j.ood?' ood':'');
-  const bars=document.getElementById('bars');
-  bars.innerHTML='';
-  const sorted=[...j.probabilities].sort((a,b)=>b.p-a.p);
-  for(const p of sorted){
-    const row=document.createElement('div');row.className='bar';
-    row.innerHTML=`<div class="lbl">${p.class}</div><div class="tr"><div class="fl" style="width:${(p.p*100).toFixed(1)}%"></div></div><div>${(p.p*100).toFixed(1)}%</div>`;
-    bars.appendChild(row)}
-  document.getElementById('meta').innerHTML=
-   `energy ${j.energy} vs threshold ${j.energy_threshold} (fpr 5%)<br>`+
-   `calibrated confidence ${(j.confidence*100).toFixed(1)}% · ship: pr16-mixed (8/9 gate)`;
+function render(j,displayUrl){
+ const B=document.getElementById('body');
+ const sorted=[...j.probabilities].sort((a,b)=>b.p-a.p);
+ const rows=sorted.map(p=>`<div class="brow ${p.class===j.top_class?'top':''}">
+   <div class="n">${p.class}</div><div class="tr"><div class="fl" style="width:${(p.p*100).toFixed(1)}%"></div></div>
+   <div class="p">${(p.p*100).toFixed(1)}%</div></div>`).join('');
+ B.innerHTML=`
+  <div class="verdict ${j.ood?'ood':''}">
+   <div class="vt">${j.verdict}</div>
+   <div class="vd">calibrated confidence ${(j.confidence*100).toFixed(1)}% ·
+   in-distribution energy ${j.energy} (reject above ${j.energy_threshold})</div>
+  </div>
+  <div class="stage">
+   <div class="viewer"><div class="thermo"><i style="width:${(j.confidence*100).toFixed(0)}%"></i></div>
+    <img id="vimg"><canvas id="cam" width="448" height="448"></canvas></div>
+   <div class="energy">
+    <div class="row"><span>quality of this prediction</span><b>${(j.confidence*100).toFixed(1)}% calibrated</b></div>
+    <div class="row"><span>out-of-distribution energy</span><b>${j.energy}</b></div>
+    <div class="row"><span>decision</span><b>${j.ood?'rejected — not this tissue':'accepted'}</b></div>
+    <div class="camrow">explanation heat <input type="range" id="alpha" min="0" max="100" value="45"></div>
+   </div>
+  </div>
+  <div class="bars">${rows}</div>`;
+ const img=document.getElementById('vimg');
+ img.src=displayUrl||URL.createObjectURL(cur);
+ img.onload=()=>draw(j.gradcam);
+ document.getElementById('alpha').oninput=()=>draw(j.gradcam);
+}
+function draw(cam2d){
+ const c=document.getElementById('cam');if(!c)return;
+ const ctx=c.getContext('2d');ctx.clearRect(0,0,448,448);
+ const a=+document.getElementById('alpha').value/100;
+ const flat=Array.isArray(cam2d[0])?cam2d.flat():cam2d;
+ const w=Math.round(Math.sqrt(flat.length));
+ const d=ctx.createImageData(448,448);
+ for(let yy=0;yy<448;yy++)for(let xx=0;xx<448;xx++){
+  const v=flat[Math.floor(yy/448*w)*w+Math.floor(xx/448*w)]||0;
+  const i=(yy*448+xx)*4;d.data[i]=255*v;d.data[i+1]=60*v;d.data[i+2]=60*v;d.data[i+3]=255*Math.min(1,v*1.3)*a}
+ ctx.putImageData(d,0,0);
 }
 </script>
 </body>

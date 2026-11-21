@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from PIL import Image
 from pydantic import BaseModel
 
@@ -51,7 +51,62 @@ def create_app(engine: LockedEngine, slides_root: Path,
     def ui() -> FileResponse:
         return FileResponse(Path(__file__).parent / "static" / "index.html")
 
+    @app.get("/", response_class=FileResponse)
+    def landing() -> FileResponse:
+        return FileResponse(Path(__file__).parent / "static" / "landing.html")
+
+    @app.get("/story", response_class=FileResponse)
+    def story() -> FileResponse:
+        return FileResponse(Path(__file__).parent / "static" / "story.html")
+
+    @app.get("/metrics.json")
+    def metrics() -> dict[str, Any]:
+        from histogate.serve.metrics import landing_metrics
+        return landing_metrics()
+
     if patch_analyzer is not None:
+        SAMPLES = [
+            ("tumor", "TUM — tumor epithelium: the cancer cells themselves",
+             "CRC-VAL-HE-7K/TUM/TUM-TCGA-AAHIDTWA.tif"),
+            ("normal", "NORM — healthy gland architecture for contrast",
+             "CRC-VAL-HE-7K/NORM/NORM-TCGA-AASSYQPA.tif"),
+            ("stroma", "STR — the connective tissue a tumor invades",
+             "CRC-VAL-HE-7K/STR/STR-TCGA-AAMALCER.tif"),
+            ("lymph", "LYM — immune-cell clusters, the TIL story",
+             "CRC-VAL-HE-7K/LYM/LYM-TCGA-AAWGSCHH.tif"),
+            ("mucus", "MUC — mucin lakes, a visually odd class",
+             "CRC-VAL-HE-7K/MUC/MUC-TCGA-AADHFQAT.tif"),
+            ("debris", "DEB — necrosis/debris: ugly but real tissue",
+             "CRC-VAL-HE-7K/DEB/DEB-TCGA-AANNAWLE.tif"),
+        ]
+
+        @app.get("/samples")
+        def samples() -> list[dict[str, str]]:
+            return [{"id": i, "why": w}
+                    for i, w, _ in SAMPLES]
+
+        @app.get("/samples/{sid}.png")
+        def sample_png(sid: str) -> Response:
+            import io
+
+            from PIL import Image
+            for i, _, rel in SAMPLES:
+                if i == sid:
+                    buf = io.BytesIO()
+                    Image.open(Path("data/raw") / rel).convert(
+                        "RGB").save(buf, format="PNG")
+                    return Response(buf.getvalue(),
+                                    media_type="image/png")
+            raise HTTPException(404, "unknown sample")
+
+        @app.get("/samples/{sid}", response_class=FileResponse)
+        def sample_img(sid: str) -> FileResponse:
+            for i, _, rel in SAMPLES:
+                if i == sid:
+                    return FileResponse(Path("data/raw") / rel,
+                                        media_type="image/tiff")
+            raise HTTPException(404, "unknown sample")
+
         @app.post("/analyze-patch")
         async def analyze_patch(file: UploadFile) -> dict[str, Any]:
             try:

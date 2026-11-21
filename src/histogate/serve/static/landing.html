@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HistoGate — stain-robust tissue AI, built the hard way</title>
+<style>
+:root{--bg:#0f1115;--card:#161a22;--line:#232a36;--fg:#e6e6e6;--mut:#8b93a1;--acc:#4f9cf9;--good:#5dbb7a;--bad:#e08080}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0;position:sticky;top:0;background:rgba(15,17,21,.92);backdrop-filter:blur(6px);z-index:5;border-bottom:1px solid var(--line)}
+nav b{font-size:15px}.navlinks a{color:var(--mut);text-decoration:none;margin-left:22px;font-size:14px}
+.navlinks a:hover{color:var(--fg)}
+.hero{padding:72px 0 48px;border-bottom:1px solid var(--line)}
+.chip{display:inline-block;font-size:12px;color:var(--acc);border:1px solid var(--acc);border-radius:99px;padding:3px 12px;margin-bottom:18px}
+h1{font-size:clamp(28px,4.6vw,44px);line-height:1.15;font-weight:700;letter-spacing:-.5px}
+.hero p.lead{font-size:17px;color:var(--mut);margin:18px 0 30px;max-width:640px}
+.cta{display:inline-block;background:var(--acc);color:#fff;font-weight:600;padding:13px 26px;border-radius:10px;text-decoration:none;font-size:15px}
+.cta.ghost{background:none;border:1px solid var(--line);color:var(--fg);margin-left:12px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:40px 0 8px}
+.metric{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.metric .v{font-size:26px;font-weight:700}.metric .v.pass{color:var(--good)}
+.metric .l{font-size:12px;color:var(--mut);margin-top:2px}
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+h2{font-size:24px;margin-bottom:8px;font-weight:650}
+.sub{color:var(--mut);font-size:15px;margin-bottom:28px;max-width:640px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px}
+.card h3{font-size:16px;margin-bottom:8px}
+.card p{font-size:14px;color:var(--mut)}
+.steps{counter-reset:s}
+.step{display:flex;gap:18px;padding:16px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border:none}
+.step .n{counter-increment:s;flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--acc);color:var(--acc);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.step .n::before{content:counter(s)}
+.step b{display:block;font-size:15px}.step span{font-size:14px;color:var(--mut)}
+.gate{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.gcell{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px}
+.gcell b{display:block;font-size:14px}.gcell .pass{color:var(--good)}.gcell .fail{color:var(--bad)}
+footer{padding:36px 0;color:var(--mut);font-size:13px}
+footer .ruo{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:inline-block}
+</style>
+</head>
+<body>
+<nav class="wrap"><b>HistoGate</b>
+<div class="navlinks"><a href="/#how">How it works</a><a href="/#proof">Proof</a><a href="/story">Story</a><a href="/ui">Demo</a></div></nav>
+
+<header class="hero wrap">
+ <span class="chip" id="chip">quality-gated · calibrated · quantized</span>
+ <h1>A tissue classifier that knows<br>when it shouldn't answer.</h1>
+ <p class="lead">Nine-class colorectal H&amp;E classification with a quality gate in front,
+ calibrated confidence, out-of-distribution rejection and biomarker scores —
+ every number on this page measured, not promised.</p>
+ <a class="cta" href="/ui">Try it live — drop a patch</a>
+ <a class="cta ghost" href="/story">Read how it broke</a>
+ <div class="metrics" id="mets"></div>
+</header>
+
+<section class="wrap" id="how">
+ <h2>How the journey works</h2>
+ <p class="sub">Four steps, in the order a pathologist's workflow actually goes.
+ Nothing classifies before it's checked — that ordering is the product.</p>
+ <div class="steps">
+  <div class="step"><div class="n"></div><div><b>Drop a patch</b><span>Any H&amp;E square tile — or pick one of the curated examples, each chosen to show a different behaviour.</span></div></div>
+  <div class="step"><div class="n"></div><div><b>Quality gate first</b><span>Is the tile even usable? Blur, pen marks, folds and air bubbles get flagged before diagnosis — a bad input must never produce a confident answer.</span></div></div>
+  <div class="step"><div class="n"></div><div><b>Diagnosis, calibrated</b><span>Nine tissue classes with temperature-calibrated probabilities — when it says ninety-seven percent, it is ninety-seven percent.</span></div></div>
+  <div class="step"><div class="n"></div><div><b>See where it looked</b><span>A Grad-CAM heatmap shows the regions that drove the call — gland architecture, not the ink smear. Trust is earned visibly.</span></div></div>
+ </div>
+</section>
+
+<section class="wrap" id="proof">
+ <h2>Measured, gated, deployed</h2>
+ <p class="sub">Every release passes a nine-check gate on held-out and out-of-distribution data
+ before it ships. These are the live numbers of the current model.</p>
+ <div class="gate" id="gate"></div>
+</section>
+
+<section class="wrap">
+ <h2>Who builds this</h2>
+ <div class="cards">
+  <div class="card"><h3>Biologist first</h3><p>Biotechnology graduate — the tissue classes, stain physics and biomarker definitions come from domain understanding, not a leaderboard.</p></div>
+  <div class="card"><h3>Deep learning engineer</h3><p>Physics-grounded stain augmentation, calibration, energy OOD gating, int8 quantization with measured agreement, CI-enforced docs.</p></div>
+  <div class="card"><h3>Consumer-health product sense</h3><p>Shipped D2C health products at Man Matters, Bodywise and Lady Joyce — this page's funnel is that instinct applied to pathology AI.</p></div>
+ </div>
+</section>
+
+<footer class="wrap">
+ <div class="ruo">Research Use Only — not for use in diagnostic procedures.</div><br>
+ Open source: code, checkpoints, measurements and failures.
+ <span id="src"></span>
+</footer>
+
+<script>
+fetch('/metrics.json').then(r=>r.json()).then(d=>{
+ const M=(v,l,p)=>`<div class="metric"><div class="v ${p?'pass':''}">${v}</div><div class="l">${l}</div></div>`;
+ document.getElementById('mets').innerHTML=
+  M(d.crcval_f1,'CRC-VAL macro-F1 (external)')+
+  M(d.domain_f1,'raw multi-scanner macro-F1')+
+  M(d.int8_agree,'int8 vs fp32 agreement',true)+
+  M(d.throughput+' p/s','GPU throughput')+
+  M(d.ece,'calibration error (ECE)');
+ const G=(n,v,t,ok)=>`<div class="gcell"><b>${n}</b><span class="${ok?'pass':'fail'}">${v}</span> <span style="color:var(--mut)">${t}</span></div>`;
+ document.getElementById('gate').innerHTML=d.gate_checks.map(c=>G(c.name,c.value,c.threshold,c.passed)).join('');
+ document.getElementById('src').textContent=' '+d.revision;
+});
+</script>
+</body>
+</html>

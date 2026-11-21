@@ -29,19 +29,31 @@ TILE = 224
 MIN_FRAC = 0.25
 CAP_PER_SLIDE = 60
 BLEMISH = ("blurry", "dark", "bright", "fatlike", "spur")
+TISSUE = "mask_use"
 TARGET_UM_PER_PX = 0.5
 HOME = Path.home() / "Documents"
 
 
 def load_masks(slide_out: Path, stem: str) -> np.ndarray | None:
-    acc = None
+    """Union of blemish masks INTERSECTED with the usable-tissue mask.
+
+    'bright' alone covers most of the raw slide (white background), so
+    without the tissue intersection nearly every flagged cell is blank
+    background — measured on tumor_001: bright 69% of raw pixels, but
+    mask_use (tissue) is only 13%.
+    """
+    tissue_p = slide_out / f"{stem}_{TISSUE}.png"
+    if not tissue_p.exists():
+        return None
+    tissue = np.asarray(Image.open(tissue_p).convert("L")) > 127
+    acc = np.zeros_like(tissue)
     for b in BLEMISH:
         p = slide_out / f"{stem}_{b}.png"
         if not p.exists():
             continue
-        m = np.asarray(Image.open(p).convert("L")) > 0
-        acc = m if acc is None else (acc | m)
-    return acc
+        m = np.asarray(Image.open(p).convert("L")) > 127
+        acc = acc | m
+    return acc & tissue
 
 
 def pick_level(slide: openslide.OpenSlide) -> int:
