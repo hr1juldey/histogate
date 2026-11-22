@@ -70,3 +70,37 @@ def test_engine_rejects_blank_slide(tmp_path):
     analyze = build_analyze(CKPT, CALIB, device="cpu")
     with pytest.raises(ValueError, match="no tissue tiles"):
         analyze(p)
+
+
+@pytest.mark.skipif(not CKPT.exists() or not CALIB.exists(),
+                    reason="checkpoint/calibration artifacts not on this machine")
+def test_slide_map_tiles_and_familiarity(tmp_path):
+    """B0: slide map must tile a real mosaic, emit per-tile verdicts with a
+    0-100 familiarity derived from energy, and the gate from calibration."""
+    from histogate.serve.patch_demo import PatchAnalyzer
+    from histogate.serve.slide_map import _familiarity, build_slide_map
+
+    assert _familiarity(-4.6) == 100
+    assert _familiarity(-1.6) == 0
+    assert _familiarity(-3.0) == 47
+
+    imgs = sorted((RAW).glob("*.tif"))[:9] or sorted(RAW.glob("*.png"))[:9]
+    assert len(imgs) == 9, "need 9 real TUM tiles for the mosaic"
+    tiles = [tifffile.imread(p) for p in imgs]
+    th = tiles[0].shape[0]
+    rows = [np.concatenate(tiles[i * 3:(i + 1) * 3], axis=1) for i in range(3)]
+    mosaic = tmp_path / "slide_map_mosaic.tif"
+    tifffile.imwrite(mosaic, np.concatenate(rows, axis=0))
+
+    analyzer = PatchAnalyzer(CKPT, CALIB)
+    out = build_slide_map(mosaic, analyzer, patch=th, stride=th)
+    assert out["grid"] == {"cols": 3, "rows": 3}
+    assert len(out["tiles"]) == 9
+    t = out["tiles"][0]
+    assert {"id", "col", "row", "cls", "conf", "energy",
+            "familiarity", "declined"} <= set(t)
+    assert all(0 <= x["familiarity"] <= 100 for x in out["tiles"])
+    assert out["gate"] == pytest.approx(analyzer.energy_thr, rel=1e-6)
+    assert sum(x["declined"] for x in out["tiles"]) == sum(
+        x["energy"] > out["gate"] for x in out["tiles"]), (
+        "declined flag must equal energy above gate")

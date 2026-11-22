@@ -136,4 +136,13 @@ def create_app(engine: LockedEngine, slides_root: Path,
             except Exception as e:  # noqa: BLE001 — demo surface, 422 contract
                 raise HTTPException(422, f"bad image: {e}") from e
 
+        @app.get("/slide-map.json")
+        def slide_map() -> dict[str, Any]:
+            from histogate.serve.slide_map import build_slide_map
+            try:
+                return build_slide_map(
+                    Path("data/raw/camelyon16/tumor_001.tif"), patch_analyzer)
+            except Exception as e:  # noqa: BLE001 — demo surface
+                raise HTTPException(503, f"slide map unavailable: {e}") from e
+
     return app

@@ -1,0 +1,64 @@
+"""One-slide verdict map for the /slide page (PR: whole-slide view).
+
+Tiles a whole-slide image on its tissue mask, runs the shipped patch
+analyzer per tile, and memoizes the result per process — the first
+request computes, every later request is a dict lookup.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+
+import numpy as np
+from PIL import Image
+
+from histogate.serve.patch_demo import PatchAnalyzer
+from histogate.wsi import load_levels, read_patch, tile_grid, tissue_mask
+
+ELO, EHI = -4.6, -1.6  # shared display scale: -4.6 familiar … -1.6 unfamiliar
+_MAX_TILES = 4000
+
+_cache: dict[str, dict] = {}
+
+
+def _familiarity(energy: float) -> int:
+    """Familiarity 0-100 = 100 - needle position on the display scale."""
+    f = 100 * (1 - (energy - ELO) / (EHI - ELO))
+    return max(0, min(100, round(f)))
+
+
+def build_slide_map(slide_path: Path, analyzer: PatchAnalyzer,
+                    patch: int = 448, stride: int | None = None) -> dict:
+    key = f"{slide_path}|{patch}|{analyzer.energy_thr}"
+    if key in _cache:
+        return _cache[key]
+    stride = stride or patch
+    levels = load_levels(slide_path)
+    if not levels:
+        raise ValueError(f"cannot read {slide_path}")
+    img = levels[0]
+    mask = tissue_mask(img)
+    coords = tile_grid(img.shape, mask, patch=patch, stride=stride)
+    ys = [c[0] for c in coords]
+    xs = [c[1] for c in coords]
+    if len(ys) > _MAX_TILES:  # thin out deterministically, keep coverage
+        step = len(ys) / _MAX_TILES
+        keep = [round(i * step) for i in range(_MAX_TILES)]
+        ys, xs = [ys[i] for i in keep], [xs[i] for i in keep]
+    if not ys:
+        raise ValueError("no tissue tiles in slide")
+    cols = (max(xs) // stride) + 1
+    rows = (max(ys) // stride) + 1
+    tiles = []
+    for i, (y, x) in enumerate(zip(ys, xs, strict=True)):
+        pil = Image.fromarray(np.asarray(read_patch(img, y, x, patch)))
+        r = analyzer.analyze(pil)
+        tiles.append({
+            "id": f"t{i}", "col": x // stride, "row": y // stride,
+            "cls": r["top_class"], "conf": r["confidence"],
+            "energy": r["energy"], "familiarity": _familiarity(r["energy"]),
+            "declined": bool(r["ood"]),
+        })
+    out = {"slide": slide_path.name, "grid": {"cols": int(cols), "rows": int(rows)},
+           "gate": analyzer.energy_thr, "tiles": tiles}
+    _cache[key] = out
+    return out
