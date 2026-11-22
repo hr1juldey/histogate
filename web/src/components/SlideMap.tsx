@@ -223,9 +223,8 @@ export default function SlideMap() {
               aria-pressed={mode === m}>{m}</button>
           ))}
         </span>
-        {(view.k > KMIN + 1e-3 || rot !== 0) && (
-          <button className="vtg" onClick={resetAll}>reset view</button>
-        )}
+        <button className="vtg" onClick={resetAll}
+          disabled={view.k <= KMIN + 1e-3 && rot === 0}>reset view</button>
       </div>
       <div className="guides">
         <span className="glab">most tumor-like — verify:</span>
