@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { analyze, analyzeTiff, apiBase, get, type Analysis, type Sample } from '../lib/api';
+import { analyze, analyzeTiff, apiBase, get, type Analysis, type Sample, ngrokHeaders} from '../lib/api';
 import PatchViewer from './PatchViewer';
 import InspectorCard from './InspectorCard';
 
@@ -47,7 +47,7 @@ export default function Demo() {
   const pick = async (id: string) => {
     touched.current = true;
     setSel(id);
-    const r = await fetch(`${apiBase}/samples/${id}`);
+    const r = await fetch(`${apiBase}/samples/${id}`, { headers: ngrokHeaders });
     await runBlob(await r.blob(), `${apiBase}/samples/${id}.png`, true, null);
   };
 

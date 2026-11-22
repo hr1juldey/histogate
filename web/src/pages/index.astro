@@ -11,7 +11,8 @@ import siteCfgFallback from '../data/site-config.json';
 const cfg = await get<SiteConfig>('/site-config.json').catch(() => siteCfgFallback as unknown as SiteConfig);
 import metricsFallback from '../data/metrics.json';
 const metrics = await get<Metrics>('/metrics.json').catch(() => metricsFallback as unknown as Metrics);
-const samples = await get<Sample[]>('/samples').catch(() => [] as Sample[]);
+import samplesFallback from '../data/samples.json';
+const samples = await get<Sample[]>('/samples').catch(() => samplesFallback as unknown as Sample[]);
 const classes = samples.filter(s => s.id !== 'nonorm');
 const m = metrics;
 const ood = m.gate_checks.find(g => g.name === 'ood_auroc')?.value ?? '—';
@@ -105,7 +106,7 @@ const metList = [
     <h2>Real tissue, labeled by doctors.</h2>
     <div class="classes">
       {classes.map(s => (
-        <a class="cl" href="/demo"><img src={`${apiBase}/samples/${s.id}.png`} alt={s.why} /><span>{s.why}</span></a>
+        <a class="cl" href="/demo"><img src={`/samples/${s.id}.png`} alt={s.why} /><span>{s.why}</span></a>
       ))}
     </div>
     <div class="who card">{cfg.who}</div>
