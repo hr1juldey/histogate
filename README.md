@@ -1,5 +1,9 @@
 # HistoGate
 
+**Try it live: <https://histogate.vercel.app>** — whole-slide map, per-tile
+predictions, stain-dial story and unknown-image upload, served from the
+author's own GPU box through an on-demand wake router.
+
 Stain-invariant, quality-gated 9-class colorectal H&E tissue classifier
 with TSR/TIL biomarkers, attention-MIL slide reporting, ONNX fp16/int8
 export, a fail-closed regression gate, and FastAPI/FastMCP serving.

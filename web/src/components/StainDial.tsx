@@ -1,5 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import storyCache from '../data/story-analyses.json';
+/* Precomputed model response over the dial's parameter space — 9 grid
+   points x 2 tiles x both models, REAL inferences (scripts/make_dial_curve.py).
+   The dial is instant for everyone; live inference refines behind it. */
+type CurveRow = { t: number; v1: Analysis; ship: Analysis; gradcam?: number[][] };
+const CURVE: Record<string, CurveRow[]> = { lab: [], raw: [] };
+let curveLoaded: Promise<void> | null = null;
+function loadCurve(): Promise<void> {
+  if (!curveLoaded) {
+    curveLoaded = fetch('/story-dial-curve.json')
+      .then(r => r.json())
+      .then((d: Record<string, CurveRow[]>) => { CURVE.lab = d.lab; CURVE.raw = d.raw; })
+      .catch(() => undefined);
+  }
+  return curveLoaded;
+}
 import { analyze, apiBase, type Analysis } from '../lib/api';
 import { ELO, EHI, famPct } from '../lib/familiarity';
 
@@ -131,14 +145,29 @@ export default function StainDial() {
 
   /* Untouched dial = KNOWN data = cache (works with the backend dead).
      Only a user-moved dial makes synthetic (unknown) images -> live. */
+  function applyCurve(t: number) {
+    const pts = CURVE[tileRef.current];
+    if (!pts?.length) return;
+    const lo = pts.reduce((a, b) => Math.abs(b.t - t) < Math.abs(a.t - t) ? b : a);
+    const hi = pts.filter(r => r.t >= t).sort((a, b) => a.t - b.t)[0] ?? lo;
+    const span = hi.t - lo.t, w = span > 1e-9 ? (t - lo.t) / span : 0;
+    const mix = (k: 'confidence' | 'energy', base: 'v1' | 'ship') => {
+      const a = lo[base][k] as number, b = (hi[base][k] as number) ?? a;
+      return a + w * (b - a);
+    };
+    const toCard = (base: 'v1' | 'ship'): Card => ({
+      conf: mix('confidence', base), label: lo[base].top_class,
+      energy: mix('energy', base), thr: lo[base].energy_threshold,
+      ood: lo[base].ood });
+    setV1(toCard('v1')); setShip(toCard('ship'));
+    const cam = pts.filter(r => r.gradcam)
+      .reduce((a, b) => Math.abs(b.t - t) < Math.abs(a.t - t) ? b : a);
+    if (cam?.gradcam) drawEvidence(cam.gradcam);
+  }
+
   async function predictBase() {
-    const cache = storyCache as unknown as Record<string, Analysis>;
-    const v1c = cache['tumor:v1'], shipc = cache['tumor:ship'];
-    const toCard = (j: Analysis): Card =>
-      ({ conf: j.confidence, label: j.top_class, energy: j.energy,
-         thr: j.energy_threshold, ood: j.ood });
-    setV1(toCard(v1c)); setShip(toCard(shipc));
-    if (shipc?.gradcam) drawEvidence(shipc.gradcam as unknown as number[][]);
+    await loadCurve();
+    applyCurve(stain);
   }
 
   async function go(blob: Blob, which: 'v1' | 'ship', set: (c: Card) => void) {
@@ -177,7 +206,8 @@ export default function StainDial() {
   const onDial = (v: number) => {
     setStain(v);
     render(v);
-    if (!busy.current) { pend.current = true; setTimeout(() => { if (pend.current) { pend.current = false; predict(); } }, 220); }
+    applyCurve(v);            // instant — works for every visitor, offline
+    if (!busy.current) { pend.current = true; setTimeout(() => { if (pend.current) { pend.current = false; predict(); } }, 400); }
   };
 
   /* tile switch keeps the dial position — same stain shift, other patient */
@@ -186,6 +216,7 @@ export default function StainDial() {
     tileRef.current = id;
     setTile(id);
     render(stain);
+    applyCurve(stain);
     predict();
   };
 
