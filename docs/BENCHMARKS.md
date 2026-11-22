@@ -37,3 +37,30 @@ phikon-v2 probe trained on 40000 NCT-CRC tiles (5k/class), probe fit in
 The 6M-param specialist beats the 307M generalist by
 4.4 points on its own benchmark — and refuses
 what it does not know, which a linear probe cannot.
+
+## Rejection-aware operating points (CRC-VAL, n=7180)
+
+The accuracy number is a function of how much you decline. Coverage = fraction
+of tiles answered; accuracy/macro-F1 computed over answered tiles only.
+Artifact: `runs/pr16-mixed/coverage.json` (rendered, not hand-typed).
+Conformal sets: fold-mean coverage 0.9503 @ alpha 0.05 / 0.9006 @ alpha 0.10
+(`runs/pr16-mixed/conformal.json`); guarantee holds among answered tiles,
+conditional on exchangeability with the calibration cohort.
+
+| rejection axis | operating point | coverage | accuracy | macro-F1 |
+|---|---|---|---|---|
+| confidence | none (answer all) | 100.0% | 0.9781 | 0.9700 |
+| confidence | keep 98% by confidence | 98.0% | 0.9855 | 0.9774 |
+| confidence | keep 95% by confidence | 95.0% | 0.9900 | 0.9805 |
+| confidence | keep 90% by confidence | 90.0% | 0.9924 | 0.9814 |
+| confidence | keep 85% by confidence | 85.0% | 0.9936 | 0.9826 |
+| confidence | keep 80% by confidence | 80.0% | 0.9932 | 0.9813 |
+| familiarity (KNN) | live gate (5%-FPR calibrated) | 96.1% | 0.9894 | 0.9812 |
+| familiarity (KNN) | decline 3.3% by unfamiliarity | 96.7% | 0.9883 | 0.9804 |
+| familiarity (KNN) | decline 5.0% by unfamiliarity | 95.0% | 0.9906 | 0.9817 |
+| familiarity (KNN) | decline 10.0% by unfamiliarity | 90.0% | 0.9937 | 0.9829 |
+| familiarity (KNN) | decline 20.0% by unfamiliarity | 80.0% | 0.9937 | 0.9406 |
+
+At 20% decline the macro-F1 collapses (0.9406): unfamiliar tiles carry the
+weak classes (MUS/STR) — declining them removes their easy wins too. The
+live gate sits at 96.1% coverage / 98.94% accuracy: the honest default.
