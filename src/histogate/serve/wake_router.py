@@ -92,10 +92,14 @@ async def proxy(path: str, request: Request) -> Response:
     # (PNG tiles, overview, heatmaps) as raw bytes with its content-type.
     # The earlier JSON-only shim turned every image into {"_bytes": N},
     # which the frontend fetched fine but could never render.
+    passthrough = {k: v for k, v in r.headers.items()
+                   if k.lower().startswith("access-control-")
+                   or k.lower() in ("content-disposition", "cache-control")}
+    passthrough["x-routed"] = "wake-router"
     return Response(
         status_code=r.status_code, content=r.content,
         media_type=r.headers.get("content-type", "application/octet-stream"),
-        headers={"x-routed": "wake-router"})
+        headers=passthrough)
 
 
 @app.on_event("startup")
