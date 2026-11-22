@@ -54,7 +54,11 @@ export default function Demo() {
     // known samples: cached verdict, instant, zero backend (live is for
     // unknown-data uploads only)
     const cached = (sampleAnalyses as unknown as Record<string, Analysis>)[id];
-    if (cached) { setJ(cached); setErr(false); setFname(null); return; }
+    if (cached) {
+      setSrc(`/samples/${id}.png`); setJ(cached); setErr(false); setFname(null);
+      measure(`/samples/${id}.png`);
+      return;
+    }
     await runBlob(await fetch(`/samples/${id}.png`).then(r => r.blob()), `/samples/${id}.png`, true, null);
   };
 
