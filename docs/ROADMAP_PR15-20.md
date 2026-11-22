@@ -335,3 +335,67 @@ COMPACTION ANCHORS: if context is compacted, resume by
   3) mnemosyne task 'histogate' for status,
   4) continue from the first uncommitted sub-task ID. Never restart a
   completed sub-task; `ls runs/<name>` + gate_report.json tells what is done.
+
+
+═════════════════════════════════════════════════════════════════════════
+PR-22 (PROPOSED 2026-11-22) SENIOR-SIGNAL UPGRADES — the "not-a-student"
+axis. Premise (user): a fine-tuned CNN on a public dataset is a 3rd-year
+artifact. Senior-role interviews (vs IIT/ISI peers, commercial entity)
+need signals in FOUR lanes: biology, deep learning, ML theory, production.
+Each item below names the lane it scores in. Full landscape: docs/research/
+SOTA-DEBATE-PREP.md. All sized for RTX 3060 12GB; embeddings are CACHED to
+disk so no dataset ever trains a giant model on this machine.
+═════════════════════════════════════════════════════════════════════════
+P0a — CONFORMAL TILE CLASSIFICATION (ML theory; zero training risk).
+  Split-conformal p-values per class on a held-out calibration split
+  ( Mondrian/cross-conformal to reuse CRC-VAL ): distribution-free
+  finite-sample guarantee "90% coverage" — no benchmark table in our
+  survey reports conformal guarantees. Pair with coverage-vs-accuracy
+  curves (1/5/10% rejection) — the rejection-aware axis the field's own
+  2025 review says nobody occupies. Frontend: a "guarantee" band in the
+  inspector + a coverage slider on /slide. Interview line: "calibrated
+  probabilities AND distribution-free coverage guarantees."
+P0b — CELL LEVEL, STAGE 1 (biology + DL; inference-only on 3060).
+  Pretrained nucleus model (HoVer-Net PanNuke weights via TIAToolbox, or
+  CellViT) runs ONLY inside gate-passed tiles: per-nucleus class
+  (neoplastic / non-neoplastic epithelial / inflammatory / connective /
+  dead), counts not diagnoses. Organ-agnostic by construction (PanNuke =
+  19 tissues) — this answers "tissue type changes but the cell still
+  looks cancerous": the NUCLEUS classifier crosses organs, our TILE gate
+  bounds where we speak. HONESTY LAW: two-stage system, named as such on
+  the site; colon-subset validation on PanNuke before any claim; declined
+  tiles stay cell-silent. Frontend: /cells overlay (nuclei outlines on
+  the full-res tile, per-class counts). Interview line: "organ-agnostic
+  neoplastic-nuclei detection gated by tissue familiarity."
+P1 — TEACHER-STUDENT DISTILLATION, CACHED EMBEDDINGS (DL + production).
+  Extract phikon-v2 (already in-repo, 307M) or Virchow2 (open, colon-
+  strongest) embeddings ONCE for NCT+NONORM+CRC-VAL → cache to disk
+  (feature-store pattern). Then heads train in minutes on cached vectors:
+  (a) distill soft targets into the 6M student (keep the 50x param story,
+  close the accuracy gap); (b) embedding-ensemble head (ours + teacher
+  features) — NOTE: naive vote ensembling already failed here (PR-17
+  documented negative); embedding-space fusion is the informed retry.
+  Tripwire: 9/9 gate must not regress; ship swap only via full battery.
+  Interview line: "I distilled a foundation model into 6M params on one
+  consumer GPU using a cached-embedding pipeline."
+P2 — MULTI-SCALE MODES, CONSERVATIVE VARIANT (DL; PR-21 dependency).
+  SA-HCNN-style: one trunk, inputs = [tile, subtiles, context-tile] with
+  mode flag; context preserved by construction. Weak subtile labels
+  measured before trusted. Subsumes PR-21 if the no-trade-off check
+  passes.
+P3 — ORGAN ROUTER (architecture; second dataset).
+  Per-organ KNN banks + certified heads; global refusal outside all
+  certified organs. CRC stays the certified flagship; a second organ
+  (PanNuke tissues or PatchCamelyon) proves routing. Interview line:
+  "organ-routed, refusal-first architecture — the gate is the product."
+
+STORY ORDER ON THE FRONTEND (the narrative): diagnose loop story (owned)
+→ the refusal axis (coverage curves + conformal) → cells inside the gate
+→ distilled-vs-teacher table → roadmap honesty. Every number rendered
+from artifacts (existing law).
+
+INTERVIEW POSITIONING (both-ways artifact): the repo IS the credential —
+"quality-gated, conformal, organ-routed pathology system; 6M params beat
+phikon-v2 by 4.4pt; shipped full-stack with agent API; refuses when it
+shouldn't." Each clause = one competency: judgment / efficiency /
+production / safety.
