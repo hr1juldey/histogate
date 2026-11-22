@@ -18,10 +18,12 @@ const cfg = await get<SiteConfig>('/site-config.json');
       <h1>Then the stain changed. Drag the dial.</h1>
       <p class="sub">This is one real tumor picture — the box in the panel states its expert label as ground truth.
       The dial shifts the two dyes in the tissue — the purple and the pink — exactly the way a
-      different lab machine does it. Both AIs below run live as you drag; each says whether it
-      still sees the tumor. Push the dial far enough and even the shipped model refuses to
-      answer — that is the safety gate doing its job, not a failure. Then press the button for a
-      real picture from a genuinely different machine.</p>
+      different lab machine does it. Both AIs run live as you drag. Read the chips by color:
+      <b class="lg">green = matches the expert</b>, <b class="lr">red = confidently wrong — the dangerous failure</b>,
+      <b class="la">amber = declined to answer — the safe behavior</b>. Drag to ~70: the old model turns
+      red, the shipped model turns amber. A model that declines is not failing; a model that
+      guesses wrong is. Then press the button for a real picture from a different machine —
+      that is where the shipped model answers in green at 96%+.</p>
       <StainDial client:load />
     </section>
 
@@ -38,6 +40,9 @@ const cfg = await get<SiteConfig>('/site-config.json');
   h1 { font-size: clamp(26px, 3.2vw, 36px); font-weight: 500; letter-spacing: -0.8px; margin: 6px 0 4px; }
   .act { padding: 52px 0; border-bottom: 1px solid var(--b-subtle); }
   .act:last-child { border: none; }
+  .sub .lg { color: #5dbb7a; font-weight: 600; }
+  .sub .lr { color: var(--bad); font-weight: 600; }
+  .sub .la { color: #e3b341; font-weight: 600; }
   .dial-sec { display: grid; grid-template-columns: 360px 1fr; gap: 30px; margin-top: 30px; align-items: start; }
   .truth { font-size: 11.5px; color: var(--t3); border: 1px solid var(--b-std);
     border-radius: 6px; padding: 6px 10px; display: inline-block; margin-bottom: 12px; }
@@ -56,6 +61,8 @@ const cfg = await get<SiteConfig>('/site-config.json');
   .chip.match { border-color: #23402b; background: rgba(16,185,129,0.06); }
   .chip.match .badge { color: #5dbb7a; }
   .chip.miss { border-color: #4a3038; background: rgba(224,128,128,0.05); }
+  .chip.refuse { border-color: #4a3f23; background: rgba(227,179,65,0.05); }
+  .chip.refuse .badge { color: #e3b341; }
   .chip.miss .badge { color: var(--bad); }
   .chip.expert .badge { color: var(--t4); font-weight: 500; }
   .cap { font-size: 13px; color: var(--t3); text-align: center; margin-top: 10px; }
@@ -68,7 +75,8 @@ const cfg = await get<SiteConfig>('/site-config.json');
   .mcard.bad { border-color: #4a3038; } .mcard.good { border-color: #23402b; }
   .verdict-line { font-size: 14.5px; font-weight: 600; margin-top: 10px; }
   .mcard.right .verdict-line { color: #5dbb7a; }
-  .mcard.wrong .verdict-line, .mcard.ref .verdict-line { color: var(--bad); }
+  .mcard.wrong .verdict-line { color: var(--bad); }
+  .mcard.ref .verdict-line { color: #e3b341; }
   .mcard .t { font-size: 13px; color: var(--t3); }
   .mcard .row { display: flex; align-items: baseline; gap: 14px; margin-top: 4px; }
   .mcard .pct { font-size: 36px; font-weight: 600; }

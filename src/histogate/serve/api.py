@@ -93,7 +93,7 @@ def create_app(engine: LockedEngine, slides_root: Path,
             ("debris", "DEB — necrosis/debris: ugly but real tissue",
              "CRC-VAL-HE-7K/DEB/DEB-TCGA-AANNAWLE.tif"),
             ("nonorm", "TUM tile from a RAW scanner (no lab normalization) — the data that broke the first model",
-             "NCT-CRC-HE-100K-NONORM/TUM/TUM-AACHEHDV.tif"),
+             "NCT-CRC-HE-100K-NONORM/TUM/TUM-AACLKFGG.tif"),
         ]
 
         @app.get("/samples")

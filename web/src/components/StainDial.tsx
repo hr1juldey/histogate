@@ -173,10 +173,10 @@ export default function StainDial() {
     const wrongCall = c.label.includes('calls it');
     const call = c.label.split(' ⚠')[0];
     return (
-      <div className={`chip ${refused ? 'miss' : wrongCall ? 'miss' : 'match'}`}>
+      <div className={`chip ${refused ? 'refuse' : wrongCall ? 'miss' : 'match'}`}>
         <span className="who">{title}</span>
         <span className="call mono">{call}</span>
-        <span className="badge">{refused ? '✗ refused' : wrongCall ? '✗ MISMATCH' : '✓ MATCH'}</span>
+        <span className="badge">{refused ? '— declined (safe)' : wrongCall ? '✗ WRONG' : '✓ MATCH'}</span>
       </div>
     );
   };
@@ -184,7 +184,9 @@ export default function StainDial() {
   const card = (title: string, c: Card, cls: string) => {
     const refused = c.label.includes('OOD-rejected');
     const wrongCall = c.label.includes('calls it');
-    const status = refused ? 'refused to answer' : wrongCall ? 'WRONG — no longer sees the tumor' : 'sees the tumor';
+    const status = refused ? 'declined to answer — the safe behavior'
+      : wrongCall ? `WRONG — calls it ${c.label.split(' ⚠')[0]}, and its gate sees no problem`
+      : 'sees the tumor';
     return (
       <div className={`mcard ${cls} ${refused ? 'ref' : wrongCall ? 'wrong' : 'right'}`}>
         <div className="t">{title}</div>

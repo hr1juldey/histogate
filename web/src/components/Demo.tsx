@@ -90,12 +90,12 @@ export default function Demo() {
       </div>
       <div className="right card">
         {sel && j && (
-          <div className={`score ${j.top_class === TRUTH[sel] ? 'match' : 'miss'}`}>
+          <div className={`score ${j.ood ? 'refuse' : j.top_class === TRUTH[sel] ? 'match' : 'miss'}`}>
             <span className="sc"><em>expert label</em><b className="mono">{TRUTH[sel]}</b></span>
             <span className="sc-arrow">vs</span>
             <span className="sc"><em>AI call</em><b className="mono">{j.top_class}</b></span>
             <span className="badge">
-              {j.ood ? '✗ refused' : j.top_class === TRUTH[sel] ? '✓ MATCH' : '✗ MISMATCH'}
+              {j.ood ? '— declined (safe)' : j.top_class === TRUTH[sel] ? '✓ MATCH' : '✗ WRONG'}
             </span>
           </div>
         )}
