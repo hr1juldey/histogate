@@ -48,6 +48,16 @@ class PatchAnalyzer:
         self._feats: list[torch.Tensor] = []
         self.model.backbone.stages[-1].register_forward_hook(
             lambda m, i, o: self._feats.append(o))
+        # optional conformal guarantee (P0a): runs/<run>/conformal.json beside
+        # the calibration. Absent -> response shape unchanged (no key).
+        self.conformal_qhat: float | None = None
+        cpath = Path(calib_path).parent / "conformal.json"
+        if cpath.exists():
+            _c = json.loads(cpath.read_text())
+            try:
+                self.conformal_qhat = float(_c["alphas"]["0.1"])
+            except (KeyError, TypeError, ValueError):
+                self.conformal_qhat = None
 
     def _pre(self, img: Image.Image) -> torch.Tensor:
         img = img.convert("RGB").resize((224, 224))
@@ -86,7 +96,7 @@ class PatchAnalyzer:
             cam = np.asarray(
                 Image.fromarray((a * 255).astype(np.uint8))
                 .resize((224, 224))) / 255
-        return {
+        result = {
             "probabilities": [
                 {"class": CLASS_ORDER[i], "p": round(float(probs[i]), 4)}
                 for i in range(N_CLASSES)],
@@ -100,3 +110,9 @@ class PatchAnalyzer:
                         f"{CLASS_ORDER[top]} (calibrated confidence)"),
             "gradcam": cam.round(3).tolist(),
         }
+        if not is_ood and self.conformal_qhat is not None:
+            from histogate.conformal import aps_set
+
+            result["conformal_set"] = aps_set(
+                probs.detach().numpy(), self.conformal_qhat)
+        return result

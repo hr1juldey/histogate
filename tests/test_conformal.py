@@ -104,6 +104,7 @@ def test_analyzer_serves_conformal_set_when_artifact_present(tmp_path):
     calib_path.write_text(json.dumps(calib))
     tmp_path.joinpath("ood_knn_bank.pt").write_bytes(
         (ROOT_DIR / "runs/pr16-mixed/ood_knn_bank.pt").read_bytes())
+    tmp_path.joinpath("conformal.json").write_bytes(conformal.read_bytes())
 
     from histogate.serve.patch_demo import PatchAnalyzer
     an = PatchAnalyzer(ckpt, calib_path)
