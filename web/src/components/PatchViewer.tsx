@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { clampView, HOME, KMAX, KMIN, type View } from '../lib/viewer';
+import { clampView, HOME, KMAX, KMIN, rotateKeepCenter, type View } from '../lib/viewer';
 
 /* The shared image window — one grammar everywhere:
    fixed aspect-honest frame (sized in px, never reshaped), visible GitHub-style
@@ -25,10 +25,23 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
   reserveWidth = 0, children, onTapChild, onView, onImgError }: Props) {
   const [view, setView] = useState<View>(HOME);
   const [rot, setRot] = useState(0);
+  const [glide, setGlide] = useState(false);
   const [box, setBox] = useState<{ w: number; h: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ px: number; py: number; vx: number; vy: number; moved: number; id: string | null } | null>(null);
+  const glideTimer = useRef<number | null>(null);
+
+  /* programmatic moves (rotate, glide-to-home) animate; direct manipulation
+     (wheel, drag) stays immediate — killing the hard recenter snap */
+  const startGlide = () => {
+    setGlide(true);
+    if (glideTimer.current !== null) window.clearTimeout(glideTimer.current);
+    glideTimer.current = window.setTimeout(() => setGlide(false), 280);
+  };
+  useEffect(() => () => {
+    if (glideTimer.current !== null) window.clearTimeout(glideTimer.current);
+  }, []);
 
   /* frame sized in PIXELS so its aspect ALWAYS equals the content's aspect */
   useEffect(() => {
@@ -57,6 +70,7 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
     if (!b) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      if (glide) setGlide(false);            /* direct input is immediate */
       const r = b.getBoundingClientRect();
       const px = e.clientX - r.left, py = e.clientY - r.top;
       setView(v => {
@@ -68,7 +82,7 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
     };
     b.addEventListener('wheel', onWheel, { passive: false });
     return () => b.removeEventListener('wheel', onWheel);
-  }, [rot, src]);
+  }, [rot, src, glide]);
 
   /* pan surface: capture + drag, but NEVER steal presses on the control
      buttons or a plain tap on a child (that's a select, not a drag) */
@@ -76,6 +90,7 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
     if (e.button !== 0) return;
     const t = e.target as HTMLElement;
     if (t.closest('.vctrl')) return;
+    if (glide) setGlide(false);              /* drag overrides any glide */
     const child = t.closest('[data-id]');
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     drag.current = {
@@ -115,9 +130,16 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
   };
   const rotate90 = () => {
     const nr = (rot + 90) % 360;
-    setRot(nr);
     const b = boxRef.current;
-    if (b) { const r = b.getBoundingClientRect(); setView(v => clampView(v, r, nr)); }
+    startGlide();
+    setRot(nr);
+    if (b) {
+      const r = b.getBoundingClientRect();
+      /* anchor: the content point under the window center STAYS under it —
+         rotation about the content center instead swings the viewed point
+         away and the clamp recentered it (the reported snap) */
+      setView(v => clampView(rotateKeepCenter(v, r, rot, nr), r, nr));
+    }
   };
   const resetAll = () => { setRot(0); setView(HOME); };
 
@@ -140,9 +162,9 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
           <button onClick={rotate90} aria-label="rotate 90 degrees" title="rotate 90°">⟳</button>
           <button onClick={resetAll} aria-label="reset view" title="reset view">⤢</button>
         </div>
-        <div className="zoomable"
+        <div className={`zoomable${glide ? ' gliding' : ''}`}
           style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
-          <div className="rotwrap" style={{ transform: `rotate(${rot}deg)` }}>
+          <div className={`rotwrap${glide ? ' gliding' : ''}`} style={{ transform: `rotate(${rot}deg)` }}>
             <img className="underlayer" src={src} alt={alt} draggable={false}
               onError={onImgError} />
             {children}

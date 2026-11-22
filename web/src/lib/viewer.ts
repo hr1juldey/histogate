@@ -37,6 +37,25 @@ export const clampView = (v: View, r: { width: number; height: number }, rot: nu
   return { ...v, x, y };
 };
 
+/* Rotation must keep WHAT THE USER IS LOOKING AT fixed: the content point
+   under the window center before rotating stays under it after. Rotation is
+   otherwise about the content center, which swings the viewed point away —
+   then clampView hard-recentered the lost axis = the "snap" defect. Invert
+   the transform at the window center, rotate that point, re-derive the
+   translation. Transform stack: w = t + k*(R(rot)*(q - C) + C). */
+export const rotateKeepCenter = (v: View, r: { width: number; height: number },
+  rot: number, nr: number): View => {
+  const cx = r.width / 2, cy = r.height / 2;
+  const ux = (cx - v.x) / v.k - cx, uy = (cy - v.y) / v.k - cy;
+  const a = (-rot * Math.PI) / 180;
+  const qx = ux * Math.cos(a) - uy * Math.sin(a);
+  const qy = ux * Math.sin(a) + uy * Math.cos(a);
+  const b = (nr * Math.PI) / 180;
+  const fx = qx * Math.cos(b) - qy * Math.sin(b);
+  const fy = qx * Math.sin(b) + qy * Math.cos(b);
+  return { k: v.k, x: cx - v.k * (fx + cx), y: cy - v.k * (fy + cy) };
+};
+
 /* jet-ish colormap for the evidence heat */
 export const jet = (v: number): [number, number, number] => [
   Math.round(255 * Math.min(1, Math.max(0, 1.5 - Math.abs(4 * v - 3)))),

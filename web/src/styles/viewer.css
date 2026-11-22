@@ -69,3 +69,6 @@ details.why p { font-size: 12.5px; color: var(--t3); margin: 6px 0 0; }
   .panes { grid-template-columns: 1fr; }
   .inspector { grid-template-columns: minmax(180px, 300px) minmax(0, 1fr); }
 }
+
+/* programmatic moves (rotate, glide home) animate; wheel/drag stay immediate */
+.zoomable.gliding, .rotwrap.gliding { transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1); }
