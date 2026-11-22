@@ -1,3 +1,4 @@
+import samplesFallback from '../data/samples.json';
 import { useEffect, useRef, useState } from 'react';
 import { analyze, analyzeTiff, apiBase, get, type Analysis, type Sample, ngrokHeaders} from '../lib/api';
 import PatchViewer from './PatchViewer';
