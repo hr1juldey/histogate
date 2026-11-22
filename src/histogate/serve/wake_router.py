@@ -22,7 +22,7 @@ import time
 
 import httpx
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 BACKEND = "http://127.0.0.1:8000"
 IDLE_S = 20 * 60          # shut the heavy box down after 20 min of silence
@@ -71,8 +71,10 @@ async def wake() -> JSONResponse:
     return JSONResponse({"status": "booting", "eta_s": 150}, status_code=202)
 
 
-@app.api_route("/{path:path}", methods=["GET", "POST", "DELETE", "PUT"])
-async def proxy(path: str, request: Request) -> JSONResponse:
+@app.api_route(
+    "/{path:path}",
+    methods=["GET", "POST", "DELETE", "PUT", "OPTIONS", "HEAD", "PATCH"])
+async def proxy(path: str, request: Request) -> Response:
     if not await _backend_up():
         asyncio.create_task(_boot())
         return JSONResponse(
@@ -86,13 +88,14 @@ async def proxy(path: str, request: Request) -> JSONResponse:
                      if k.lower() not in ("host", "content-length")},
             content=await request.body(),
             params=dict(request.query_params))
-    return JSONResponse(status_code=r.status_code, content=r.json()
-                        if r.headers.get("content-type", "").startswith(
-                            "application/json") else None,
-                        headers={"x-routed": "wake-router"}) \
-        if r.headers.get("content-type", "").startswith("application/json") \
-        else JSONResponse(status_code=r.status_code,
-                          content={"_bytes": len(r.content)})
+    # Pass the upstream payload through UNTOUCHED — JSON verbatim, binary
+    # (PNG tiles, overview, heatmaps) as raw bytes with its content-type.
+    # The earlier JSON-only shim turned every image into {"_bytes": N},
+    # which the frontend fetched fine but could never render.
+    return Response(
+        status_code=r.status_code, content=r.content,
+        media_type=r.headers.get("content-type", "application/octet-stream"),
+        headers={"x-routed": "wake-router"})
 
 
 @app.on_event("startup")
