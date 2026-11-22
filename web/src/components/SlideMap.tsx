@@ -55,7 +55,8 @@ export default function SlideMap() {
     if (!data) return;
     const compute = () => {
       const panes = document.querySelector('.panes');
-      const availW = Math.max(280, (panes?.clientWidth ?? 1000) - 340 - 24 - 16);
+      const mobile = window.innerWidth <= 900;   /* inspector stacks below, doesn't take a column */
+      const availW = Math.max(240, (panes?.clientWidth ?? 1000) - (mobile ? 16 : 340 + 24 + 16));
       const ar = data.dims.w / data.dims.h;  /* the window NEVER changes shape */
       let h = Math.min(window.innerHeight * 0.82, 900);
       let w = h * ar;
@@ -78,11 +79,8 @@ export default function SlideMap() {
       setView(v => {
         const k = Math.max(KMIN, Math.min(KMAX, v.k * Math.exp(-e.deltaY * 0.0016)));
         const wx = (px - v.x) / v.k, wy = (py - v.y) / v.k;
-        let x = px - wx * k, y = py - wy * k;
-        if (k <= KMIN + 1e-3) return HOME;
-        x = Math.max(r.width * (1 - k), Math.min(0, x));
-        y = Math.max(r.height * (1 - k), Math.min(0, y));
-        return { x, y, k };
+        const nv = { x: px - wx * k, y: py - wy * k, k };
+        return clamp(k <= KMIN + 1e-3 ? HOME : nv, r);
       });
     };
     box.addEventListener('wheel', onWheel, { passive: false });
@@ -152,11 +150,7 @@ export default function SlideMap() {
     const dx = e.clientX - d.px, dy = e.clientY - d.py;
     d.moved = Math.max(d.moved, Math.hypot(dx, dy));
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setView(v => ({
-      ...v,
-      x: Math.max(r.width * (1 - v.k), Math.min(0, d.vx + dx)),
-      y: Math.max(r.height * (1 - v.k), Math.min(0, d.vy + dy)),
-    }));
+    setView(v => clamp({ ...v, x: d.vx + dx, y: d.vy + dy }, r));
   };
   const onPointerUp = () => {
     const d = drag.current;
@@ -167,18 +161,29 @@ export default function SlideMap() {
     }
   };
 
-  /* visible controls (GitHub-viewer style): the hint that this canvas moves */
-  const clamp = (v: View, r: DOMRect): View => ({
-    ...v,
-    x: Math.max(r.width * (1 - v.k), Math.min(0, v.x)),
-    y: Math.max(r.height * (1 - v.k), Math.min(0, v.y)),
-  });
+  /* visible controls (GitHub-viewer style): the hint that this canvas moves.
+     Pan bounds come from the ROTATED content's true extent (AABB): when rotated,
+     the content spans the OTHER way — every pixel must stay reachable by
+     pan + zoom. An axis smaller than the window locks centered (window model). */
+  const clamp = (v: View, r: DOMRect, r0t = rot): View => {
+    const [Wc, Hc] = r0t % 180 ? [r.height, r.width] : [r.width, r.height];
+    const cw = v.k * Wc, ch = v.k * Hc;
+    const x = cw <= r.width
+      ? (r.width - cw) / 2
+      : Math.max(r.width - (v.k * (r.width + Wc)) / 2,
+          Math.min((v.k * (Wc - r.width)) / 2, v.x));
+    const y = ch <= r.height
+      ? (r.height - ch) / 2
+      : Math.max(r.height - (v.k * (r.height + Hc)) / 2,
+          Math.min((v.k * (Hc - r.height)) / 2, v.y));
+    return { ...v, x, y };
+  };
   const zoomBy = (f: number) => {
     const b = boxRef.current; if (!b) return;
     const r = b.getBoundingClientRect();
     setView(v => {
       const k = Math.max(KMIN, Math.min(KMAX, v.k * f));
-      if (k <= KMIN + 1e-3) return HOME;
+      if (k <= KMIN + 1e-3) return clamp(HOME, r);
       const px = r.width / 2, py = r.height / 2;
       const wx = (px - v.x) / v.k, wy = (py - v.y) / v.k;
       return clamp({ x: px - wx * k, y: py - wy * k, k }, r);
@@ -189,7 +194,12 @@ export default function SlideMap() {
     const r = b.getBoundingClientRect();
     setView(v => clamp({ ...v, x: v.x - fx * r.width * 0.15, y: v.y - fy * r.height * 0.15 }, r));
   };
-  const rotate90 = () => { setRot(r => (r + 90) % 360); setView(HOME); };
+  const rotate90 = () => {
+    const nr = (rot + 90) % 360;
+    setRot(nr);
+    const b = boxRef.current;
+    if (b) { const r = b.getBoundingClientRect(); setView(v => clamp(v, r, nr)); }
+  };
   const resetAll = () => { setRot(0); setView(HOME); };
 
   if (err) return <p className="map-err">the map is still warming up — refresh in a minute</p>;
@@ -241,7 +251,8 @@ export default function SlideMap() {
             style={box ? { width: `${box.w}px`, height: `${box.h}px` } : undefined}
             onPointerDown={onPointerDown} onPointerMove={onPointerMove}
             onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
-            onDoubleClick={() => setView(HOME)}>
+            onDoubleClick={() => { const b = boxRef.current;
+              if (b) setView(v => clamp({ ...v, x: 0, y: 0, k: KMIN }, b.getBoundingClientRect())); }}>
             <p className="ulcap">{view.k > KMIN + 1e-3
               ? 'scroll = zoom · drag = pan · double-click = reset'
               : mode === 'verdicts'
