@@ -9,6 +9,7 @@ export default function LiveHero() {
   const [res, setRes] = useState<Analysis | null>(null);
   const camRef = useRef<HTMLCanvasElement>(null);
   const busy = useRef(false);
+  const manual = useRef(false);
 
   useEffect(() => {
     get<Sample[]>('/samples').then(s => setSamples(s.filter(x => x.id !== 'nonorm')));
@@ -52,11 +53,19 @@ export default function LiveHero() {
         }
       } catch { /* backend cold — keep last */ }
       finally { busy.current = false; }
-      if (!cancelled) setTimeout(() => !cancelled && setIdx(i => i + 1), 4200);
+      // manual pick holds longer before autoplay resumes
+      const hold = manual.current ? 12000 : 4200;
+      manual.current = false;
+      if (!cancelled) setTimeout(() => !cancelled && setIdx(i => i + 1), hold);
     };
     run();
     return () => { cancelled = true; };
   }, [idx, samples]);
+
+  const pick = (i: number) => {
+    manual.current = true;
+    setIdx(i);
+  };
 
   const cur = samples.length ? samples[idx % samples.length] : null;
 
@@ -78,14 +87,17 @@ export default function LiveHero() {
           )}
         </div>
       </div>
-      <div className="rail">
+      <div className="rail" role="group" aria-label="choose a tissue sample">
         {samples.map((s, i) => (
-          <img
+          <button
             key={s.id}
-            src={`${apiBase}/samples/${s.id}.png`}
-            alt=""
+            onClick={() => pick(i)}
+            aria-label={`show ${s.id}`}
+            aria-pressed={i === idx % samples.length}
             className={i === idx % samples.length ? 'on' : ''}
-          />
+          >
+            <img src={`${apiBase}/samples/${s.id}.png`} alt="" />
+          </button>
         ))}
       </div>
     </div>
