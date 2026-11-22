@@ -139,14 +139,15 @@ def main() -> None:
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     rng = np.random.default_rng(42)
     torch.manual_seed(42)
+    if args.synthetic_smoke:
+        args.subset = args.subset or 64
+        args.epochs = 1
 
     train_idx = build_index(raw / "NCT-CRC-HE-100K")
     if args.subset:
         train_idx = _subset(train_idx, args.subset)
 
     if args.synthetic_smoke:
-        args.subset = args.subset or 64
-        args.epochs = 1
         cache = ROOT / "runs/distill/smoke-teacher/nct"
         rel_files = [_rel(e.path) for e in train_idx.entries[: args.subset]]
         extract_embeddings(

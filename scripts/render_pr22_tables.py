@@ -93,21 +93,24 @@ def main() -> None:
                 f"VRAM co-residency (ship + counter, {v['n_tiles']} tiles): "
                 f"peak {v['peak_gib']} GiB of {v['gpu_total_gib']} "
                 f"(bar ≤ 4 GiB — {'PASS' if v['passed'] else 'ABORT'}), "
-                f"{v['count_s_per_tile']} s/tile. "
+                f"{v["combined_s_per_tile"]} s/tile. "
                 "Artifact `runs/pr16-mixed/cells_vram.json`.\n")
+        zeros = {c: sum(1 for r in rows if r["total"] == 0)
+                 for c, rows in val["per_class"].items()}
+        zeros = {c: n for c, n in zeros.items() if n}
         parts.append(
             f"**Strict plan verdict: "
             f"{'PASSED' if val['passed'] else 'FAILED'}** — "
             + ("all bars green." if val["passed"] else
                "the biology bars pass decisively (TUM/NORM/STR modal family), "
-               "but the [20, 8000] total-range bar fails on nucleus-sparse "
-               "tiles (adipose/mucin legitimately carry ~0 nuclei at this "
-               "scale, and the analyzer never counts BACK tiles by design). "
-               "Per the plan's honesty law the deployed flag stays OFF: "
-               "`cells: pannuke` is NOT set in runs/pr16-mixed/calibration.json. "
-               "The wiring is complete and unit-tested behind the flag; "
-               "flipping it is a one-line morning decision with this table "
-               "in hand.")
+               f"but the [20, 8000] total-range bar fails: zero-nucleus tiles "
+               f"{zeros} — mucin/debris/background tiles that legitimately "
+               "carry ~0 nuclei at this scale (the analyzer never counts BACK "
+               "tiles by design). Per the plan's honesty law the deployed "
+               "flag stays OFF: `cells: pannuke` is NOT set in "
+               "runs/pr16-mixed/calibration.json. The wiring is complete and "
+               "unit-tested behind the flag; flipping it is a one-line "
+               "morning decision with this table in hand.")
             + "\n")
 
     doc = DOC.read_text()
