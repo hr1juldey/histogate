@@ -9,3 +9,4 @@ outputs/
 mlflow.db
 mlruns/
 evidence/
+mlflow_public/
