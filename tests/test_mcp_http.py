@@ -23,6 +23,8 @@ class _StubAnalyzer:
     """Deterministic stand-in for PatchAnalyzer — the real one is exercised
     by tests/test_serve_real.py; here we test the workflow, not the model."""
 
+    energy_thr = -3.7
+
     def analyze(self, img) -> dict:
         return {"top_class": "TUM", "confidence": 0.97, "energy": -4.1,
                 "ood": False, "probabilities": []}
@@ -124,6 +126,50 @@ def _first_json(r: httpx.Response) -> dict:
                 return _json.loads(line[5:].strip())
         raise AssertionError(f"no data line in SSE: {r.text[:200]}")
     return _json.loads(r.text)
+
+
+def test_tile_map_interpret_and_quality(mcp, tmp_path: Path) -> None:
+    """Usage loop: upload a TIFF -> tile map -> guided interpretation ->
+    model quality + mlflow exposure."""
+    import tifffile as _tf
+    import numpy as _np
+    from PIL import Image as _Im
+
+    async def run() -> None:
+        files = sorted((Path(__file__).resolve().parents[1] / "data/raw/NCT-CRC-HE-100K/TUM").glob("*.tif"))
+        assert files, "dataset absent"
+        tiles = [_np.asarray(_Im.open(f).convert("RGB").resize((224, 224)))
+                 for f in files[:9]]
+        wsi = tmp_path / "s.tif"
+        _tf.imwrite(wsi, _np.vstack([_np.hstack(tiles[i*3:(i+1)*3]) for i in range(3)]))
+        async with Client(mcp) as c:
+            start = json.loads((await c.call_tool("histogate_start", {})).content[0].text)
+            sid = start["session_id"]
+            wf_root = tmp_path / "up"
+            (wf_root / sid).mkdir(parents=True, exist_ok=True)
+            (wf_root / sid / "s.tif").write_bytes(wsi.read_bytes())
+        tm = None
+        async with Client(mcp) as c:
+            tm = json.loads((await c.call_tool(
+                "histogate_tile_map", {"session_id": sid})).content[0].text)
+            assert tm["tiles"] >= 1 and "tile_map" in tm
+            it0 = json.loads((await c.call_tool(
+                "histogate_interpret", {"session_id": sid, "section": 0})).content[0].text)
+            assert it0["total_sections"] >= 3
+            assert it0["next"] == 1
+            last = json.loads((await c.call_tool(
+                "histogate_interpret", {"session_id": sid, "section": 99})).content[0].text)
+            assert last["next"] is None          # clamped to final section
+            mq = json.loads((await c.call_tool("model_quality", {})).content[0].text)
+            assert "metrics" in mq               # artifacts present in repo
+        # portal map view renders for the human
+        app = mcp.http_app()
+        transport = httpx.ASGITransport(app=app)
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=transport, base_url="http://t") as hc:
+                r = await hc.get(f"/portal/{sid}/map")
+                assert r.status_code == 200 and "tile map" in r.text.lower()
+    anyio.run(run)
 
 
 def _tiny_png() -> bytes:

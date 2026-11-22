@@ -54,6 +54,74 @@ when you advance — your images never enter the chat.</p>
 </div></body></html>"""
 
 
+_PLAIN = {
+    "TUM": "tumor — malignant epithelium, the cancer cells themselves",
+    "NORM": "healthy mucosa — orderly glands",
+    "STR": "stroma — connective tissue around a tumor (carries the TSR biomarker)",
+    "LYM": "dense immune cells (the TIL biomarker)",
+    "MUS": "muscle",
+    "MUC": "mucus lakes",
+    "DEB": "debris — necrosis and waste",
+    "ADI": "fat",
+    "BACK": "empty background",
+}
+
+
+def _interpret_sections(rows: list[dict], tm: dict | None) -> list[tuple[str, str]]:
+    """Guided interpretation: one topic per section, plain words first."""
+    answered = [r for r in rows if not r.get("ood") and "top_class" in r]
+    declined = [r for r in rows if r.get("ood")]
+    frac: dict[str, int] = {}
+    for r in answered:
+        frac[r["top_class"]] = frac.get(r["top_class"], 0) + 1
+    n = max(1, len(answered))
+    secs = []
+    if tm:
+        tiles = tm.get("tiles", [])
+        td = sum(1 for t in tiles if t.get("declined"))
+        secs.append(("the slide at a glance",
+                     f"{len(tiles)} tissue tiles; {len(tiles) - td} answered, "
+                     f"{td} declined as unfamiliar. View it as a map at the "
+                     f"portal link."))
+        tf: dict[str, int] = {}
+        for t in tiles:
+            if not t.get("declined"):
+                tf[t["cls"]] = tf.get(t["cls"], 0) + 1
+        top = sorted(tf.items(), key=lambda kv: -kv[1])[:4]
+        if top:
+            secs.append(("what the map shows",
+                         "; ".join(f"{_PLAIN.get(c, c)} — {v} tiles "
+                                   f"({round(100 * v / max(1, len(tiles) - td))}%)"
+                                   for c, v in top)))
+    if frac:
+        secs.append(("what the analysis found",
+                     "; ".join(f"{_PLAIN.get(c, c)} in {round(100 * v / n)}% of "
+                               f"answered patches" for c, v in
+                               sorted(frac.items(), key=lambda kv: -kv[1]))))
+    absent = [c for c in ("TUM", "NORM", "STR", "LYM") if c not in frac
+              and (tm is None or c not in {t.get("cls") for t in tm.get("tiles", [])})]
+    if absent:
+        secs.append(("what is NOT there",
+                     "no " + ", no ".join(_PLAIN.get(c, c).split(" — ")[0]
+                                          for c in absent) +
+                     " was found — absence is a finding, not a failure"))
+    if declined:
+        secs.append(("why some patches were declined",
+                     f"{len(declined)} patch(es) looked unfamiliar (familiarity "
+                     f"below the gate), so the model refused to answer rather "
+                     f"than guess — a safe refusal, not an error"))
+    conf = [r.get("confidence", 0) for r in answered]
+    if conf:
+        secs.append(("how much to trust it",
+                     f"average confidence {round(100 * sum(conf) / len(conf))}% "
+                     f"on answered patches; every number is calibrated, and "
+                     f"declined patches are excluded by design"))
+    secs.append(("the bottom line",
+                 "the model points, the pathologist decides — this is a "
+                 "research tool (RUO), not a diagnosis"))
+    return secs
+
+
 def build_mcp(analyze: AnalyzeFn, gate_dir: Path | None = None,
               patch_analyzer=None, uploads_root: Path | None = None) -> FastMCP:
     mcp: FastMCP = FastMCP(
@@ -158,6 +226,99 @@ def build_mcp(analyze: AnalyzeFn, gate_dir: Path | None = None,
         cfg: GateSettings = load_settings().gate
         return evaluate_gate(inputs, cfg).model_dump_json()
 
+    @mcp.tool(description=f"Tile-map an uploaded slide (TIFF): every tissue "
+                          f"tile runs inference; returns the tile map JSON "
+                          f"(rows/cols, per-tile class + familiarity) and a "
+                          f"portal URL where the human SEES the map. {_RUO}")
+    def histogate_tile_map(session_id: str) -> str:
+        import tifffile
+
+        from histogate.serve.slide_map import build_slide_map
+
+        wf.state(session_id)   # fail-closed on unknown session
+        files = [f for f in (up_root / session_id).glob("*.tif")]
+        files += [f for f in (up_root / session_id).glob("*.tiff")]
+        if not files:
+            raise ValueError("guardrail: upload a TIFF slide first (tile maps "
+                             "need a whole-slide image)")
+        path = files[0]
+        with tifffile.TiffFile(path) as tf:
+            n_levels = len(tf.series[0].levels)
+        level = min(4, n_levels - 1)
+        m = build_slide_map(path, patch_analyzer, level=level)
+        wf._write(session_id, {**wf.state(session_id), "tile_map": m})
+        host = (get_http_headers().get("host") or "127.0.0.1:8790")
+        n_dec = sum(1 for t in m["tiles"] if t.get("declined"))
+        return json.dumps({
+            "slide": path.name, "level": level,
+            "tiles": len(m["tiles"]), "declined": n_dec,
+            "map_portal_url": f"http://{host}/portal/{session_id}/map",
+            "tile_map": m, "ruo": _RUO})
+
+    @mcp.tool(description=f"Guided interpretation of the analysis: what tissue "
+                          f"IS there (classes, fractions, confidence), what is "
+                          f"NOT there, and what every decline means — plain "
+                          f"language first, technical terms second. Step "
+                          f"through the sections one at a time. {_RUO}")
+    def histogate_interpret(session_id: str, section: int = 0) -> str:
+        st = wf.state(session_id)
+        rows = st.get("results", [])
+        tm = st.get("tile_map")
+        if not rows and not tm:
+            raise ValueError("guardrail: run the analysis first")
+        sections = _interpret_sections(rows, tm)
+        i = max(0, min(section, len(sections) - 1))
+        return json.dumps({
+            "section": i, "total_sections": len(sections),
+            "title": sections[i][0], "body": sections[i][1],
+            "next": None if i + 1 >= len(sections) else i + 1,
+            "ruo": _RUO})
+
+    @mcp.tool(description=f"Search the MLflow experiment tracker (the public "
+                          f"tracker the site's numbers trace to): run names, "
+                          f"metrics, status — so any coding agent can audit "
+                          f"what happened and what did not. {_RUO}")
+    def mlflow_search_runs(query: str = "", limit: int = 10) -> str:
+        import mlflow
+
+        mlflow.set_tracking_uri(f"sqlite:///{(up_root.parent / 'mlflow_public/mlflow.db').resolve()}")
+        c = mlflow.MlflowClient()
+        exps = [e for e in c.search_experiments() if e.name != "Default"]
+        if not exps:
+            return json.dumps({"runs": [], "ruo": _RUO})
+        filt = f"tags.mlflow.runName LIKE '%{query}%'" if query else None
+        runs = c.search_runs([e.experiment_id for e in exps],
+                             filter_string=filt, max_results=limit,
+                             order_by=["attributes.start_time DESC"])
+        keep = ("crcval_f1", "nonorm_f1", "ood_auroc", "ece",
+                "macro_f1", "accuracy")
+        out = [{"run_id": r.info.run_id,
+                "name": r.data.tags.get("mlflow.runName", "?"),
+                "status": r.info.status,
+                "metrics": {k: v for k, v in r.data.metrics.items()
+                            if k in keep or any(k.startswith(x) for x in keep)}}
+               for r in runs]
+        return json.dumps({"tracker": "mlflow_public/mlflow.db", "runs": out,
+                           "ruo": _RUO})
+
+    @mcp.tool(description=f"Model quality, one call: the 9-check regression "
+                          f"gate, the published-benchmark table, and the OOD "
+                          f"detector comparison — all read from artifacts, "
+                          f"never hand-typed. {_RUO}")
+    def model_quality() -> str:
+        root = Path(__file__).resolve().parents[3]   # repo root, wherever run from
+        out: dict = {"ruo": _RUO}
+        for name, rel in [("metrics", "runs/pr16-mixed/metrics.json"),
+                          ("crcval_accuracy", "runs/pr16-mixed/crcval_accuracy.json"),
+                          ("phikon_benchmark", "runs/bench-phikon/result.json"),
+                          ("ood_knn", "runs/pr16-mixed/ood_knn.json")]:
+            f = root / rel
+            if f.exists():
+                d = json.loads(f.read_text())
+                out[name] = ({k: d[k] for k in ("accuracy", "macro_f1")
+                              if k in d} if name == "crcval_accuracy" else d)
+        return json.dumps(out)
+
     # ---- the portal: humans upload here; images never touch the LLM context
     @mcp.custom_route("/portal/{sid}", methods=["GET"])
     async def portal(request: Request) -> HTMLResponse:
@@ -167,6 +328,74 @@ def build_mcp(analyze: AnalyzeFn, gate_dir: Path | None = None,
         except ValueError:
             return HTMLResponse("unknown session", status_code=404)
         return HTMLResponse(_PORTAL_HTML.replace("{sid}", sid))
+
+    @mcp.custom_route("/portal/{sid}/map", methods=["GET"])
+    async def portal_map(request: Request) -> HTMLResponse:
+        """The human SEES the tile map of their uploaded slide: one colored
+        cell per tissue tile — verdicts at a glance, RUO below."""
+        sid = request.path_params["sid"]
+        try:
+            st = wf.state(sid)
+        except ValueError:
+            return HTMLResponse("unknown session", status_code=404)
+        tm = st.get("tile_map")
+        if not tm:
+            return HTMLResponse("no tile map yet — the agent must run "
+                                "histogate_tile_map first", status_code=404)
+        cols, rows = tm["grid"]["cols"], tm["grid"]["rows"]
+        colors = {"TUM": "#e46fa8", "NORM": "#5dbb7a", "MUS": "#9a7ce0",
+                  "STR": "#6f6ee0", "LYM": "#4a9ebf", "MUC": "#58b6a8",
+                  "DEB": "#8a8f98", "ADI": "#c9a227"}
+        pos = {}
+        for t in tm["tiles"]:
+            pos[(t["row"], t["col"])] = t
+        cells = []
+        for r in range(rows):
+            for c in range(cols):
+                t = pos.get((r, c))
+                if t is None:
+                    cells.append('<div class="e"></div>')
+                elif t.get("declined"):
+                    cells.append(f'<div class="d" title="declined — unfamiliar '
+                                 f'(familiarity {t["familiarity"]}/100)"></div>')
+                else:
+                    col = colors.get(t["cls"], "#666")
+                    op = 0.25 + 0.75 * t["familiarity"] / 100
+                    cells.append(f'<div class="c" style="background:{col};'
+                                 f'opacity:{op:.2f}" title="{t["cls"]} '
+                                 f'{round(t["conf"] * 100)}% · familiarity '
+                                 f'{t["familiarity"]}/100"></div>')
+        nd = sum(1 for t in tm["tiles"] if t.get("declined"))
+        html = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HistoGate tile map</title><style>
+body{{font-family:system-ui,sans-serif;background:#08090a;color:#e6e6e6;margin:0;
+display:grid;place-items:center;min-height:100vh}}
+.card{{max-width:760px;width:94%;margin:24px 0}}
+h1{{font-size:18px}} p{{color:#9aa0a6;font-size:13px}}
+.stats{{display:flex;gap:22px;font-size:14px;margin:10px 0 16px}}
+.stats b{{color:#fff}}
+.grid{{display:grid;grid-template-columns:repeat({cols},1fr);gap:2px;
+aspect-ratio:{cols}/{rows};width:100%}}
+.c,.d{{border-radius:2px}} .d{{background:transparent;
+border:1px dashed #e3b341}} .e{{background:#141516}}
+.leg{{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:#9aa0a6}}
+.leg i{{display:inline-block;width:10px;height:10px;border-radius:2px;
+margin-right:4px;vertical-align:middle}}
+.ruo{{margin-top:16px;font-size:11px;color:#6b7076}}
+</style></head><body><div class="card">
+<h1>HistoGate — tile map · session {sid}</h1>
+<p>One cell per tissue tile. Brighter = more familiar. Dashed amber = declined
+(unfamiliar — safe refusal).</p>
+<div class="stats mono"><span><b>{len(tm["tiles"])}</b> tiles</span>
+<span><b>{len(tm["tiles"]) - nd}</b> answered</span>
+<span><b style="color:#e3b341">{nd}</b> declined</span></div>
+<div class="grid">{''.join(cells)}</div>
+<div class="leg">{''.join(f'<span><i style="background:{v}"></i>{k}</span>' for k, v in colors.items())}
+<span><i style="border:1px dashed #e3b341"></i>declined</span></div>
+<p class="ruo">Research Use Only. Not for use in diagnostic procedures.</p>
+</div></body></html>"""
+        return HTMLResponse(html)
 
     @mcp.custom_route("/portal/{sid}/upload", methods=["POST"])
     async def portal_upload(request: Request) -> JSONResponse:

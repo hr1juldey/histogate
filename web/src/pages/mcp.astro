@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '../styles/viewer.css';
+import { apiBase } from '../lib/api';
+---
+<Layout title="HistoGate — for AI agents (MCP)" active="mcp" apiBase={apiBase}>
+  <main class="wrap">
+    <section class="act">
+      <div class="kicker" style="margin-top:56px">For AI agents · MCP</div>
+      <h1>Connect Claude or Gemini to HistoGate.</h1>
+      <p class="sub">Your agent analyzes tissue, walks you through what it found
+      step by step, and shows you the experiment tracker — while your images
+      never enter the chat. Streamable HTTP, protocol revision 3.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="snum mono">1</div>
+          <div>
+            <h3>Add the server</h3>
+            <p>Claude Desktop, Cursor, or any MCP client with a URL field:</p>
+            <pre><code>{`{ "mcpServers": {
+    "histogate": { "url": "http://127.0.0.1:8790/mcp" } } }`}</code></pre>
+            <p class="alt">Gemini CLI: <code>gemini mcp add --transport http
+            histogate http://127.0.0.1:8790/mcp</code></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum mono">2</div>
+          <div>
+            <h3>Say "analyze my slide"</h3>
+            <p>The agent opens a private upload page for you. Your images land
+            on the server — <b>never in the conversation</b>. The agent only
+            sees structured results.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="snum mono">3</div>
+          <div>
+            <h3>Walk the guided steps</h3>
+            <p>Upload → analyze → review → report, one step per turn. Steps
+            can't be skipped; the agent can't freelance; every refusal is a
+            safe decline, never a guess.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="caps">
+        <div class="cap">
+          <h3>1 · Tile map + detection</h3>
+          <p>Upload a whole-slide TIFF and the agent builds the <b>tile map</b>:
+          every tissue tile classified, colored, with familiarity. You see the
+          map in your browser; the agent sees the numbers.</p>
+        </div>
+        <div class="cap">
+          <h3>2 · Guided interpretation</h3>
+          <p>After inference: what <b>is</b> there, what is <b>not</b> there,
+          and what every decline means — one topic per step, plain words
+          first, technical terms second. Absence is reported as a finding.</p>
+        </div>
+        <div class="cap">
+          <h3>3 · Experiments + model quality</h3>
+          <p>The agent reads the same <b>MLflow tracker</b> this site's
+          numbers trace to, plus the regression gate and benchmark table —
+          so any coding agent can audit what happened and what did not.</p>
+        </div>
+      </div>
+
+      <p class="fine">Research Use Only. Not for use in diagnostic procedures —
+      the model points, the pathologist decides. Full reference:
+      <a href="https://github.com/hr1juldey/histogate/blob/master/docs/MCP.md" target="_blank" rel="noopener">docs/MCP.md ↗</a></p>
+    </section>
+  </main>
+</Layout>
+
+<style is:global>
+  h1 { font-size: clamp(28px, 3.6vw, 40px); font-weight: 500; letter-spacing: -1px; margin: 6px 0 4px; }
+  .act { padding: 40px 0 64px; }
+  .sub { font-size: 15px; color: var(--t2); max-width: 640px; line-height: 1.6; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 34px 0 10px; }
+  .step { border: 1px solid var(--b-std); border-radius: 12px; padding: 18px; background: var(--panel); }
+  .snum { width: 28px; height: 28px; border-radius: 9999px; display: grid; place-items: center;
+    background: rgba(113, 112, 255, 0.15); color: var(--accent-h); font-size: 14px; margin-bottom: 10px; }
+  .step h3 { font-size: 15px; margin: 0 0 6px; }
+  .step p, .cap p { font-size: 13px; color: var(--t3); line-height: 1.55; margin: 0 0 8px; }
+  .step pre { background: #0b0c0d; border: 1px solid var(--b-subtle); border-radius: 8px;
+    padding: 10px 12px; font-size: 11.5px; overflow-x: auto; margin: 0 0 8px; }
+  .step code, .alt code { font-size: 11.5px; color: var(--t2); }
+  .alt { font-size: 12.5px; color: var(--t3); }
+  .caps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 22px 0 8px; }
+  .cap { border: 1px solid var(--b-subtle); border-radius: 12px; padding: 18px; }
+  .cap h3 { font-size: 14.5px; margin: 0 0 6px; }
+  .fine { font-size: 12px; color: var(--t4); margin-top: 26px; }
+  .fine a { color: var(--accent-h); }
+  @media (max-width: 900px) { .steps, .caps { grid-template-columns: 1fr; } }
+</style>

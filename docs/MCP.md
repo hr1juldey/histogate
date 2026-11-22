@@ -41,9 +41,27 @@ histogate_start  ->  portal upload  ->  histogate_advance  x3  ->  histogate_rep
 4. **`histogate_report(session_id)`** → markdown report + JSON summary
    (files / answered / declined). No images, no base64 — token-clean.
 
+**`histogate_tile_map(session_id)`** — upload a whole-slide TIFF and get the
+tile map: every tissue tile classified with familiarity; the human SEES the
+map at `portal_url/map`, the agent gets the JSON.
+
+**`histogate_interpret(session_id, section)`** — guided interpretation, one
+topic per call: what IS there (plain words first), what is NOT there
+(absence reported as a finding), why patches were declined, how much to
+trust the numbers.
+
+**`mlflow_search_runs(query, limit)`** — the public MLflow tracker: run
+names, key metrics, status — any coding agent can audit what happened.
+
+**`model_quality()`** — the 9-check regression gate, the benchmark table
+(CRC-VAL accuracy, phikon-v2 comparison, OOD detectors), read from artifacts.
+
 **`run_regression_gate(metrics_path)`** (ops tool): pass/fail mirrors the
 regulated regression gate over a `GateInputs` artifact exactly — the tool
 reports what the gate computed, never its own opinion.
+
+The site has a human-facing page too: `/mcp` — three-step connect guide with
+copy-paste configs for Claude and Gemini.
 
 ## A worked session (dummy path)
 
