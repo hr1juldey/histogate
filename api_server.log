@@ -1,94 +1,204 @@
 /home/riju279/Documents/code/AIRA/histogate/.venv/lib/python3.12/site-packages/torch/cuda/__init__.py:70: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
   import pynvml  # type: ignore[import]
-INFO:     Started server process [3565006]
+INFO:     Started server process [3879704]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:59218 - "GET /slide-tile/12/6.png HTTP/1.1" 503 Service Unavailable
-INFO:     127.0.0.1:59218 - "GET /slide-tile/12/7.png HTTP/1.1" 503 Service Unavailable
-INFO:     127.0.0.1:59218 - "GET /slide-tile/10/6.png HTTP/1.1" 503 Service Unavailable
-INFO:     127.0.0.1:59218 - "GET /slide-tile/11/6.png HTTP/1.1" 503 Service Unavailable
-INFO:     127.0.0.1:59218 - "GET /slide-tile/11/7.png HTTP/1.1" 503 Service Unavailable
-INFO:     127.0.0.1:59218 - "GET /slide-tile/11/6.png HTTP/1.1" 503 Service Unavailable
-INFO:     127.0.0.1:50422 - "GET /slide-tile/10/3.png HTTP/1.1" 503 Service Unavailable
-INFO:     127.0.0.1:42308 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42312 - "GET /site-config.json HTTP/1.1" 200 OK
 /home/riju279/Documents/code/AIRA/histogate/src/histogate/serve/patch_demo.py:54: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:208.)
   x = torch.from_numpy(np.asarray(img)).permute(2, 0, 1).float() / 255
-INFO:     127.0.0.1:48032 - "GET /slide-map.json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55234 - "GET /slide-map.json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-overview.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/2/2.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/1/11.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/2/1.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/2/11.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/1/2.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/1/12.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/2/12.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/8/5.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/9/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/9/5.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/10/3.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/10/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/9/3.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/10/5.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/11/1.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/11/2.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/10/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/11/3.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/11/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/11/5.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/11/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/12/1.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/12/2.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/11/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/12/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/12/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/12/3.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/13/2.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/12/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/13/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/13/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/13/3.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/15/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/15/5.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/16/2.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/15/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/16/3.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/16/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/16/5.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/16/8.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/16/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/17/0.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/16/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/16/9.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/17/8.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/17/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/17/1.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/17/9.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/17/10.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/18/0.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55250 - "GET /slide-tile/18/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55274 - "GET /slide-tile/18/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55246 - "GET /slide-tile/18/1.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55252 - "GET /slide-tile/18/8.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55266 - "GET /slide-tile/18/9.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55262 - "GET /slide-tile/19/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55234 - "GET /slide-tile/11/4.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55234 - "POST /analyze-patch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "GET /slide-tile/11/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "POST /analyze-patch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "GET /slide-tile/10/5.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "POST /analyze-patch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "GET /slide-tile/11/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "POST /analyze-patch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "GET /slide-tile/12/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "POST /analyze-patch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "GET /slide-tile/16/6.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "POST /analyze-patch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "GET /slide-tile/16/7.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52350 - "POST /analyze-patch HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41886 - "GET /slide-map.json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41900 - "GET /slide-overview.png HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44186 - "GET /slide-map.json HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44202 - "GET /slide-overview.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48120 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48122 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60062 - "GET /slide-tile/1/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/1/11.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/1/12.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/2/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/2/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/2/11.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/2/12.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/8/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/9/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/9/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/10/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/10/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/9/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/10/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/11/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/10/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/11/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/11/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/11/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/11/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/11/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/11/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/12/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/12/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/12/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/12/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/13/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/12/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/12/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/13/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/13/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/15/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/15/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/13/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/15/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/16/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/16/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/16/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/16/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/16/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/16/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/16/9.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/17/8.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/17/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/17/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/16/8.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/17/0.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/17/9.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/18/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/17/10.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/18/0.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/19/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60080 - "GET /slide-tile/18/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60108 - "GET /slide-tile/18/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60082 - "GET /slide-tile/18/9.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60062 - "GET /slide-tile/18/8.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60066 - "GET /slide-tile/11/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60120 - "GET /slide-tile/11/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/11/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60120 - "GET /slide-tile/11/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60136 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60120 - "GET /slide-tile/10/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/10/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/1/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/1/11.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/1/12.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/2/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/2/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/2/12.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/8/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/9/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/2/11.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/9/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/9/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/10/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/11/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/10/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/10/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/11/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/10/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/11/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/11/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/11/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/11/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/11/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/12/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/12/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/12/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/12/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/12/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/13/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/12/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/13/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/13/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/13/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/15/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/16/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/16/3.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/16/2.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/16/4.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/15/5.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/15/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/17/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/16/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/16/8.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/16/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/16/9.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/17/0.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/18/0.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/17/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/17/8.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/17/10.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/17/9.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/18/1.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60146 - "GET /slide-tile/19/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60182 - "GET /slide-tile/18/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60166 - "GET /slide-tile/18/6.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60096 - "GET /slide-tile/18/8.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60160 - "GET /slide-tile/18/9.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60172 - "GET /slide-tile/18/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:60120 - "GET /slide-tile/18/7.png HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:44982 - "GET /slide-map.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44986 - "GET /slide-overview.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49816 - "GET /metrics.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "GET /slide-map.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-overview.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/2/2.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/2/11.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/1/11.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/2/1.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/1/12.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/1/2.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/2/12.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/8/5.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/9/4.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/10/3.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/9/5.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/9/3.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/10/4.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/10/5.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/11/1.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/11/2.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/11/3.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/10/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/11/4.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/11/5.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/11/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/12/2.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/12/1.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/11/7.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/12/4.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/12/3.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/12/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/12/7.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/13/2.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/13/3.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/13/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/13/4.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/15/4.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/15/5.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/16/3.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/15/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/16/4.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/16/2.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/16/5.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/16/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/16/7.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/16/8.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/17/0.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/16/9.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/17/8.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/17/7.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/17/1.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/17/9.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/17/10.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/18/0.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33750 - "GET /slide-tile/18/7.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /slide-tile/18/1.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33766 - "GET /slide-tile/18/8.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33776 - "GET /slide-tile/18/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33770 - "GET /slide-tile/18/9.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33800 - "GET /slide-tile/19/7.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "GET /slide-tile/11/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "GET /slide-tile/12/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "GET /slide-tile/11/7.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "GET /slide-tile/11/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "GET /slide-tile/10/5.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "POST /analyze-patch HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "GET /slide-tile/10/6.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33738 - "POST /analyze-patch HTTP/1.1" 200 OK

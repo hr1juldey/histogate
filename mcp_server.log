@@ -23,11 +23,18 @@
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 
-[11/22/26 18:31:56] INFO     Starting MCP server 'histogate'    transport.py:358
+[11/22/26 19:05:26] INFO     Starting MCP server 'histogate'    transport.py:358
                              with transport 'http' on                           
                              http://0.0.0.0:8790/mcp                            
-INFO:     Started server process [3767691]
+INFO:     Started server process [3874839]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8790 (Press CTRL+C to quit)
-INFO:     127.0.0.1:38366 - "POST /mcp HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:38296 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38296 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38296 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38296 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38296 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54210 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54210 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54210 - "POST /mcp HTTP/1.1" 400 Bad Request

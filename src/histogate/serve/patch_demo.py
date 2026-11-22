@@ -62,18 +62,20 @@ class PatchAnalyzer:
         z = logits[0] / self.temperature
         probs = F.softmax(z.detach(), dim=0)
         energy = float(energy_score(logits.detach(), T=self.temperature)[0])
+        feats = self._feats[-1]            # grad-enabled, for Grad-CAM below
         if self._knn is not None:
-            feat = self._feats[-1]
-            pooled = feat.mean(dim=(2, 3)) if feat.dim() == 4 else feat
-            is_ood = bool(self._knn.score(
-                __import__("torch").nn.functional.normalize(
-                    pooled, dim=1))[0] > self.knn_thr)
+            # SAME trunk path the calibration bank was built from
+            # (features_for_dir -> model.backbone). Never the stages[-1]
+            # hook output: it is pre-final-norm and scores differently —
+            # a naive flip on it rejected 100% of CRC-VAL.
+            with torch.no_grad():
+                emb = self.model.backbone(x)
+            is_ood = bool(self._knn.score(emb)[0] > self.knn_thr)
         else:
             is_ood = energy > self.energy_thr
         top = int(probs.argmax())
 
         cam = np.zeros((224, 224), dtype=np.float32)
-        feats = self._feats[-1]
         if feats.dim() == 4:
             grads, = torch.autograd.grad(z[top], feats)
             w = grads.mean(dim=(2, 3), keepdim=True)

@@ -214,6 +214,9 @@ def serve(argv: list[str] | None = None) -> None:
     mode.add_argument("--api", action="store_true", help="FastAPI on serve.host:port")
     mode.add_argument("--mcp-http", metavar="HOST:PORT", default=None,
                       help="FastMCP over streamable HTTP (default 127.0.0.1:8790)")
+    mode.add_argument("--space", metavar="HOST:PORT", default=None,
+                      help="ONE ASGI app: FastAPI + MCP mounted at /mcp + "
+                           "portal (HF Space pattern, default 0.0.0.0:7860)")
     p.add_argument("--config", type=Path, default=None)
     args = p.parse_args(argv)
     settings = load_settings(args.config)
@@ -227,6 +230,40 @@ def serve(argv: list[str] | None = None) -> None:
     analyze = build_analyze(ckpt, calib,
                             device="cuda" if torch.cuda.is_available() else "cpu")
 
+    if args.space:
+        # ONE deployable unit (HF Space): FastAPI + MCP mounted at /mcp,
+        # portal custom routes forward through the mount. Pattern per
+        # gofastmcp.com integrations/fastapi.md (combine_lifespans).
+        from contextlib import asynccontextmanager
+
+        import uvicorn
+        from fastmcp.utilities.lifespan import combine_lifespans
+
+        from histogate.serve.api import create_app
+        from histogate.serve.engine import LockedEngine
+        from histogate.serve.mcp import build_mcp
+        from histogate.serve.patch_demo import PatchAnalyzer
+
+        host, _, port = args.space.partition(":")
+        host = host or "0.0.0.0"
+        port_i = int(port or 7860)
+        patch_analyzer = PatchAnalyzer(ckpt, calib)
+        api = create_app(engine=LockedEngine(analyze=analyze),
+                         slides_root=settings.paths.data_dir,
+                         patch_analyzer=patch_analyzer)
+        mcp = build_mcp(analyze=analyze, patch_analyzer=patch_analyzer,
+                        uploads_root=Path("uploads"))
+        mcp_app = mcp.http_app(path="/")
+
+        # a mounted sub-app's lifespan never runs on its own — combine it
+        @asynccontextmanager
+        async def _noop(app):
+            yield
+
+        api.router.lifespan_context = combine_lifespans(_noop, mcp_app.lifespan)
+        api.mount("/mcp", mcp_app)
+        uvicorn.run(api, host=host, port=port_i)
+        return
     if args.mcp_http:
         from histogate.serve.mcp import build_mcp
         from histogate.serve.patch_demo import PatchAnalyzer

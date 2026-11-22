@@ -122,6 +122,10 @@ def _interpret_sections(rows: list[dict], tm: dict | None) -> list[tuple[str, st
     return secs
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[3]
+
+
 def build_mcp(analyze: AnalyzeFn, gate_dir: Path | None = None,
               patch_analyzer=None, uploads_root: Path | None = None) -> FastMCP:
     mcp: FastMCP = FastMCP(
@@ -318,6 +322,67 @@ def build_mcp(analyze: AnalyzeFn, gate_dir: Path | None = None,
                 out[name] = ({k: d[k] for k in ("accuracy", "macro_f1")
                               if k in d} if name == "crcval_accuracy" else d)
         return json.dumps(out)
+
+    # ---- prompts: the guided walkthrough as a first-class MCP component ----
+    @mcp.prompt(description="Guided slide analysis: walks the user through "
+              "upload, inference, tile map, step-by-step interpretation, and "
+              "the report. Visual output is always a URL to the web portal — "
+              "never ask the user to paste images into the conversation.")
+    def analyze_my_slide(goal: str = "analyze my slide and tell me what you "
+                        "see") -> str:
+        return f"""HistoGate guided workflow — user goal: {goal}
+
+Follow these steps in order; each tool returns the next step. Never skip.
+1. histogate_start — get the session id and the upload portal URL. Give the
+   user the portal_url and WAIT until they say they uploaded. The images go
+   to the server through the portal, never into this conversation.
+2. histogate_advance — run the analysis when upload is confirmed.
+3. histogate_tile_map — whole-slide tile map + detection. Give the user the
+   map_portal_url so they can SEE the colored map in their browser.
+4. histogate_interpret — call it once per section (section 0, 1, 2, ...) and
+   relay each topic to the user one at a time: what IS there, what is NOT
+   there, why anything was declined, how much to trust it.
+5. histogate_report — final structured report; read it back in plain words.
+Every answer carries the RUO notice: research use only, not a diagnosis."""
+
+    @mcp.prompt(description="Honest model audit: walks the quality gate, "
+              "benchmarks, and MLflow tracker — including the failures.")
+    def audit_the_model() -> str:
+        return """HistoGate model audit — report honestly, failures included.
+
+1. model_quality — the regression gate checks, the benchmark table (CRC-VAL
+   accuracy, phikon-v2 comparison, OOD detectors), all from artifacts.
+2. mlflow_search_runs — list recent tracker runs; note statuses and metrics.
+3. Summarize for the user: what passes, what fails or is missing, and what
+   the numbers are NOT evidence of (no clinical use, RUO)."""
+
+    # ---- resources: read-only data agents can list without tool calls ----
+    @mcp.resource("histogate://model-card",
+                  description="The shipped model card (markdown).")
+    def res_model_card() -> str:
+        f = _repo_root() / "MODEL_CARD.md"
+        return f.read_text() if f.exists() else "MODEL_CARD.md not found"
+
+    @mcp.resource("histogate://benchmarks",
+                  description="Benchmark table rendered from artifacts "
+                              "(accuracy, phikon-v2, OOD) — no hand-typed "
+                              "numbers.")
+    def res_benchmarks() -> str:
+        f = _repo_root() / "docs/BENCHMARKS.md"
+        return f.read_text() if f.exists() else "docs/BENCHMARKS.md not found"
+
+    @mcp.resource("histogate://workflow",
+                  description="The guided-workflow contract: steps, "
+                              "guardrails, and the portal law.")
+    def res_workflow() -> str:
+        return json.dumps({"steps": list(wf.STEPS) if hasattr(wf, "STEPS")
+                           else ["upload", "analyze", "review", "report"],
+                           "portal_law": "images never enter the LLM "
+                                         "conversation; uploads go through "
+                                         "the portal",
+                           "guardrails": "fail-closed; steps cannot be "
+                                         "skipped",
+                           "ruo": _RUO}, indent=2)
 
     # ---- the portal: humans upload here; images never touch the LLM context
     @mcp.custom_route("/portal/{sid}", methods=["GET"])

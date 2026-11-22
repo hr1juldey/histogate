@@ -20,7 +20,7 @@ the answer, and the answers it gives win.
 ## Known published weakness (ours, honestly)
 
 see metrics.json vs the 0.90 bar —
-energy-score thresholds are the weakest detector class; upgrade path is
+SHIPPED: the gate now ships the KNN detector (live-path verified — see `runs/pr16-mixed/ood_knn_livepath.json`: AUROC 0.9763, CRC-VAL declines 3.3%, NONORM declines 12.0%, all better than energy's 0.7972 / 5.3% / 16.7%). Historically, energy-score thresholds are the weakest detector class; upgrade path is
 feature-space KNN/Mahalanobis (see `src/histogate/ood.py`).
 
 ## Industry foundation model, same test, same protocol (BACK excluded, 8 classes)

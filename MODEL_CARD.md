@@ -12,7 +12,7 @@ tags:
 # HistoGate patch classifier (pr16-mixed)
 
 9-class H&E tissue patch classifier (NCT-CRC-HE-100K classes) with
-temperature calibration and energy-based OOD gating. ConvNeXt-Tiny backbone,
+temperature calibration and KNN feature-space OOD gating. ConvNeXt-Tiny backbone,
 warm-started from the normalized-data base model, then trained on the mixed
 200k set: stain-normalized NCT-CRC-HE-100K + unnormalized
 NCT-CRC-HE-100K-NONORM (6 scanners) + calibrated physically-grounded stain
@@ -23,7 +23,7 @@ augmentation (Beer-Lambert dye-concentration jitter measured on real slides).
 - macro-F1 0.9711 / accuracy 0.9764 / quadratic kappa 0.9873
 - Raw-scanner domain (NONORM, n=7000): macro-F1 0.9776
 - Post-temperature-scaling ECE 0.0064 (T=0.682)
-- Energy OOD AUROC 0.797 (global corruption kinds 0.843);
+- OOD: KNN feature-space detector (k=50, live-path trunk), AUROC 0.9763 vs Camelyon16; declines 3.3% of CRC-VAL, 12.0% of NONORM (energy was 0.7972 / 5.3% / 16.7%);
   see repo docs for the documented scope limitation on local blemishes
 - int8 dynamic quantization: argmax agreement 1.0000,
   TSR drift 0.0, TIL drift 0.0
