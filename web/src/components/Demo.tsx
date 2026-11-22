@@ -29,7 +29,9 @@ export default function Demo() {
   const fileRef = useRef<HTMLInputElement>(null);
   const touched = useRef(false);   /* stop auto-pick once the user acts */
 
-  useEffect(() => { get<Sample[]>('/samples').then(s => setSamples(s.filter(x => x.id !== 'nonorm'))); }, []);
+  useEffect(() => { get<Sample[]>('/samples')
+      .catch(() => samplesFallback as unknown as Sample[])
+      .then(s => setSamples(s.filter(x => x.id !== 'nonorm'))); }, []);
 
   const measure = (url: string) => {
     const im = new Image();

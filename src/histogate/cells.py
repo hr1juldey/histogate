@@ -103,7 +103,7 @@ class NucleusCounter:
             # 0.168 raw vs 0.000 normalized)
             with torch.no_grad():
                 pred = self._model()(x)
-            np_maps = torch.softmax(pred["np"], dim=1)[..., 1].cpu().numpy()
+            np_maps = torch.softmax(pred["np"], dim=1)[:, 1].cpu().numpy()
             hv_maps = pred["hv"].cpu().numpy().transpose(0, 2, 3, 1)
             tp_maps = (
                 torch.softmax(pred["tp"], dim=1).argmax(dim=1).cpu().numpy()
