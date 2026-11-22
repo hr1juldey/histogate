@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { analyze, apiBase, get, type Analysis, type Sample } from '../lib/api';
 
+/* gauge scale shared with the story page: calm … strange */
+const ELO = -4.6, EHI = -1.6;
+const pct = (e: number) => Math.max(0, Math.min(100, ((e - ELO) / (EHI - ELO)) * 100));
+
 /** Hero island: cycles real samples through the live model on load,
  *  with the model's own evidence heatmap over the tissue. */
 export default function LiveHero() {
@@ -77,10 +81,15 @@ export default function LiveHero() {
         <div className="readout mono">
           {res ? (
             <>
+              <span className={`lamp ${res.ood ? 'amber' : 'green'}`} aria-hidden="true" />
               <span className={res.ood ? 'warn' : 'ok'}>
-                {res.top_class} · {(res.confidence * 100).toFixed(1)}%
+                {res.ood ? 'declined — safe' : `${res.top_class} · ${(res.confidence * 100).toFixed(1)}%`}
               </span>
-              <span className="dim">live inference · red = where the model looked</span>
+              <span className="mini-gauge" aria-hidden="true">
+                <i style={{ width: `${pct(res.energy)}%`, background: res.ood ? '#e3b341' : '#5dbb7a' }} />
+                <b style={{ left: `${pct(res.energy_threshold)}%` }} />
+              </span>
+              <span className="dim">red = where the model looked</span>
             </>
           ) : (
             <span className="dim">waking the model…</span>

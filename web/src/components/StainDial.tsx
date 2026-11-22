@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { analyze, apiBase } from '../lib/api';
 
 /* Same physics as training (bio_optics.py): Ruifrok H&E deconvolution,
-   concentration scaling, residual preserved. One tile only. */
+   concentration scaling, residual preserved. Each tile carries its OWN
+   deconvolution — concentrations are never mixed across pictures. */
 const SH = [0.644, 0.717, 0.267];
 const SE = [0.092, 0.954, 0.283];
 const norm = (v: number[]) => { const n = Math.hypot(...v); return v.map(x => x / n); };
@@ -47,64 +48,63 @@ async function loadPixels(url: string): Promise<Uint8ClampedArray> {
   return c.getContext('2d')!.getImageData(0, 0, 224, 224).data;
 }
 
-type Card = { conf: number; label: string; energy: string };
-const EMPTY: Card = { conf: 0, label: '…', energy: '—' };
+type TileId = 'lab' | 'raw';
+interface Card { conf: number; label: string; energy: number; thr: number; ood: boolean }
+const EMPTY: Card = { conf: 0, label: '…', energy: -4.6, thr: -3.7, ood: false };
+
+/* gauge scale: energy −4.6 (calm) … −1.6 (strange) */
+const ELO = -4.6, EHI = -1.6;
+const pct = (e: number) => Math.max(0, Math.min(100, ((e - ELO) / (EHI - ELO)) * 100));
 
 export default function StainDial() {
   const cv = useRef<HTMLCanvasElement>(null);
   const ov = useRef<HTMLCanvasElement>(null);
-  const BASE = useRef<Uint8ClampedArray | null>(null);
-  const CONV = useRef<Conv | null>(null);
-  const RAW = useRef<Uint8ClampedArray | null>(null);
+  const thumb = useRef<HTMLCanvasElement>(null);
+  const PIX = useRef<Record<TileId, Uint8ClampedArray | null>>({ lab: null, raw: null });
+  const CONVS = useRef<Record<TileId, Conv | null>>({ lab: null, raw: null });
+  const tileRef = useRef<TileId>('lab');
   const [stain, setStain] = useState(0);
-  const [rawMode, setRawMode] = useState(false);
-  const rawRef = useRef(false);
+  const [tile, setTile] = useState<TileId>('lab');
   const [v1, setV1] = useState<Card>(EMPTY);
   const [ship, setShip] = useState<Card>(EMPTY);
   const [cap, setCap] = useState('loading…');
+  const [analyzing, setAnalyzing] = useState(false);
   const busy = useRef(false);
   const pend = useRef(false);
 
   useEffect(() => {
     (async () => {
-      BASE.current = await loadPixels(`${apiBase}/samples/tumor.png`);
-      CONV.current = deconvolve(BASE.current);
-      RAW.current = await loadPixels(`${apiBase}/samples/nonorm.png`);
+      PIX.current.lab = await loadPixels(`${apiBase}/samples/tumor.png`);
+      CONVS.current.lab = deconvolve(PIX.current.lab);
+      PIX.current.raw = await loadPixels(`${apiBase}/samples/nonorm.png`);
+      CONVS.current.raw = deconvolve(PIX.current.raw);
       render(0);
       predict();
     })();
   }, []);
 
+  /* both tiles go through the same physics: their OWN concentrations × dial */
   function render(t: number) {
     const c = cv.current;
-    if (!c || !BASE.current || !CONV.current) return;
+    const id = tileRef.current;
+    if (!c || !PIX.current[id] || !CONVS.current[id]) return;
     const ctx = c.getContext('2d')!;
-    const src = rawRef.current ? RAW.current! : BASE.current;
-    const tt = rawRef.current ? 0 : t;
-    const aH = 1 + 1.2 * tt, aE = Math.max(0.2, 1 - 0.7 * tt);
+    const aH = 1 + 1.2 * t, aE = Math.max(0.2, 1 - 0.7 * t);
     const out = ctx.createImageData(224, 224);
-    const { cH, cE, res } = CONV.current;
+    const { cH, cE, res } = CONVS.current[id]!;
     for (let p = 0, i = 0; p < 224 * 224; p++, i += 4) {
-      let o0: number, o1: number, o2: number;
-      if (rawRef.current) {
-        o0 = src[i] > 1 ? -Math.log(src[i] / 255) : 0;
-        o1 = src[i + 1] > 1 ? -Math.log(src[i + 1] / 255) : 0;
-        o2 = src[i + 2] > 1 ? -Math.log(src[i + 2] / 255) : 0;
-      } else {
-        const h = cH[p] * aH, e = cE[p] * aE;
-        o0 = H[0] * h + E[0] * e + res[i];
-        o1 = H[1] * h + E[1] * e + res[i + 1];
-        o2 = H[2] * h + E[2] * e + res[i + 2];
-      }
+      const h = cH[p] * aH, e = cE[p] * aE;
+      const o0 = H[0] * h + E[0] * e + res[i];
+      const o1 = H[1] * h + E[1] * e + res[i + 1];
+      const o2 = H[2] * h + E[2] * e + res[i + 2];
       out.data[i] = 255 * Math.exp(-Math.max(0, o0));
       out.data[i + 1] = 255 * Math.exp(-Math.max(0, o1));
       out.data[i + 2] = 255 * Math.exp(-Math.max(0, o2));
       out.data[i + 3] = 255;
     }
     ctx.putImageData(out, 0, 0);
-    setCap(rawRef.current
-      ? 'a REAL picture from a different machine — unmodified'
-      : t < 0.05 ? 'as the lab scanned it'
+    setCap(t < 0.05
+      ? id === 'lab' ? 'as this lab scanned it' : 'as this machine scanned it'
       : `purple dye ×${aH.toFixed(2)}, pink dye ×${aE.toFixed(2)}`);
   }
 
@@ -113,8 +113,16 @@ export default function StainDial() {
     busy.current = true;
     const c = cv.current;
     if (c) {
+      /* pin the exact picture these answers will belong to */
+      const t = thumb.current;
+      if (t) {
+        const tc = t.getContext('2d')!;
+        tc.drawImage(c, 0, 0, 224, 224);
+      }
+      setAnalyzing(true);
       const blob = await new Promise<Blob>(r => c.toBlob(b => r(b!), 'image/png'));
       await Promise.all([go(blob, 'v1', setV1), go(blob, 'ship', setShip)]);
+      setAnalyzing(false);
     }
     busy.current = false;
     if (pend.current) { pend.current = false; predict(); }
@@ -123,11 +131,9 @@ export default function StainDial() {
   async function go(blob: Blob, which: 'v1' | 'ship', set: (c: Card) => void) {
     try {
       const j = await analyze(blob, which);
-      const wrong = j.top_class !== 'TUM' ? ` ⚠ calls it ${j.top_class}` : '';
-      const rej = j.ood ? ' ⚠ OOD-rejected' : '';
-      set({ conf: j.confidence, label: `${j.top_class}${wrong}${rej}`, energy: String(j.energy) });
+      set({ conf: j.confidence, label: j.top_class, energy: j.energy, thr: j.energy_threshold, ood: j.ood });
       if (which === 'ship') drawEvidence(j.gradcam as unknown as number[][]);
-    } catch { set({ conf: 0, label: 'error', energy: '—' }); }
+    } catch { set({ ...EMPTY, label: 'error' }); }
   }
 
   /* same evidence overlay as home/demo: normalized, solid outline at the hot region */
@@ -161,39 +167,51 @@ export default function StainDial() {
     if (!busy.current) { pend.current = true; setTimeout(() => { if (pend.current) { pend.current = false; predict(); } }, 220); }
   };
 
-  const toggleRaw = () => {
-    rawRef.current = !rawRef.current;
-    setRawMode(rawRef.current);
-    render(rawRef.current ? 0 : stain);
+  /* tile switch keeps the dial position — same stain shift, other patient */
+  const pick = (id: TileId) => {
+    if (id === tileRef.current) return;
+    tileRef.current = id;
+    setTile(id);
+    render(stain);
     predict();
   };
 
   const scoreChip = (title: string, c: Card) => {
-    const refused = c.label.includes('OOD-rejected');
-    const wrongCall = c.label.includes('calls it');
-    const call = c.label.split(' ⚠')[0];
+    const refused = c.ood;
+    const wrongCall = !c.ood && c.label !== 'TUM' && c.label !== '…';
     return (
       <div className={`chip ${refused ? 'refuse' : wrongCall ? 'miss' : 'match'}`}>
         <span className="who">{title}</span>
-        <span className="call mono">{call}</span>
+        <span className="call mono">{c.label}</span>
         <span className="badge">{refused ? '— declined (safe)' : wrongCall ? '✗ WRONG' : '✓ MATCH'}</span>
       </div>
     );
   };
 
   const card = (title: string, c: Card, cls: string) => {
-    const refused = c.label.includes('OOD-rejected');
-    const wrongCall = c.label.includes('calls it');
+    const refused = c.ood;
+    const wrongCall = !c.ood && c.label !== 'TUM' && c.label !== '…';
+    const state = refused ? 'ref' : wrongCall ? 'wrong' : 'right';
     const status = refused ? 'declined — safe'
-      : wrongCall ? `WRONG — says ${c.label.split(' ⚠')[0]}`
+      : wrongCall ? `WRONG — says ${c.label}`
       : 'sees the tumor';
+    const why = refused ? 'needle past its gate — too strange to judge'
+      : wrongCall ? 'confidently wrong — its gate saw no problem'
+      : 'matches the expert label';
+    const gcol = refused ? '#e3b341' : wrongCall ? 'var(--bad)' : '#5dbb7a';
     return (
-      <div className={`mcard ${cls} ${refused ? 'ref' : wrongCall ? 'wrong' : 'right'}`}>
+      <div className={`mcard ${cls} ${state} ${analyzing ? 'dim' : ''}`}>
         <div className="t">{title}</div>
-        <div className="row"><span className="pct mono">{(c.conf * 100).toFixed(1)}%</span><span className="lab">{c.label.split(' ⚠')[0]}</span></div>
+        <div className="row"><span className="pct mono">{(c.conf * 100).toFixed(1)}%</span><span className="lab">{c.label}</span></div>
         <div className="bar"><i style={{ width: `${c.conf * 100}%` }} /></div>
+        <div className="gauge">
+          <i style={{ width: `${pct(c.energy)}%`, background: gcol }} />
+          <b className="tick" style={{ left: `${pct(c.thr)}%` }} />
+        </div>
+        <div className="glabels"><span>calm</span><span>gate ▲</span><span>strange</span></div>
         <div className="verdict-line">{status}</div>
-        <div className="live mono">energy {c.energy}</div>
+        <details className="why"><summary>why?</summary><p>{why}</p></details>
+        <div className="live mono">strangeness {c.energy.toFixed(2)} · gate {c.thr.toFixed(2)}</div>
       </div>
     );
   };
@@ -201,24 +219,32 @@ export default function StainDial() {
   return (
     <div className="dial-sec">
       <div className="viewer">
-        <div className="tilewrap">
+        <div className="tabs" role="tablist" aria-label="tissue source">
+          <button role="tab" aria-selected={tile === 'lab'} className={tile === 'lab' ? 'on' : ''} onClick={() => pick('lab')}>lab tile</button>
+          <button role="tab" aria-selected={tile === 'raw'} className={tile === 'raw' ? 'on raw' : ''} onClick={() => pick('raw')}>raw scanner</button>
+        </div>
+        <div className={`tilewrap ${tile === 'raw' ? 'rawsrc' : ''}`}>
           <canvas ref={cv} width="224" height="224" />
           <canvas ref={ov} width="448" height="448" aria-hidden="true" />
+          <span className="stamp">{tile === 'lab' ? 'patient A · scanner A' : 'patient B · scanner B'}</span>
         </div>
         <p className="cap-hint">red = where the model looks</p>
         <p className="cap">{cap}</p>
         <div className="dialbox">
-          <p className="truth mono">ground truth: <b>TUMOR</b>. drag the dial.</p>
+          <p className="truth mono">both patches are <b>TUMOR</b>. drag the dial.</p>
           <div className="ends"><span>◀ normal staining</span><span>heavy purple stain ▶</span></div>
-          <input type="range" min={0} max={100} value={stain * 100} disabled={rawMode}
+          <input type="range" min={0} max={100} value={stain * 100}
             onChange={e => onDial(+(e.target as HTMLInputElement).value / 100)}
             onPointerUp={predict} aria-label="stain dial" />
-          <button className="btn ghost rawbtn" onClick={toggleRaw}>
-            {rawMode ? '← Back' : 'Real scanner tile →'}
-          </button>
+          <div className="zones" aria-hidden="true"><span className="zr" /><span className="zb" /></div>
+          <div className="zlabels"><span>real lab range</span><span>beyond real labs</span></div>
         </div>
       </div>
       <div className="models">
+        <div className={`pend mono ${analyzing ? 'on' : ''}`}>
+          <canvas ref={thumb} width="224" height="224" />
+          <span>{analyzing ? 'analyzing this exact picture…' : 'answers below are for this picture'}</span>
+        </div>
         <div className="score">
           <div className="chip expert"><span className="who">expert label</span><span className="call mono">TUMOR</span><span className="badge">truth</span></div>
           {scoreChip('first model', v1)}
@@ -226,7 +252,7 @@ export default function StainDial() {
         </div>
         {card('first model', v1, 'bad')}
         {card('shipped model', ship, 'good')}
-        <p className="note">both models run live right now — numbers update as you drag</p>
+        <p className="note">both models answer live as you drag</p>
       </div>
     </div>
   );

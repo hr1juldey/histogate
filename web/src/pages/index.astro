@@ -164,9 +164,15 @@ const metList = [
   .livehero .stack { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--b-std); }
   .livehero .stack img { width: 100%; aspect-ratio: 1; object-fit: cover; }
   .livehero .stack canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .readout { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between;
+  .readout { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 10px; justify-content: space-between;
     padding: 30px 14px 12px; font-size: 12.5px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); }
-  .readout .ok { color: #9de3b3; } .readout .warn { color: var(--bad); } .readout .dim { color: var(--t3); }
+  .readout .ok { color: #9de3b3; } .readout .warn { color: #e3b341; } .readout .dim { color: var(--t3); }
+  .readout .lamp { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+  .lamp.green { background: #5dbb7a; } .lamp.amber { background: #e3b341; }
+  .mini-gauge { position: relative; flex: 1; min-width: 60px; max-width: 140px; height: 6px;
+    border-radius: 3px; background: #202636; margin: 0 10px; }
+  .mini-gauge i { position: absolute; left: 0; top: 0; height: 6px; border-radius: 3px; transition: width 0.4s; }
+  .mini-gauge b { position: absolute; top: -2px; width: 2px; height: 10px; background: #e3b341; }
   .rail { display: flex; gap: 8px; }
   .rail button { padding: 0; border: 2px solid transparent; border-radius: 8px;
     overflow: hidden; opacity: 0.5; transition: opacity 0.15s, border-color 0.15s; cursor: pointer; }
