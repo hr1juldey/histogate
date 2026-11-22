@@ -94,13 +94,14 @@ def _default() -> dict:
             "name": "Hrijul Dey",
             "role": "AI & Backend Engineer",
             "bio": (
-                "Biotechnologist by training. Biomedical R&D and computer vision "
-                "before moving into production ML systems. HistoGate is an "
-                "independent project — a colorectal tissue classifier with quality "
-                "gating, built and released the same way production systems are: "
-                "measured, gated, failures kept."),
+                "Trained in biotechnology, then four years in biomedical R&D — "
+                "estimating joint loads and gait from sensor data, validating "
+                "against medical-device standards. Moved into production ML "
+                "systems in 2025: same measurement discipline, different "
+                "machinery. HistoGate is where the two lines cross — a "
+                "colorectal tissue classifier with quality gating, released "
+                "the way production systems are: measured, gated, failures kept."),
             "background": [
-                {"dates": "2018–22", "what": "B.Tech, Biotechnology — Vellore Institute of Technology"},
                 {"dates": "2019–23", "what": "R&D, computer vision & data science — Ashva (biomedical devices). Joint-loading estimation from multi-sensor motion data; gait and posture analysis; validation against medical-device standards."},
                 {"dates": "2025–26", "what": "Product manager & engineer — Lilypad. LLM features and tool integration on an MCP-based marketplace."},
                 {"dates": "2026–", "what": "Product engineer, AI platform — Mosaic Wellness. Agent platform serving a 500-person organization: MCP gateway, evals, cost and reliability work."},
