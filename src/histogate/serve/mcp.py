@@ -110,6 +110,16 @@ def _interpret_sections(rows: list[dict], tm: dict | None) -> list[tuple[str, st
                      f"{len(declined)} patch(es) looked unfamiliar (familiarity "
                      f"below the gate), so the model refused to answer rather "
                      f"than guess — a safe refusal, not an error"))
+    nuc = [r["nuclei"] for r in answered if isinstance(r.get("nuclei"), dict)]
+    if nuc:
+        tot = sum(sum(v for v in d.values()) for d in nuc)
+        epi = sum((d.get("neoplastic", 0) + d.get("nonneop_epithelial", 0))
+                  for d in nuc)
+        secs.append(("cell counts (second model)",
+                     f"{tot} nuclei counted across {len(nuc)} answered "
+                     f"patch(es), {round(100 * epi / max(1, tot))}% "
+                     f"epithelial-lineage — counts from a PanNuke-trained "
+                     f"nucleus model, not diagnoses"))
     conf = [r.get("confidence", 0) for r in answered]
     if conf:
         secs.append(("how much to trust it",

@@ -19,6 +19,7 @@ export interface PatchDetail {
   top_class: string; confidence: number; energy: number;
   energy_threshold: number; ood: boolean; gradcam: number[][];
   conformal_set?: string[];   /* P0a: 90% APS set, present when answered */
+  nuclei?: Record<string, number>; /* P0b: per-class counts, answered tiles only */
 }
 
 /* Pan bounds (user law 2026-11-22: "I cannot drag the image from bottom to

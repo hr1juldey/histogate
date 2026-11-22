@@ -79,6 +79,19 @@ export default function InspectorCard({ title, tileSrc, detail, loading, error,
                     <span className="cnote"> — among answered tiles</span>
                   </div>
                 )}
+                {detail.nuclei && Object.keys(detail.nuclei).length > 0 && (
+                  <div className="sub2 cset">
+                    nuclei: {[
+                      ...(detail.nuclei.neoplastic || detail.nuclei.nonneop_epithelial
+                        ? [(detail.nuclei.neoplastic ?? 0) + (detail.nuclei.nonneop_epithelial ?? 0) !== 0
+                            ? `epithelial-lineage ${(detail.nuclei.neoplastic ?? 0) + (detail.nuclei.nonneop_epithelial ?? 0)}` : null] : []),
+                      detail.nuclei.inflammatory ? `inflammatory ${detail.nuclei.inflammatory}` : null,
+                      detail.nuclei.connective ? `connective ${detail.nuclei.connective}` : null,
+                      detail.nuclei.dead ? `dead ${detail.nuclei.dead}` : null,
+                    ].filter(Boolean).join(' \u00b7 ')}
+                    <span className="cnote"> — second model, counts not diagnoses</span>
+                  </div>
+                )}
                 <div className="camrow">
                   <button className="camtog" aria-pressed={showCam} onClick={() => setShowCam(s => !s)}>
                     {showCam ? 'hide evidence' : 'show evidence'}</button>
