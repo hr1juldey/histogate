@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { analyze, analyzeTiff, apiBase, get, type Analysis, type Sample } from '../lib/api';
+import PatchViewer from './PatchViewer';
+import InspectorCard from './InspectorCard';
 
 const TRUTH: Record<string, string> = {
   tumor: 'TUM', normal: 'NORM', stroma: 'STR', lymph: 'LYM', mucus: 'MUC', debris: 'DEB',
@@ -14,64 +16,65 @@ const GLOSS: Record<string, string> = {
   debris: 'Necrosis and waste: ugly but real biology.',
 };
 
-/** Full demo island: gallery, live analysis, calibrated bars, Grad-CAM. */
+/** Unified demo island — same window, same controls, same inspector as the
+    whole-slide page. One grammar everywhere. */
 export default function Demo() {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [sel, setSel] = useState<string | null>(null);
   const [j, setJ] = useState<Analysis | null>(null);
   const [src, setSrc] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  const [alpha, setAlpha] = useState(0.45);
-  const camRef = useRef<HTMLCanvasElement>(null);
+  const [natural, setNatural] = useState({ w: 448, h: 448 });
+  const [err, setErr] = useState(false);
+  const [fname, setFname] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const touched = useRef(false);   /* stop auto-pick once the user acts */
 
   useEffect(() => { get<Sample[]>('/samples').then(s => setSamples(s.filter(x => x.id !== 'nonorm'))); }, []);
 
-  const runBlob = async (blob: Blob, displayUrl: string, isTiff: boolean) => {
-    setSrc(displayUrl); setJ(null); setErr(null);
+  const measure = (url: string) => {
+    const im = new Image();
+    im.onload = () => setNatural({ w: im.naturalWidth || 448, h: im.naturalHeight || 448 });
+    im.src = url;
+  };
+
+  const runBlob = async (blob: Blob, displayUrl: string, isTiff: boolean, name: string | null) => {
+    setSrc(displayUrl); setJ(null); setErr(false); setFname(name);
+    measure(displayUrl);
     try { setJ(isTiff ? await analyzeTiff(blob, 'ship') : await analyze(blob, 'ship')); }
-    catch { setErr('backend unreachable — is the Space awake? refresh in a moment'); }
+    catch { setErr(true); }
   };
 
   const pick = async (id: string) => {
+    touched.current = true;
     setSel(id);
     const r = await fetch(`${apiBase}/samples/${id}`);
-    await runBlob(await r.blob(), `${apiBase}/samples/${id}.png`, true);
+    await runBlob(await r.blob(), `${apiBase}/samples/${id}.png`, true, null);
   };
 
-  useEffect(() => { if (samples.length && sel === null) pick(samples[0].id); }, [samples, sel]);
+  const onFile = (f: File | null | undefined) => {
+    if (!f) return;
+    touched.current = true;
+    setSel(null);
+    const tiff = f.type === 'image/tiff' || f.name.toLowerCase().endsWith('.tif') || f.name.toLowerCase().endsWith('.tiff');
+    runBlob(f, URL.createObjectURL(f), tiff, f.name);
+  };
 
-  useEffect(() => {
-    if (!j || !src) return;
-    const cnv = camRef.current;
-    const cam = cnv?.getContext('2d');
-    if (!cam) return;
-    const flat = (j.gradcam as unknown as number[][]).flat?.() ?? (j.gradcam as unknown as number[]);
-    const w = Math.round(Math.sqrt(flat.length));
-    const max = Math.max(...flat) || 1;
-    const hi = flat.map(v => v >= 0.55 * max);
-    const at = (cx: number, cy: number) =>
-      cx < 0 || cy < 0 || cx >= w || cy >= w ? false : hi[cy * w + cx];
-    const d = cam.createImageData(448, 448);
-    for (let y = 0; y < 448; y++) for (let x = 0; x < 448; x++) {
-      const cx = Math.floor((x / 448) * w), cy = Math.floor((y / 448) * w);
-      const v = flat[cy * w + cx] / max;
-      const i = (y * 448 + x) * 4;
-      const isHi = at(cx, cy);
-      const isEdge = isHi && (!at(cx - 1, cy) || !at(cx + 1, cy) || !at(cx, cy - 1) || !at(cx, cy + 1));
-      d.data[i] = 255; d.data[i + 1] = 40; d.data[i + 2] = 40;
-      d.data[i + 3] = (isEdge ? 255
-        : isHi ? 255 * Math.min(1, 0.35 + v) * 0.65
-        : 255 * v * 0.25) * alpha;
-    }
-    cam.putImageData(d, 0, 0);
-  }, [j, src, alpha]);
+  useEffect(() => { if (samples.length && sel === null && !touched.current) pick(samples[0].id); }, [samples, sel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const sorted = j ? [...j.probabilities].sort((a, b) => b.p - a.p) : [];
+  /* three-state verdict against the doctor's label, when we have one */
+  const badge = sel && TRUTH[sel] && j ? (
+    j.ood ? (
+      <div className="vbadge ref">expert label {TRUTH[sel]} · AI declined — safe</div>
+    ) : j.top_class === TRUTH[sel] ? (
+      <div className="vbadge match">expert label {TRUTH[sel]} · AI agrees</div>
+    ) : (
+      <div className="vbadge miss">expert label {TRUTH[sel]} · AI says {j.top_class}</div>
+    )
+  ) : null;
 
   return (
-    <div className="demo">
-      <div className="left">
+    <div className="demo-uni">
+      <div className="dgutter">
         <div className="gallery">
           {samples.map(s => (
             <button key={s.id} className={`tile ${sel === s.id ? 'on' : ''}`} onClick={() => pick(s.id)}>
@@ -80,50 +83,28 @@ export default function Demo() {
             </button>
           ))}
         </div>
-        <p className="gloss">{sel ? GLOSS[sel] : ''}</p>
-        <div className="own">
-          <button className="btn ghost" onClick={() => fileRef.current?.click()}>Upload your own</button>
-          <input ref={fileRef} type="file" accept="image/*" hidden
-            onChange={e => { const f = e.target.files?.[0]; if (!f) return;
-              setSel(null); runBlob(f, URL.createObjectURL(f), false); }} />
+        {sel && <p className="gloss">{GLOSS[sel]}</p>}
+        <div className="own"
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => { e.preventDefault(); onFile(e.dataTransfer.files?.[0]); }}>
+          <input ref={fileRef} type="file" accept="image/*,.tif,.tiff" hidden
+            onChange={e => onFile(e.target.files?.[0])} />
+          <button className="upl" onClick={() => fileRef.current?.click()}>Upload your own</button>
+          <p className="drophint">or drop an image here</p>
         </div>
       </div>
-      <div className="right card">
-        {sel && j && (
-          <div className={`score ${j.ood ? 'refuse' : j.top_class === TRUTH[sel] ? 'match' : 'miss'}`}>
-            <span className="sc"><em>expert label</em><b className="mono">{TRUTH[sel]}</b></span>
-            <span className="sc-arrow">vs</span>
-            <span className="sc"><em>AI call</em><b className="mono">{j.top_class}</b></span>
-            <span className="badge">
-              {j.ood ? '— declined (safe)' : j.top_class === TRUTH[sel] ? '✓ MATCH' : '✗ WRONG'}
-            </span>
-          </div>
-        )}
-        <div className={`verdict ${j?.ood ? 'ood' : ''}`}>
-          <div className="vt">{j ? j.verdict : err ?? 'analyzing…'}</div>
-          {j && <div className="vd mono">really {j.confidence >= 0.9 ? 'is' : 'is not'} bluffing: {(j.confidence * 100).toFixed(1)}% · declines pictures unlike its training set (energy {j.energy})</div>}
-        </div>
-        {src && (
-          <div className="stage">
-            <div className="viewer"><img src={src} alt="patch" /><canvas ref={camRef} width={448} height={448} /></div>
-            <div className="stats">
-              <div className="srow"><span>how sure it really is</span><b>{j ? `${(j.confidence * 100).toFixed(1)}%` : '—'}</b></div>
-              <div className="srow"><span>familiarity gauge</span><b className="mono">{j?.energy ?? '—'}</b></div>
-              <div className="srow"><span>decision</span><b>{j ? (j.ood ? 'declined' : 'answered') : '—'}</b></div>
-              <label className="heat">where the model looked
-                <input type="range" min="0" max="100" value={alpha * 100} onInput={e => setAlpha(+(e.target as HTMLInputElement).value / 100)} />
-              </label>
-            </div>
-          </div>
-        )}
-        <div className="bars">
-          {sorted.map(p => (
-            <div className={`brow ${j && p.class === j.top_class ? 'top' : ''}`} key={p.class}>
-              <span className="bn">{p.class}</span>
-              <div className="track"><div className="fill" style={{ width: `${(p.p * 100).toFixed(1)}%` }} /></div>
-              <span className="bp mono">{(p.p * 100).toFixed(1)}%</span>
-            </div>
-          ))}
+      <div className="panes">
+        {src ? (
+          <PatchViewer src={src} alt={fname ?? 'tissue patch'} natural={natural}
+            reserveWidth={380}
+            captionIdle="scroll to zoom in — drag to look around · rotate if you like" />
+        ) : <div className="pane mosaicwrap" />}
+        <div className="sidecol">
+          <InspectorCard
+            title={sel ? `sample ${sel}` : 'your image'}
+            tileSrc={src} detail={j} loading={!!src && !j && !err} error={err}
+            badge={badge} filename={fname}
+            placeholder="pick a sample or upload — the verdict appears here" />
         </div>
       </div>
     </div>
