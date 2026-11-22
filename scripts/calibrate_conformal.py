@@ -23,7 +23,7 @@ from torch.utils.data import DataLoader
 
 from histogate.cli import _cache_for, build_index, load_settings
 from histogate.conformal import _aps_scores, aps_qhat
-from histogate.data import CachedPatches, CLASS_TO_IDX
+from histogate.data import CachedPatches
 from histogate.model import N_CLASSES, PatchClassifier, PatchDataset
 
 RUN = Path(os.environ.get("HISTOGATE_RUN", "runs/pr16-mixed"))

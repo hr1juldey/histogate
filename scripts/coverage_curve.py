@@ -85,12 +85,9 @@ def main() -> None:
 
     conf_curve = []
     for cov_target in (1.0, 0.98, 0.95, 0.90, 0.85, 0.80):
-        if cov_target >= 1.0:
-            tau = 0.0
-        else:
-            # conf is top-loaded (most tiles ~0.98): to KEEP cov_target of
-            # tiles, tau must be the (1 - cov_target)-th percentile.
-            tau = float(np.quantile(conf, 1.0 - cov_target))
+        # conf is top-loaded (most tiles ~0.98): to KEEP cov_target of
+        # tiles, tau must be the (1 - cov_target)-th percentile.
+        tau = 0.0 if cov_target >= 1.0 else float(np.quantile(conf, 1.0 - cov_target))
         conf_curve.append({"target_coverage": cov_target, "tau": round(tau, 4),
                            **point(conf >= tau)})
     knn_curve = []

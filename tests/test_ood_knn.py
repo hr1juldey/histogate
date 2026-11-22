@@ -20,7 +20,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_knn_ood_detector_exists_and_separates() -> None:
-    from histogate.ood import KNNDetector, features_for_dir, auroc
+    from histogate.ood import KNNDetector, auroc, features_for_dir
 
     det = KNNDetector.fit_from_dir(TRAIN, CKPT, CALIB, max_images=1500, k=50)
     pos = features_for_dir(VAL, CKPT, max_images=200)          # in-distribution

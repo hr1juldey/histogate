@@ -26,7 +26,6 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_live_gate_path_matches_calibration_path(tmp_path: Path) -> None:
-    import torch
     from PIL import Image
 
     from histogate.serve.patch_demo import PatchAnalyzer

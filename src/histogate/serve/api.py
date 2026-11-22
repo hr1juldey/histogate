@@ -17,6 +17,15 @@ from histogate.serve.engine import LockedEngine
 from histogate.serve.patch_demo import PatchAnalyzer
 
 
+def demo_slide() -> Path:
+    """Slide served by /slide endpoints. Env-overridable so a deployment
+    (HF Space) can ship a 40 MB crop instead of the 23 GB Camelyon16 file."""
+    import os
+
+    return Path(os.environ.get(
+        "HISTOGATE_SLIDE", "data/raw/camelyon16/tumor_001.tif"))
+
+
 class AnalyzeRequest(BaseModel):
     slide_path: str
 
@@ -141,7 +150,7 @@ def create_app(engine: LockedEngine, slides_root: Path,
             from histogate.serve.slide_map import build_slide_map
             try:
                 return build_slide_map(
-                    Path("data/raw/camelyon16/tumor_001.tif"), patch_analyzer,
+                    demo_slide(), patch_analyzer,
                     level=4)
             except Exception as e:  # noqa: BLE001 — demo surface
                 raise HTTPException(503, f"slide map unavailable: {e}") from e
@@ -155,7 +164,7 @@ def create_app(engine: LockedEngine, slides_root: Path,
 
             from histogate.serve.slide_map import slide_frame
 
-            frame = slide_frame(Path("data/raw/camelyon16/tumor_001.tif"),
+            frame = slide_frame(demo_slide(),
                                 patch_analyzer)
             if frame is None:
                 raise HTTPException(503, "slide map not built yet")
@@ -175,7 +184,7 @@ def create_app(engine: LockedEngine, slides_root: Path,
 
             from histogate.serve.slide_map import slide_frame
 
-            frame = slide_frame(Path("data/raw/camelyon16/tumor_001.tif"),
+            frame = slide_frame(demo_slide(),
                                 patch_analyzer)
             if frame is None:
                 raise HTTPException(503, "slide map not built yet")

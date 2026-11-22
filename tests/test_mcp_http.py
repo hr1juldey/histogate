@@ -10,7 +10,6 @@ import anyio
 import httpx
 import pytest
 from fastmcp import Client
-from starlette.datastructures import UploadFile
 
 from histogate.serve.mcp import build_mcp
 
@@ -37,7 +36,6 @@ def mcp(tmp_path: Path):
 
 
 def _call(c, name, args=None):
-    r = anyio.from_thread.run  # placeholder, unused
     raise RuntimeError
 
 
@@ -67,14 +65,14 @@ def test_full_path_portal_upload_to_report(mcp, tmp_path: Path) -> None:
         png = tmp_path / "t.png"
         png.write_bytes(_tiny_png())
         transport = httpx.ASGITransport(app=app)
-        async with app.router.lifespan_context(app):
-            async with httpx.AsyncClient(transport=transport, base_url="http://t") as hc:
-                with open(png, "rb") as fh:
-                    r = await hc.post(f"/portal/{sid}/upload",
-                                      files={"files": ("t.png", fh, "image/png")})
-                assert r.status_code == 200 and r.json()["ok"], r.text
-                r404 = await hc.get("/portal/deadbeef")
-                assert r404.status_code == 404
+        async with (app.router.lifespan_context(app),
+                    httpx.AsyncClient(transport=transport, base_url="http://t") as hc):
+            with open(png, "rb") as fh:
+                r = await hc.post(f"/portal/{sid}/upload",
+                                  files={"files": ("t.png", fh, "image/png")})
+            assert r.status_code == 200 and r.json()["ok"], r.text
+            r404 = await hc.get("/portal/deadbeef")
+            assert r404.status_code == 404
         # analyze step runs without the patch analyzer wired -> plain advance
         async with Client(mcp) as c:
             out = json.loads((await c.call_tool(
@@ -103,8 +101,8 @@ def test_protocol_is_revision_3(mcp) -> None:
     async def run() -> None:
         app = mcp.http_app()
         transport = httpx.ASGITransport(app=app)
-        async with app.router.lifespan_context(app):
-            async with httpx.AsyncClient(transport=transport, base_url="http://t") as hc:
+        async with (app.router.lifespan_context(app),
+                    httpx.AsyncClient(transport=transport, base_url="http://t") as hc):
                 r = await hc.post("/mcp", json={
                     "jsonrpc": "2.0", "id": 1, "method": "initialize",
                     "params": {"protocolVersion": "2025-06-18", "capabilities": {},
@@ -131,8 +129,8 @@ def _first_json(r: httpx.Response) -> dict:
 def test_tile_map_interpret_and_quality(mcp, tmp_path: Path) -> None:
     """Usage loop: upload a TIFF -> tile map -> guided interpretation ->
     model quality + mlflow exposure."""
-    import tifffile as _tf
     import numpy as _np
+    import tifffile as _tf
     from PIL import Image as _Im
 
     async def run() -> None:
@@ -165,8 +163,8 @@ def test_tile_map_interpret_and_quality(mcp, tmp_path: Path) -> None:
         # portal map view renders for the human
         app = mcp.http_app()
         transport = httpx.ASGITransport(app=app)
-        async with app.router.lifespan_context(app):
-            async with httpx.AsyncClient(transport=transport, base_url="http://t") as hc:
+        async with (app.router.lifespan_context(app),
+                    httpx.AsyncClient(transport=transport, base_url="http://t") as hc):
                 r = await hc.get(f"/portal/{sid}/map")
                 assert r.status_code == 200 and "tile map" in r.text.lower()
     anyio.run(run)

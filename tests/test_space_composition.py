@@ -4,7 +4,6 @@ the HF Space unit. Wire-true: uvicorn on an ephemeral port, real HTTP."""
 
 from __future__ import annotations
 
-import json
 import threading
 import time
 from pathlib import Path
