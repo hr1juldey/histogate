@@ -79,7 +79,7 @@ export default function LiveHero() {
   return (
     <div className="livehero">
       <div className="stack">
-        {cur && <img src={`${apiBase}/samples/${cur.id}.png`} alt={cur.why} key={cur.id} />}
+        {cur && <img src={`/samples/${cur.id}.png`} alt={cur.why} key={cur.id} />}
         <canvas ref={camRef} width={448} height={448} aria-hidden="true" />
         <div className="readout mono">
           {res ? (

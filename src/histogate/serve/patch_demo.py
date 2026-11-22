@@ -120,4 +120,13 @@ class PatchAnalyzer:
 
             result["conformal_set"] = aps_set(
                 probs.detach().numpy(), self.conformal_qhat)
+        # P0b: second-model nucleus counts — gate-passed, non-BACK tiles only.
+        # Declined or BACK tiles: no `nuclei` key at all (fail-closed law).
+        if (not is_ood and self.cells_mode
+                and result["top_class"] != "BACK"):
+            if self._cells is None:
+                from histogate.cells import NucleusCounter
+
+                self._cells = NucleusCounter()
+            result["nuclei"] = self._cells.count(img)
         return result
