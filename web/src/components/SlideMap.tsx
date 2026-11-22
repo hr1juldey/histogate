@@ -14,28 +14,12 @@ export default function SlideMap() {
   const [data, setData] = useState<SlideMapData | null>(null);
   const [err, setErr] = useState('');
   const [sel, setSel] = useState<SlideTile | null>(null);
-  const [showVerdicts, setShowVerdicts] = useState(true);
-  const heatRef = useRef<HTMLCanvasElement>(null);
+  type ViewMode = 'verdicts' | 'familiarity';
+  const [mode, setMode] = useState<ViewMode>('verdicts');
 
   useEffect(() => {
     getSlideMap().then(setData).catch(e => setErr(String(e)));
   }, []);
-
-  /* familiarity heat pane: one square per tile, dark → indigo by familiarity */
-  useEffect(() => {
-    const c = heatRef.current;
-    if (!c || !data) return;
-    const ctx = c.getContext('2d')!;
-    const cw = c.width / data.grid.cols, ch = c.height / data.grid.rows;
-    ctx.clearRect(0, 0, c.width, c.height);
-    ctx.fillStyle = '#141516';
-    ctx.fillRect(0, 0, c.width, c.height);
-    for (const t of data.tiles) {
-      const v = t.familiarity / 100;
-      ctx.fillStyle = `rgb(${Math.round(30 + 66 * v)},${Math.round(30 + 73 * v)},${Math.round(46 + 189 * v)})`;
-      ctx.fillRect(t.col * cw, t.row * ch, Math.ceil(cw), Math.ceil(ch));
-    }
-  }, [data]);
 
   if (err) return <p className="map-err">the map is still warming up — refresh in a minute</p>;
   if (!data) return <p className="map-err mono">tiling the slide… (first load takes a few minutes)</p>;
@@ -60,10 +44,12 @@ export default function SlideMap() {
         <span><b>{data.tiles.length}</b> patches</span>
         <span><b className="ok">{answered.length}</b> answered</span>
         <span><b className="amb">{declinedN}</b> declined — foreign organ</span>
-        <button className={`vtg ${showVerdicts ? 'on' : ''}`} onClick={() => setShowVerdicts(v => !v)}
-          aria-pressed={showVerdicts}>
-          {showVerdicts ? 'verdicts on' : 'verdicts off'}
-        </button>
+        <span className="vswitch" role="group" aria-label="view mode">
+          {(['verdicts', 'familiarity'] as ViewMode[]).map(m => (
+            <button key={m} className={mode === m ? 'on' : ''} onClick={() => setMode(m)}
+              aria-pressed={mode === m}>{m}</button>
+          ))}
+        </span>
       </div>
       <div className="guides">
         <span className="glab">most tumor-like — verify:</span>
@@ -81,14 +67,21 @@ export default function SlideMap() {
           <img className="underlayer" src={`${apiBase}/slide-overview.png`}
             alt="the real lymph-node slide, low magnification"
             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-          {showVerdicts && data.tiles.map(t => (
-            <button key={t.id} className={`vcell ${t.declined ? 'dec' : 'ans'} ${sel?.id === t.id ? 'sel' : ''}`}
-              style={{ ...cell(t), borderColor: t.declined ? undefined : CLASS_COLORS[t.cls] ?? '#666',
-                background: t.declined ? undefined : `${CLASS_COLORS[t.cls] ?? '#666'}55` }}
+          {data.tiles.map(t => (
+            <button key={t.id}
+              className={`vcell ${mode === 'familiarity' ? 'fam' : t.declined ? 'dec' : 'ans'} ${sel?.id === t.id ? 'sel' : ''}`}
+              style={{ ...cell(t),
+                borderColor: mode === 'familiarity' ? undefined : t.declined ? undefined : CLASS_COLORS[t.cls] ?? '#666',
+                background: mode === 'familiarity'
+                  ? `rgb(${30 + Math.round(66 * t.familiarity / 100)},${30 + Math.round(73 * t.familiarity / 100)},${46 + Math.round(189 * t.familiarity / 100)})`
+                  : t.declined ? undefined : `${CLASS_COLORS[t.cls] ?? '#666'}55` }}
               onClick={() => setSel(t)}
               aria-label={`patch ${t.id}: ${t.declined ? 'declined' : t.cls}, familiarity ${t.familiarity}`}
               aria-pressed={sel?.id === t.id} />
           ))}
+          <p className="ulcap">{mode === 'verdicts'
+            ? 'the real slide underneath — colored = its answer, dashed amber = declined'
+            : 'same slide, same squares — brightness = familiarity; dim = where it declined'}</p>
         </div>
         <div className="sidecol">
           <div className="pane inspector" role="status">
@@ -116,11 +109,6 @@ export default function SlideMap() {
             ) : (
               <p className="noclick">click any patch on the slide — its verdict appears here, no scrolling</p>
             )}
-          </div>
-          <div className="pane heatp">
-            <canvas ref={heatRef} width={512} height={512} aria-hidden="true" />
-            <p className="hleg mono">brightness = familiarity<br />one square = one patch</p>
-            <p className="hleg2">dim squares declined — the model refused to guess there</p>
           </div>
         </div>
       </div>
