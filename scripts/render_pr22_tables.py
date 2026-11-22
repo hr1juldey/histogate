@@ -93,7 +93,7 @@ def main() -> None:
                 f"VRAM co-residency (ship + counter, {v['n_tiles']} tiles): "
                 f"peak {v['peak_gib']} GiB of {v['gpu_total_gib']} "
                 f"(bar ≤ 4 GiB — {'PASS' if v['passed'] else 'ABORT'}), "
-                f"{v["combined_s_per_tile"]} s/tile. "
+                f"{v['combined_s_per_tile']} s/tile. "
                 "Artifact `runs/pr16-mixed/cells_vram.json`.\n")
         zeros = {c: sum(1 for r in rows if r["total"] == 0)
                  for c, rows in val["per_class"].items()}
