@@ -141,7 +141,8 @@ def create_app(engine: LockedEngine, slides_root: Path,
             from histogate.serve.slide_map import build_slide_map
             try:
                 return build_slide_map(
-                    Path("data/raw/camelyon16/tumor_001.tif"), patch_analyzer)
+                    Path("data/raw/camelyon16/tumor_001.tif"), patch_analyzer,
+                    level=4)
             except Exception as e:  # noqa: BLE001 — demo surface
                 raise HTTPException(503, f"slide map unavailable: {e}") from e
 

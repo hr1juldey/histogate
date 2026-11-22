@@ -9,10 +9,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import tifffile
 from PIL import Image
 
 from histogate.serve.patch_demo import PatchAnalyzer
-from histogate.wsi import load_levels, read_patch, tile_grid, tissue_mask
+from histogate.wsi import read_patch, tile_grid, tissue_mask
 
 ELO, EHI = -4.6, -1.6  # shared display scale: -4.6 familiar … -1.6 unfamiliar
 _MAX_TILES = 4000
@@ -27,15 +28,22 @@ def _familiarity(energy: float) -> int:
 
 
 def build_slide_map(slide_path: Path, analyzer: PatchAnalyzer,
-                    patch: int = 448, stride: int | None = None) -> dict:
-    key = f"{slide_path}|{patch}|{analyzer.energy_thr}"
+                    patch: int = 448, stride: int | None = None,
+                    level: int = 4) -> dict:
+    """level: pyramid level to tile. Level 0 of a Camelyon16 slide decodes
+    to ~65 GB of RAM; level 4 (~13824x6112) covers the whole slide in a
+    few hundred tiles — the right demo granularity."""
+    key = f"{slide_path}|{patch}|{analyzer.energy_thr}|{level}"
     if key in _cache:
         return _cache[key]
     stride = stride or patch
-    levels = load_levels(slide_path)
-    if not levels:
-        raise ValueError(f"cannot read {slide_path}")
-    img = levels[0]
+    # decode ONLY the requested level — wsi.load_levels() materializes every
+    # level including a ~65 GB level-0, which OOMs this machine
+    with tifffile.TiffFile(str(slide_path)) as tf:
+        levels = tf.series[0].levels
+        if not levels:
+            raise ValueError(f"cannot read {slide_path}")
+        img = levels[min(level, len(levels) - 1)].asarray()
     mask = tissue_mask(img)
     coords = tile_grid(img.shape, mask, patch=patch, stride=stride)
     ys = [c[0] for c in coords]

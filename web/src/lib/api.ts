@@ -56,3 +56,17 @@ export async function analyzeTiff(file: Blob, model: 'ship' | 'v1'): Promise<Ana
   if (!r.ok) throw new Error(`analyze: ${r.status}`);
   return r.json();
 }
+
+export interface SlideTile {
+  id: string; col: number; row: number; cls: string;
+  conf: number; energy: number; familiarity: number; declined: boolean;
+}
+export interface SlideMapData {
+  slide: string; grid: { cols: number; rows: number };
+  gate: number; tiles: SlideTile[];
+}
+export async function getSlideMap(): Promise<SlideMapData> {
+  const r = await fetch(`${apiBase}/slide-map.json`);
+  if (!r.ok) throw new Error(`slide-map: ${r.status}`);
+  return r.json();
+}

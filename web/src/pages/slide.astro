@@ -1,0 +1,53 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SlideMap from '../components/SlideMap';
+import { apiBase } from '../lib/api';
+---
+<Layout title="HistoGate — a whole slide, every patch" active="slide" apiBase={apiBase}>
+  <main class="wrap">
+    <section class="act">
+      <div class="kicker" style="margin-top:40px">The whole slide</div>
+      <h1>Every patch, one verdict each.</h1>
+      <p class="sub">A real Camelyon16 slide — a <b>lymph node</b>, a different organ
+      than this colorectal model ever studied. Each square is one patch: colored =
+      answered, outlined amber = declined — too unfamiliar to judge. Most decline here:
+      the gate refusing a foreign organ, not the model failing. Click any square;
+      right pane shows how familiar each patch felt. The model points;
+      the pathologist decides.</p>
+      <SlideMap client:load />
+    </section>
+  </main>
+</Layout>
+
+<style is:global>
+  h1 { font-size: clamp(26px, 3.2vw, 36px); font-weight: 500; letter-spacing: -0.8px; margin: 6px 0 4px; }
+  .act { padding: 52px 0; border-bottom: 1px solid var(--b-subtle); }
+  .sub { font-size: 15px; color: var(--t2); max-width: 640px; line-height: 1.6; }
+  .slide-sec { margin-top: 30px; display: grid; gap: 18px; }
+  .guides { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .glab { font-size: 12.5px; color: var(--t4); font-weight: 600; }
+  .guide { border: 1px solid var(--b-std); border-radius: 8px; padding: 6px 10px;
+    background: var(--panel); color: var(--t2); font-size: 12px; cursor: pointer; }
+  .guide:hover { border-color: var(--accent); color: var(--t1); }
+  .panes { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+  .pane { border: 1px solid var(--b-std); border-radius: 12px; background: var(--panel); padding: 14px; }
+  .mosaic { display: grid; gap: 2px; }
+  .vtile { aspect-ratio: 1; border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.07);
+    cursor: pointer; padding: 0; min-width: 0; }
+  .vtile:hover { filter: brightness(1.25); }
+  .vtile.declined { border: 1px solid #e3b341; background: rgba(227, 179, 65, 0.06) !important; }
+  .vtile.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .heatp canvas { width: 100%; height: auto; display: block; border-radius: 6px; image-rendering: pixelated; }
+  .hleg { font-size: 11px; color: var(--t4); margin: 10px 0 0; line-height: 1.5; }
+  .hleg2 { font-size: 12px; color: var(--t3); margin: 6px 0 0; }
+  .inspector { max-width: 420px; }
+  .inspector .t { font-size: 12px; color: var(--t4); }
+  .inspector .big { font-size: 32px; font-weight: 600; letter-spacing: -0.5px; margin-top: 6px; }
+  .inspector .big.amber { color: #e3b341; }
+  .inspector .sub2 { font-size: 14px; color: var(--t2); margin-top: 2px; }
+  details.why summary { font-size: 12px; color: var(--t4); cursor: pointer; margin-top: 10px; width: max-content; }
+  details.why summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  details.why p { font-size: 12.5px; color: var(--t3); margin: 6px 0 0; }
+  .map-err { font-size: 14px; color: var(--t3); margin-top: 24px; }
+  @media (max-width: 900px) { .panes { grid-template-columns: 1fr; } }
+</style>
