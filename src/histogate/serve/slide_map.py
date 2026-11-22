@@ -19,6 +19,7 @@ ELO, EHI = -4.6, -1.6  # shared display scale: -4.6 familiar … -1.6 unfamiliar
 _MAX_TILES = 4000
 
 _cache: dict[str, dict] = {}
+_frames: dict[str, tuple] = {}  # key -> (img ndarray, patch, stride) for tile crops
 
 
 def _familiarity(energy: float) -> int:
@@ -33,7 +34,7 @@ def build_slide_map(slide_path: Path, analyzer: PatchAnalyzer,
     """level: pyramid level to tile. Level 0 of a Camelyon16 slide decodes
     to ~65 GB of RAM; level 4 (~13824x6112) covers the whole slide in a
     few hundred tiles — the right demo granularity."""
-    key = f"{slide_path}|{patch}|{analyzer.energy_thr}|{level}"
+    key = f"v2|{slide_path}|{patch}|{analyzer.energy_thr}|{level}"
     if key in _cache:
         return _cache[key]
     stride = stride or patch
@@ -66,7 +67,18 @@ def build_slide_map(slide_path: Path, analyzer: PatchAnalyzer,
             "energy": r["energy"], "familiarity": _familiarity(r["energy"]),
             "declined": bool(r["ood"]),
         })
-    out = {"slide": slide_path.name, "grid": {"cols": int(cols), "rows": int(rows)},
+    out = {"slide": slide_path.name,
+           "grid": {"cols": int(cols), "rows": int(rows)},
+           "dims": {"w": int(img.shape[1]), "h": int(img.shape[0])},
+           "patch": int(patch), "stride": int(stride),
            "gate": analyzer.energy_thr, "tiles": tiles}
     _cache[key] = out
+    _frames[key] = (img, patch, stride)
     return out
+
+
+def slide_frame(slide_path: Path, analyzer: PatchAnalyzer,
+                level: int = 4) -> tuple | None:
+    """The decoded level array for a built map (None if not built yet)."""
+    key = f"v2|{slide_path}|448|{analyzer.energy_thr}|{level}"
+    return _frames.get(key)

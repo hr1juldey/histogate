@@ -146,4 +146,46 @@ def create_app(engine: LockedEngine, slides_root: Path,
             except Exception as e:  # noqa: BLE001 — demo surface
                 raise HTTPException(503, f"slide map unavailable: {e}") from e
 
+        _overview_cache: dict[str, bytes] = {}
+
+        @app.get("/slide-overview.png")
+        def slide_overview() -> Response:
+            """The real slide (downsampled) — the under-layer for the map."""
+            import io
+
+            from histogate.serve.slide_map import slide_frame
+
+            frame = slide_frame(Path("data/raw/camelyon16/tumor_001.tif"),
+                                patch_analyzer)
+            if frame is None:
+                raise HTTPException(503, "slide map not built yet")
+            if "png" in _overview_cache:
+                return Response(_overview_cache["png"], media_type="image/png")
+            img = Image.fromarray(frame[0])
+            img.thumbnail((1600, 1600))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            _overview_cache["png"] = buf.getvalue()
+            return Response(_overview_cache["png"], media_type="image/png")
+
+        @app.get("/slide-tile/{row}/{col}.png")
+        def slide_tile(row: int, col: int) -> Response:
+            """The real patch crop for one grid cell."""
+            import io
+
+            from histogate.serve.slide_map import slide_frame
+
+            frame = slide_frame(Path("data/raw/camelyon16/tumor_001.tif"),
+                                patch_analyzer)
+            if frame is None:
+                raise HTTPException(503, "slide map not built yet")
+            img, patch, stride = frame
+            y, x = row * stride, col * stride
+            if not (y >= 0 and y + patch <= img.shape[0]
+                    and x >= 0 and x + patch <= img.shape[1]):
+                raise HTTPException(404, "tile outside slide")
+            buf = io.BytesIO()
+            Image.fromarray(img[y:y + patch, x:x + patch]).save(buf, format="PNG")
+            return Response(buf.getvalue(), media_type="image/png")
+
     return app

@@ -63,6 +63,7 @@ export interface SlideTile {
 }
 export interface SlideMapData {
   slide: string; grid: { cols: number; rows: number };
+  dims: { w: number; h: number }; patch: number; stride: number;
   gate: number; tiles: SlideTile[];
 }
 export async function getSlideMap(): Promise<SlideMapData> {
