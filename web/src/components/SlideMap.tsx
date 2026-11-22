@@ -21,6 +21,7 @@ export default function SlideMap() {
   type ViewMode = 'verdicts' | 'familiarity';
   const [mode, setMode] = useState<ViewMode>('verdicts');
   const [view, setView] = useState<View>(HOME);
+  const [rot, setRot] = useState(0);
   const boxRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ px: number; py: number; vx: number; vy: number; moved: number } | null>(null);
 
@@ -71,6 +72,32 @@ export default function SlideMap() {
   const onPointerUp = () => { drag.current = null; };
   const wasDrag = () => (drag.current?.moved ?? 0) > 5;
 
+  /* visible controls (GitHub-viewer style): the hint that this canvas moves */
+  const clamp = (v: View, r: DOMRect): View => ({
+    ...v,
+    x: Math.max(r.width * (1 - v.k), Math.min(0, v.x)),
+    y: Math.max(r.height * (1 - v.k), Math.min(0, v.y)),
+  });
+  const zoomBy = (f: number) => {
+    const b = boxRef.current; if (!b) return;
+    const r = b.getBoundingClientRect();
+    setView(v => clamp({ ...stepZoom(v, r, f) }, r));
+  };
+  const stepZoom = (v: View, r: DOMRect, f: number): View => {
+    const k = Math.max(KMIN, Math.min(KMAX, v.k * f));
+    if (k <= KMIN + 1e-3) return HOME;
+    const px = r.width / 2, py = r.height / 2;
+    const wx = (px - v.x) / v.k, wy = (py - v.y) / v.k;
+    return { x: px - wx * k, y: py - wy * k, k };
+  };
+  const panBy = (fx: number, fy: number) => {
+    const b = boxRef.current; if (!b) return;
+    const r = b.getBoundingClientRect();
+    setView(v => clamp({ ...v, x: v.x - fx * r.width * 0.15, y: v.y - fy * r.height * 0.15 }, r));
+  };
+  const rotate90 = () => { setRot(r => (r + 90) % 360); setView(HOME); };
+  const resetAll = () => { setRot(0); setView(HOME); };
+
   if (err) return <p className="map-err">the map is still warming up — refresh in a minute</p>;
   if (!data) return <p className="map-err mono">tiling the slide… (first load takes a few minutes)</p>;
 
@@ -100,8 +127,8 @@ export default function SlideMap() {
               aria-pressed={mode === m}>{m}</button>
           ))}
         </span>
-        {view.k > KMIN + 1e-3 && (
-          <button className="vtg" onClick={() => setView(HOME)}>reset view</button>
+        {(view.k > KMIN + 1e-3 || rot !== 0) && (
+          <button className="vtg" onClick={resetAll}>reset view</button>
         )}
       </div>
       <div className="guides">
@@ -116,13 +143,24 @@ export default function SlideMap() {
       <div className="panes">
         <div className="pane mosaicwrap">
           <div ref={boxRef} className="fitbox zoombox"
-            style={{ aspectRatio: `${data.dims.w} / ${data.dims.h}`,
+            style={{ aspectRatio: rot % 180 ? `${data.dims.h} / ${data.dims.w}` : `${data.dims.w} / ${data.dims.h}`,
               height: 'min(82vh, 900px)', width: 'auto', maxWidth: '100%' }}
             onPointerDown={onPointerDown} onPointerMove={onPointerMove}
             onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
             onDoubleClick={() => setView(HOME)}>
+            <div className="vctrl" role="group" aria-label="slide controls">
+              <button onClick={() => zoomBy(1.4)} aria-label="zoom in" title="zoom in">＋</button>
+              <button onClick={() => zoomBy(1 / 1.4)} aria-label="zoom out" title="zoom out">−</button>
+              <button onClick={() => panBy(-1, 0)} aria-label="pan left" title="pan left">◀</button>
+              <button onClick={() => panBy(1, 0)} aria-label="pan right" title="pan right">▶</button>
+              <button onClick={() => panBy(0, -1)} aria-label="pan up" title="pan up">▲</button>
+              <button onClick={() => panBy(0, 1)} aria-label="pan down" title="pan down">▼</button>
+              <button onClick={rotate90} aria-label="rotate 90°" title="rotate 90°">⟳</button>
+              <button onClick={resetAll} aria-label="reset view" title="reset view">⤢</button>
+            </div>
             <div className="zoomable"
               style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
+            <div className="rotwrap" style={{ transform: `rotate(${rot}deg)` }}>
               <img className="underlayer" src={`${apiBase}/slide-overview.png`}
                 alt="the real lymph-node slide, low magnification" draggable={false}
                 onError={e => { (e.target as HTMLInputElement).style.display = 'none'; }} />
@@ -143,6 +181,7 @@ export default function SlideMap() {
                   )}
                 </button>
               ))}
+            </div>
             </div>
           </div>
           <p className="ulcap">{view.k > KMIN + 1e-3
