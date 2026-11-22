@@ -27,10 +27,10 @@ def test_distill_loss_perfect_terms_near_zero() -> None:
 
     torch.manual_seed(0)
     y = torch.tensor([0, 1, 2, 3])
-    logits = torch.full((4, 4), -20.0)
-    logits[torch.arange(4), y] = 20.0          # confident + correct
-    t_soft = torch.zeros(4, 4)
-    t_soft[torch.arange(4), y] = 1.0           # same target, one-hot
+    logits = 8.0 * torch.eye(4) - 2.0         # confident, argmax == y
+    # teacher soft = the SAME distribution: KL(teacher||student) must be 0
+    # (a one-hot teacher at T=2 would be near-uniform — not "perfect")
+    t_soft = logits.clone()  # identical logits -> KL == 0
     t_emb = torch.randn(4, 8)
     proj = nn.Linear(4, 8)
     with torch.no_grad():
@@ -38,7 +38,25 @@ def test_distill_loss_perfect_terms_near_zero() -> None:
         proj.bias.zero_()
     s_feat = torch.eye(4)
     loss, parts = distill_loss(logits, y, t_soft, t_emb, s_feat, proj)
-    assert loss.item() < 0.5, parts  # all three terms tiny
+    assert parts["mse"] == 0.0
+    assert parts["kl"] < 1e-6
+    assert loss.item() < 0.1, parts
+
+
+def test_distill_loss_kl_penalizes_mismatch() -> None:
+    from histogate.train_utils import distill_loss
+
+    torch.manual_seed(0)
+    y = torch.randint(0, 4, (4,))
+    logits = 4.0 * torch.eye(4)[y]
+    t_same = logits.clone()
+    t_flip = logits.flip(1).clone()  # opposite teacher
+    proj = nn.Linear(4, 8)
+    _, p_same = distill_loss(logits, y, t_same, torch.zeros(4, 8),
+                             torch.zeros(4, 4), proj)
+    _, p_flip = distill_loss(logits, y, t_flip, torch.zeros(4, 8),
+                             torch.zeros(4, 4), proj)
+    assert p_flip["kl"] > p_same["kl"]
 
 
 def test_distill_loss_grads_flow() -> None:
