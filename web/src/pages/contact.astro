@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { get, type SiteConfig } from '../lib/api';
-const cfg = await get<SiteConfig>('/site-config.json');
+import siteCfgFallback from '../data/site-config.json';
+const cfg = await get<SiteConfig>('/site-config.json').catch(() => siteCfgFallback as unknown as SiteConfig);
 const a = cfg.about;
 ---
 <Layout title="HistoGate — about" active="contact" apiBase="">

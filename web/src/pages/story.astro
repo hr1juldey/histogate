@@ -2,7 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import StainDial from '../components/StainDial';
 import { apiBase, get, type SiteConfig } from '../lib/api';
-const cfg = await get<SiteConfig>('/site-config.json');
+import siteCfgFallback from '../data/site-config.json';
+const cfg = await get<SiteConfig>('/site-config.json').catch(() => siteCfgFallback as unknown as SiteConfig);
 ---
 <Layout title="HistoGate — the story, interactive" active="story" apiBase={apiBase}>
   <main class="wrap">

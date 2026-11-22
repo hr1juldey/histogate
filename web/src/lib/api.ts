@@ -58,6 +58,7 @@ export async function assetUrl(path: string): Promise<string> {
    pattern). Any 503 means "booting" — poll /wake until warm, then retry the
    original request once. Cold start is a normal state, never an error. */
 async function wakeLoop(): Promise<void> {
+  if (typeof window === 'undefined') return;   // SSR: fail fast, pages fall back
   for (let i = 0; i < 24; i++) {            // ~4 min ceiling
     await new Promise(r => setTimeout(r, 10000));
     try {

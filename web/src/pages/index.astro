@@ -7,8 +7,10 @@ import { apiBase, get, type Metrics, type SiteConfig, type Sample } from '../lib
 
 // SSR: shell + all copy + measured numbers render server-side from the
 // backend's server-driven config — content changes never redeploy the front end.
-const cfg = await get<SiteConfig>('/site-config.json');
-const metrics = await get<Metrics>('/metrics.json');
+import siteCfgFallback from '../data/site-config.json';
+const cfg = await get<SiteConfig>('/site-config.json').catch(() => siteCfgFallback as unknown as SiteConfig);
+import metricsFallback from '../data/metrics.json';
+const metrics = await get<Metrics>('/metrics.json').catch(() => metricsFallback as unknown as Metrics);
 const samples = await get<Sample[]>('/samples').catch(() => [] as Sample[]);
 const classes = samples.filter(s => s.id !== 'nonorm');
 const m = metrics;
