@@ -4,7 +4,7 @@ import SlideMap from '../components/SlideMap';
 import { apiBase } from '../lib/api';
 ---
 <Layout title="HistoGate — a whole slide, every patch" active="slide" apiBase={apiBase}>
-  <main class="wrap">
+  <main class="wrap wrap-wide">
     <section class="act">
       <div class="kicker" style="margin-top:40px">The whole slide</div>
       <h1>Every patch, one verdict each.</h1>
@@ -22,6 +22,7 @@ import { apiBase } from '../lib/api';
 <style is:global>
   h1 { font-size: clamp(26px, 3.2vw, 36px); font-weight: 500; letter-spacing: -0.8px; margin: 6px 0 4px; }
   .act { padding: 52px 0; border-bottom: 1px solid var(--b-subtle); }
+  .wrap-wide { max-width: 1280px; }
   .sub { font-size: 15px; color: var(--t2); max-width: 640px; line-height: 1.6; }
   .slide-sec { margin-top: 30px; display: grid; gap: 18px; }
   .guides { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -40,30 +41,40 @@ import { apiBase } from '../lib/api';
     font-size: 12px; font-weight: 600; cursor: pointer; padding: 5px 13px; }
   .vswitch button.on { background: rgba(113, 112, 255, 0.15); color: var(--t1); }
   .vswitch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-  .panes { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+  .panes { display: grid; grid-template-columns: auto minmax(340px, 1fr);
+    gap: 24px; align-items: stretch; justify-content: center; }
   .ulcap { font-size: 12px; color: var(--t4); margin: 10px 2px 0; }
   .sidecol { display: grid; gap: 16px; position: sticky; top: 16px; }
-  .noclick { font-size: 13px; color: var(--t3); margin: 4px 0; }
+  .noclick { grid-column: 1 / -1; font-size: 13px; color: var(--t3); margin: 4px 0; }
   .pane { border: 1px solid var(--b-std); border-radius: 12px; background: var(--panel); padding: 14px; }
-  .mosaicwrap { position: relative; padding: 8px; }
-  .fitbox .underlayer { width: 100%; height: 100%; object-fit: fill; display: block; border-radius: 6px; }
+  .mosaicwrap { position: relative; padding: 8px; display: grid; justify-content: center; gap: 0; }
+  .zoombox { position: relative; overflow: hidden; border-radius: 6px; cursor: grab;
+    border: 1px solid var(--b-std); background: #0b0c0d; touch-action: none; }
+  .zoombox:active { cursor: grabbing; }
+  .zoomable { position: absolute; inset: 0; transform-origin: 0 0; }
+  .zoomable .underlayer { width: 100%; height: 100%; object-fit: fill; display: block; }
   .vcell { position: absolute; border-radius: 2px; border-width: 2px; border-style: solid;
-    cursor: pointer; padding: 0; min-width: 0; }
+    cursor: pointer; padding: 0; min-width: 0; overflow: hidden; }
+  .vcell .cellimg { width: 100%; height: 100%; object-fit: cover; display: block; }
   .vcell.dec { border-color: #e3b341 !important; border-style: dashed; background: transparent; }
   .vcell.fam { border-color: rgba(255, 255, 255, 0.12); }
   .vcell:hover { filter: brightness(1.3); }
   .vcell.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
   .ulcap { font-size: 12px; color: var(--t4); margin: 10px 2px 0; }
-  .inspector { max-width: 420px; }
-  .inspector .tileimg { width: 168px; height: 168px; object-fit: cover; border-radius: 8px;
-    border: 1px solid var(--b-std); display: block; margin-bottom: 10px; }
+  .inspector { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+    gap: 14px; align-items: start; }
+  .inspector .itxt { display: grid; gap: 6px; align-content: start; }
+  .inspector .tileimg { width: 100%; max-width: 220px; aspect-ratio: 1; object-fit: cover;
+    border-radius: 8px; border: 1px solid var(--b-std); display: block; }
   .inspector .t { font-size: 12px; color: var(--t4); }
-  .inspector .big { font-size: 32px; font-weight: 600; letter-spacing: -0.5px; margin-top: 6px; }
+  .inspector .big { font-size: clamp(28px, 2.6vw, 40px); font-weight: 600; letter-spacing: -0.5px; margin-top: 6px; }
   .inspector .big.amber { color: #e3b341; }
-  .inspector .sub2 { font-size: 14px; color: var(--t2); margin-top: 2px; }
+  .inspector .sub2 { font-size: 15px; color: var(--t2); margin-top: 2px; }
   details.why summary { font-size: 12px; color: var(--t4); cursor: pointer; margin-top: 10px; width: max-content; }
   details.why summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   details.why p { font-size: 12.5px; color: var(--t3); margin: 6px 0 0; }
   .map-err { font-size: 14px; color: var(--t3); margin-top: 24px; }
-  @media (max-width: 900px) { .panes { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .panes { grid-template-columns: 1fr; }
+    .inspector { grid-template-columns: 120px 1fr; }
+    .inspector .tileimg { width: 120px; height: 120px; } }
 </style>
