@@ -1,0 +1,24 @@
+{
+  "auroc": 0.9599,
+  "threshold_fpr05": -0.9163,
+  "bank_size": 1998,
+  "k": 50,
+  "bank_file": "runs/pr16-mixed/ood_knn_bank.pt",
+  "knn_threshold_live": -0.9163,
+  "livepath": {
+    "crcval": {
+      "n": 150,
+      "knn_decline_pct": 3.3,
+      "energy_decline_pct": 5.3
+    },
+    "nonorm": {
+      "n": 150,
+      "knn_decline_pct": 12.0,
+      "energy_decline_pct": 16.7
+    },
+    "camelyon": {
+      "n_tiles": 56,
+      "knn_auroc_live": 0.9763
+    }
+  }
+}

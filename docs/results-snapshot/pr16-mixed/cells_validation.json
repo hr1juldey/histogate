@@ -1,0 +1,1264 @@
+{
+  "model": "vendored HoVer-Net fast-pannuke (BSD-3 code, PanNuke-trained weights, 144.1 MiB)",
+  "n_tiles": 108,
+  "per_class": {
+    "ADI": [
+      {
+        "file": "ADI-TCGA-AAICEQFN.tif",
+        "total": 2,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 1,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-AAKTCYHC.tif",
+        "total": 6,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 1,
+          "connective": 5,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-AAWDNKDK.tif",
+        "total": 12,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 4,
+          "inflammatory": 1,
+          "connective": 6,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-ACCKVFLM.tif",
+        "total": 6,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 0,
+          "connective": 4,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-ADCVKMNS.tif",
+        "total": 2,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-ADCWNRSF.tif",
+        "total": 18,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 11,
+          "inflammatory": 2,
+          "connective": 2,
+          "dead": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-ADEFMGRC.tif",
+        "total": 3,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-ADTVLITV.tif",
+        "total": 8,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 3,
+          "connective": 5,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-AECFTNDT.tif",
+        "total": 3,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-AEDALKHL.tif",
+        "total": 3,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-AESDELDR.tif",
+        "total": 3,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 0,
+          "connective": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "ADI-TCGA-AFMNYIYL.tif",
+        "total": 2,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 1,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "DEB": [
+      {
+        "file": "DEB-TCGA-AANNAWLE.tif",
+        "total": 124,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 123,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-ACMSDEFF.tif",
+        "total": 17,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 5,
+          "inflammatory": 4,
+          "connective": 5,
+          "dead": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-ACQQYLLS.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-ADCHTGEE.tif",
+        "total": 109,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 108,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 1
+        }
+      },
+      {
+        "file": "DEB-TCGA-AFELDRPS.tif",
+        "total": 4,
+        "modal": "dead",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 1,
+          "dead": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-AFFMDFQV.tif",
+        "total": 8,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 3,
+          "connective": 2,
+          "dead": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-AFQQTGKI.tif",
+        "total": 116,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 116,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-AGKPYMDE.tif",
+        "total": 178,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 178,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-AHDNMNIT.tif",
+        "total": 131,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 131,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-AHKLPKMS.tif",
+        "total": 12,
+        "modal": "dead",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 3,
+          "connective": 0,
+          "dead": 9,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-AHQCDGMY.tif",
+        "total": 1,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "DEB-TCGA-AIIGEWYP.tif",
+        "total": 84,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 84,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "LYM": [
+      {
+        "file": "LYM-TCGA-AAWGSCHH.tif",
+        "total": 35,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 7,
+          "inflammatory": 15,
+          "connective": 3,
+          "dead": 10,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AFIDYMYA.tif",
+        "total": 32,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 5,
+          "inflammatory": 25,
+          "connective": 0,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AFILHSCE.tif",
+        "total": 167,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 126,
+          "inflammatory": 34,
+          "connective": 5,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AGDQANVL.tif",
+        "total": 53,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 53,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AHVYIAAM.tif",
+        "total": 48,
+        "modal": "dead",
+        "counts": {
+          "neoplastic": 9,
+          "inflammatory": 19,
+          "connective": 0,
+          "dead": 20,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AIVQRVDG.tif",
+        "total": 80,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 14,
+          "inflammatory": 42,
+          "connective": 12,
+          "dead": 10,
+          "nonneop_epithelial": 2
+        }
+      },
+      {
+        "file": "LYM-TCGA-AKGHMWKD.tif",
+        "total": 83,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 80,
+          "inflammatory": 0,
+          "connective": 1,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AKTERMWV.tif",
+        "total": 54,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 14,
+          "inflammatory": 25,
+          "connective": 6,
+          "dead": 9,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-ALLEFAMW.tif",
+        "total": 172,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 28,
+          "inflammatory": 120,
+          "connective": 21,
+          "dead": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-ALMSHWVW.tif",
+        "total": 89,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 10,
+          "inflammatory": 61,
+          "connective": 6,
+          "dead": 12,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AMDGAIIS.tif",
+        "total": 59,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 55,
+          "inflammatory": 4,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "LYM-TCGA-AMFHCKKC.tif",
+        "total": 41,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 3,
+          "inflammatory": 28,
+          "connective": 1,
+          "dead": 9,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "MUC": [
+      {
+        "file": "MUC-TCGA-AADHFQAT.tif",
+        "total": 1,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-ACCPKIPN.tif",
+        "total": 1,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-ACNVECVS.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AECPAGVM.tif",
+        "total": 6,
+        "modal": "inflammatory",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 3,
+          "connective": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AEIMNHYF.tif",
+        "total": 2,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AEKTGVNN.tif",
+        "total": 1,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AEQMCTWT.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AEQNNVYC.tif",
+        "total": 8,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 1,
+          "connective": 5,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AESILPND.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AEVIEEDR.tif",
+        "total": 2,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AEVMQDCL.tif",
+        "total": 4,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 4,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUC-TCGA-AFKKMVFN.tif",
+        "total": 2,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "MUS": [
+      {
+        "file": "MUS-TCGA-AASRLCCT.tif",
+        "total": 21,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 21,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-ACNCSHKV.tif",
+        "total": 25,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 1,
+          "connective": 22,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-ADRNTPGI.tif",
+        "total": 11,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 3,
+          "inflammatory": 3,
+          "connective": 5,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AESPLIAR.tif",
+        "total": 13,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 2,
+          "connective": 11,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AESSIWWL.tif",
+        "total": 40,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 2,
+          "connective": 37,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AHCWPEHV.tif",
+        "total": 41,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 8,
+          "connective": 33,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AHQPVPLQ.tif",
+        "total": 42,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 42,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AIAQTLVP.tif",
+        "total": 14,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 14,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AIATCDMV.tif",
+        "total": 30,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 4,
+          "inflammatory": 5,
+          "connective": 21,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AIREGPFR.tif",
+        "total": 29,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 10,
+          "inflammatory": 3,
+          "connective": 16,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-AITPSCMD.tif",
+        "total": 32,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 0,
+          "connective": 31,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "MUS-TCGA-ALIFCDKE.tif",
+        "total": 6,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 6,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "NORM": [
+      {
+        "file": "NORM-TCGA-AASSYQPA.tif",
+        "total": 17,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 14,
+          "inflammatory": 0,
+          "connective": 2,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "NORM-TCGA-ACCEDPAW.tif",
+        "total": 74,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 59,
+          "inflammatory": 1,
+          "connective": 10,
+          "dead": 2,
+          "nonneop_epithelial": 2
+        }
+      },
+      {
+        "file": "NORM-TCGA-ACEQSEEM.tif",
+        "total": 61,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 31,
+          "inflammatory": 4,
+          "connective": 22,
+          "dead": 4,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "NORM-TCGA-ADFIIYIC.tif",
+        "total": 71,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 41,
+          "inflammatory": 3,
+          "connective": 19,
+          "dead": 8,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "NORM-TCGA-ADVTWHRS.tif",
+        "total": 56,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 37,
+          "inflammatory": 7,
+          "connective": 7,
+          "dead": 5,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "NORM-TCGA-AEGEATCF.tif",
+        "total": 57,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 38,
+          "inflammatory": 0,
+          "connective": 16,
+          "dead": 3,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "NORM-TCGA-AERRFAKV.tif",
+        "total": 109,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 49,
+          "inflammatory": 32,
+          "connective": 23,
+          "dead": 4,
+          "nonneop_epithelial": 1
+        }
+      },
+      {
+        "file": "NORM-TCGA-AFDFLMWV.tif",
+        "total": 80,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 23,
+          "inflammatory": 23,
+          "connective": 27,
+          "dead": 7,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "NORM-TCGA-AFFFQQST.tif",
+        "total": 62,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 54,
+          "inflammatory": 0,
+          "connective": 5,
+          "dead": 1,
+          "nonneop_epithelial": 2
+        }
+      },
+      {
+        "file": "NORM-TCGA-AGLINTRE.tif",
+        "total": 80,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 64,
+          "inflammatory": 2,
+          "connective": 13,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "NORM-TCGA-AIMANAKC.tif",
+        "total": 64,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 45,
+          "inflammatory": 5,
+          "connective": 10,
+          "dead": 3,
+          "nonneop_epithelial": 1
+        }
+      },
+      {
+        "file": "NORM-TCGA-AKRKNWMN.tif",
+        "total": 18,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 15,
+          "inflammatory": 0,
+          "connective": 1,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "STR": [
+      {
+        "file": "STR-TCGA-AAMALCER.tif",
+        "total": 24,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 0,
+          "connective": 23,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-ADIHSKPL.tif",
+        "total": 25,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 4,
+          "inflammatory": 7,
+          "connective": 14,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-ADQVPWCM.tif",
+        "total": 37,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 1,
+          "connective": 34,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-AEAPPDAK.tif",
+        "total": 54,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 12,
+          "inflammatory": 3,
+          "connective": 37,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-AEFYPTDG.tif",
+        "total": 36,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 3,
+          "inflammatory": 0,
+          "connective": 33,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-AFYHIKRS.tif",
+        "total": 21,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 7,
+          "inflammatory": 3,
+          "connective": 10,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-AGYEFFSN.tif",
+        "total": 23,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 1,
+          "connective": 22,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-AHKNISSH.tif",
+        "total": 18,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 5,
+          "inflammatory": 1,
+          "connective": 11,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-AKIAMMIW.tif",
+        "total": 122,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 11,
+          "connective": 109,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-AKVQKPGT.tif",
+        "total": 25,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 6,
+          "inflammatory": 5,
+          "connective": 14,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-ALFTGWVK.tif",
+        "total": 30,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 11,
+          "inflammatory": 1,
+          "connective": 16,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "STR-TCGA-ALMGCMRV.tif",
+        "total": 39,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 10,
+          "connective": 27,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "TUM": [
+      {
+        "file": "TUM-TCGA-AAHIDTWA.tif",
+        "total": 68,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 64,
+          "inflammatory": 0,
+          "connective": 3,
+          "dead": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-AAHMWWKY.tif",
+        "total": 54,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 53,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-AAMWWECY.tif",
+        "total": 65,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 65,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-ACLMLTMS.tif",
+        "total": 41,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 36,
+          "inflammatory": 0,
+          "connective": 5,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-ACRLPPQE.tif",
+        "total": 83,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 82,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-ADFGWHNR.tif",
+        "total": 72,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 72,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-ADFSWFVW.tif",
+        "total": 62,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 60,
+          "inflammatory": 0,
+          "connective": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-ADTDRPNQ.tif",
+        "total": 31,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 29,
+          "inflammatory": 0,
+          "connective": 0,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-AEHTIDAD.tif",
+        "total": 77,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 72,
+          "inflammatory": 0,
+          "connective": 3,
+          "dead": 2,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-AEKWGDVR.tif",
+        "total": 40,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 39,
+          "inflammatory": 0,
+          "connective": 1,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-AFEFPRFM.tif",
+        "total": 62,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 55,
+          "inflammatory": 1,
+          "connective": 2,
+          "dead": 4,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "TUM-TCGA-AFKKDNYL.tif",
+        "total": 69,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 65,
+          "inflammatory": 0,
+          "connective": 0,
+          "dead": 4,
+          "nonneop_epithelial": 0
+        }
+      }
+    ],
+    "BACK": [
+      {
+        "file": "BACK-TCGA-AARRNSTS.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-ACTQDGTI.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-ADCKFEPV.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-ADESWYYD.tif",
+        "total": 2,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 2,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-ADQQPYCS.tif",
+        "total": 3,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 3,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-ADWWFRCK.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-AEETAART.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-AEEWSAPK.tif",
+        "total": 3,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 3,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-AFHPPINA.tif",
+        "total": 1,
+        "modal": "epithelial",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-AFPCYCDV.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-AFQCTALD.tif",
+        "total": 0,
+        "modal": "none",
+        "counts": {
+          "neoplastic": 0,
+          "inflammatory": 0,
+          "connective": 0,
+          "nonneop_epithelial": 0
+        }
+      },
+      {
+        "file": "BACK-TCGA-AHHGIEQY.tif",
+        "total": 3,
+        "modal": "connective",
+        "counts": {
+          "neoplastic": 1,
+          "inflammatory": 0,
+          "connective": 2,
+          "nonneop_epithelial": 0
+        }
+      }
+    ]
+  },
+  "checks": {
+    "tum_epithelial_modal_frac": 1.0,
+    "tum_bar": 0.6,
+    "norm_epithelial_modal_frac": 0.9166666666666666,
+    "norm_bar": 0.5,
+    "str_connective_modal_frac": 1.0,
+    "str_bar": 0.6,
+    "total_min": 0,
+    "total_max": 178
+  },
+  "passed": false,
+  "device": "cuda",
+  "caveat": "single-pass 224->256 resize at native 0.5mpp scale; checkpoint trained at 0.25mpp \u2014 counts are plausibility-grade"
+}

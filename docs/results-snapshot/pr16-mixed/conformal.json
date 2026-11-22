@@ -1,0 +1,79 @@
+{
+  "method": "split-conformal APS (deterministic), temperature-scaled softmax",
+  "n_tiles": 7180,
+  "temperature": 0.6815141120181452,
+  "fold_mean_coverage": {
+    "0.05": 0.9503,
+    "0.1": 0.9006
+  },
+  "alphas": {
+    "0.05": 0.99117,
+    "0.1": 0.990732
+  },
+  "folds": [
+    {
+      "alpha": 0.05,
+      "per_fold": [
+        {
+          "coverage": 0.9638,
+          "qhat": 0.991185,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.9429,
+          "qhat": 0.991154,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.9513,
+          "qhat": 0.991171,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.9373,
+          "qhat": 0.991149,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.9561,
+          "qhat": 0.991177,
+          "n_test": 1436
+        }
+      ]
+    },
+    {
+      "alpha": 0.1,
+      "per_fold": [
+        {
+          "coverage": 0.9199,
+          "qhat": 0.990762,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.8955,
+          "qhat": 0.990724,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.8893,
+          "qhat": 0.990716,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.8858,
+          "qhat": 0.990714,
+          "n_test": 1436
+        },
+        {
+          "coverage": 0.9123,
+          "qhat": 0.990752,
+          "n_test": 1436
+        }
+      ]
+    }
+  ],
+  "guarantee": "P(true class in set) >= 1 - alpha among gate-accepted tiles, conditional on exchangeability with CRC-VAL-HE-7K",
+  "disclosure": "served temperature (1 scalar, NLL) was fitted on this same cohort (fit_calibration.py); renew by re-calibrating on a fresh cohort",
+  "ckpt": "runs/pr16-mixed/best.ckpt.pt",
+  "seed": 42
+}

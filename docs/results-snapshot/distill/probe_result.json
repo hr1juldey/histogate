@@ -1,0 +1,11 @@
+{
+  "model": "owkin/phikon-v2 (ViT-L/16, 307M, linear probe)",
+  "cache": "runs/distill/phikon-v2 (bf16 extract, fp16 store)",
+  "bench40k_accuracy": 0.9315,
+  "bench40k_vs_fp32_delta": 0.0003,
+  "full100k_accuracy": 0.9473,
+  "full100k_macro_f1": 0.9202,
+  "full100k_train_n": 89434,
+  "nonorm20k_accuracy": 0.7354,
+  "fp16_crosscheck_pass": true
+}

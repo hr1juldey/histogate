@@ -1,0 +1,10 @@
+{
+  "stage": "ship analyzer + nucleus counter co-resident",
+  "n_tiles": 20,
+  "peak_gib": 2.14,
+  "gpu_total_gib": 11.61,
+  "combined_s_per_tile": 0.77,
+  "mean_nuclei_per_tile": 63.4,
+  "abort_threshold_gib": 4.0,
+  "passed": true
+}
