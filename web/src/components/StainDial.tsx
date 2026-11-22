@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { analyze, apiBase } from '../lib/api';
+import storyCache from '../data/story-analyses.json';
+import { analyze, apiBase, type Analysis } from '../lib/api';
 import { ELO, EHI, famPct } from '../lib/familiarity';
 
 /* Same physics as training (bio_optics.py): Ruifrok H&E deconvolution,
@@ -79,7 +80,7 @@ export default function StainDial() {
       PIX.current.raw = await loadPixels(`/samples/nonorm.png`);
       CONVS.current.raw = deconvolve(PIX.current.raw);
       render(0);
-      predict();
+      predictBase();
     })();
   }, []);
 
@@ -126,6 +127,15 @@ export default function StainDial() {
     }
     busy.current = false;
     if (pend.current) { pend.current = false; predict(); }
+  }
+
+  /* Untouched dial = KNOWN data = cache (works with the backend dead).
+     Only a user-moved dial makes synthetic (unknown) images -> live. */
+  async function predictBase() {
+    const cache = storyCache as unknown as Record<string, Analysis>;
+    const v1c = cache['tumor:v1'], shipc = cache['tumor:ship'];
+    setV1(card(v1c)); setShip(card(shipc));
+    if (shipc?.gradcam) drawEvidence(shipc.gradcam as unknown as number[][]);
   }
 
   async function go(blob: Blob, which: 'v1' | 'ship', set: (c: Card) => void) {
