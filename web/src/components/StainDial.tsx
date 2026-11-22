@@ -201,7 +201,6 @@ export default function StainDial() {
   return (
     <div className="dial-sec">
       <div className="viewer">
-        <p className="truth mono">ground truth: this patch is TUMOR (expert-labeled)</p>
         <div className="tilewrap">
           <canvas ref={cv} width="224" height="224" />
           <canvas ref={ov} width="448" height="448" aria-hidden="true" />
@@ -209,6 +208,7 @@ export default function StainDial() {
         <p className="cap-hint">red outline = where the shipped model is looking for the tumor</p>
         <p className="cap">{cap}</p>
         <div className="dialbox">
+          <p className="truth mono">ground truth: this patch is <b>TUMOR</b> — drag and watch the two AIs below try to keep seeing it</p>
           <div className="ends"><span>◀ normal staining</span><span>heavy purple stain ▶</span></div>
           <input type="range" min={0} max={100} value={stain * 100} disabled={rawMode}
             onChange={e => onDial(+(e.target as HTMLInputElement).value / 100)}

@@ -16,14 +16,15 @@ const cfg = await get<SiteConfig>('/site-config.json');
     <section class="act">
       <div class="kicker">Act two — interactive</div>
       <h1>Then the stain changed. Drag the dial.</h1>
-      <p class="sub">This is one real tumor picture — the box in the panel states its expert label as ground truth.
-      The dial shifts the two dyes in the tissue — the purple and the pink — exactly the way a
-      different lab machine does it. Both AIs run live as you drag. Read the chips by color:
-      <b class="lg">green = matches the expert</b>, <b class="lr">red = confidently wrong — the dangerous failure</b>,
-      <b class="la">amber = declined to answer — the safe behavior</b>. Drag to ~70: the old model turns
-      red, the shipped model turns amber. A model that declines is not failing; a model that
-      guesses wrong is. Then press the button for a real picture from a different machine —
-      that is where the shipped model answers in green at 96%+.</p>
+      <div class="legend" aria-hidden="true">
+        <span class="lg">✓ matches the expert</span>
+        <span class="lr">✗ confidently wrong — dangerous</span>
+        <span class="la">— declined — safe</span>
+      </div>
+      <p class="sub">One real tumor picture. The dial shifts its two dyes the way a different
+      lab machine does. Both AIs answer live as you drag — then the button swaps in a real
+      picture from a genuinely different machine, where the old model is confidently wrong
+      and the shipped model nails it.</p>
       <StainDial client:load />
     </section>
 
@@ -43,10 +44,16 @@ const cfg = await get<SiteConfig>('/site-config.json');
   .sub .lg { color: #5dbb7a; font-weight: 600; }
   .sub .lr { color: var(--bad); font-weight: 600; }
   .sub .la { color: #e3b341; font-weight: 600; }
-  .dial-sec { display: grid; grid-template-columns: 360px 1fr; gap: 30px; margin-top: 30px; align-items: start; }
-  .truth { font-size: 11.5px; color: var(--t3); border: 1px solid var(--b-std);
-    border-radius: 6px; padding: 6px 10px; display: inline-block; margin-bottom: 12px; }
-  .tilewrap { position: relative; width: 340px; max-width: 100%; border-radius: 14px;
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 12px; }
+  .legend span { font-size: 12.5px; font-weight: 600; border: 1px solid var(--b-std);
+    border-radius: 9999px; padding: 5px 13px; }
+  .legend .lg { color: #5dbb7a; border-color: #23402b; background: rgba(16,185,129,0.06); }
+  .legend .lr { color: var(--bad); border-color: #4a3038; background: rgba(224,128,128,0.05); }
+  .legend .la { color: #e3b341; border-color: #4a3f23; background: rgba(227,179,65,0.05); }
+  .dial-sec { display: grid; grid-template-columns: 290px 1fr; gap: 30px; margin-top: 30px; align-items: start; }
+  .truth { font-size: 12px; color: var(--t2); margin: 0 0 10px 0; line-height: 1.5; }
+  .truth b { color: var(--t1); }
+  .tilewrap { position: relative; width: 290px; max-width: 100%; border-radius: 14px;
     border: 2px solid var(--hema); overflow: hidden; }
   .tilewrap canvas:first-child { width: 100%; height: auto; display: block; }
   .tilewrap canvas + canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
