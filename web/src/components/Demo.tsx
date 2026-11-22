@@ -44,12 +44,21 @@ export default function Demo() {
     if (!cam) return;
     const flat = (j.gradcam as unknown as number[][]).flat?.() ?? (j.gradcam as unknown as number[]);
     const w = Math.round(Math.sqrt(flat.length));
+    const max = Math.max(...flat) || 1;
+    const hi = flat.map(v => v >= 0.55 * max);
+    const at = (cx: number, cy: number) =>
+      cx < 0 || cy < 0 || cx >= w || cy >= w ? false : hi[cy * w + cx];
     const d = cam.createImageData(448, 448);
     for (let y = 0; y < 448; y++) for (let x = 0; x < 448; x++) {
-      const v = flat[Math.floor((y / 448) * w) * w + Math.floor((x / 448) * w)] ?? 0;
+      const cx = Math.floor((x / 448) * w), cy = Math.floor((y / 448) * w);
+      const v = flat[cy * w + cx] / max;
       const i = (y * 448 + x) * 4;
-      d.data[i] = 255 * v; d.data[i + 1] = 60 * v; d.data[i + 2] = 60 * v;
-      d.data[i + 3] = 255 * Math.min(1, v * 1.3) * alpha;
+      const isHi = at(cx, cy);
+      const isEdge = isHi && (!at(cx - 1, cy) || !at(cx + 1, cy) || !at(cx, cy - 1) || !at(cx, cy + 1));
+      d.data[i] = 255; d.data[i + 1] = 40; d.data[i + 2] = 40;
+      d.data[i + 3] = (isEdge ? 255
+        : isHi ? 255 * Math.min(1, 0.35 + v) * 0.65
+        : 255 * v * 0.25) * alpha;
     }
     cam.putImageData(d, 0, 0);
   }, [j, src, alpha]);
@@ -87,7 +96,7 @@ export default function Demo() {
               <div className="srow"><span>how sure it really is</span><b>{j ? `${(j.confidence * 100).toFixed(1)}%` : '—'}</b></div>
               <div className="srow"><span>"is this picture strange?" gauge</span><b className="mono">{j?.energy ?? '—'}</b></div>
               <div className="srow"><span>decision</span><b>{j ? (j.ood ? 'refused — too strange to judge' : 'answered') : '—'}</b></div>
-              <label className="heat">how much of the reasoning to show
+              <label className="heat">where the model looked — its evidence, not a pathologist's marking
                 <input type="range" min="0" max="100" value={alpha * 100} onInput={e => setAlpha(+(e.target as HTMLInputElement).value / 100)} />
               </label>
             </div>

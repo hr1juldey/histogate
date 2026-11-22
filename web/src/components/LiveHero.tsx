@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { analyze, apiBase, get, type Metrics, type Sample } from '../lib/api';
+import { analyze, apiBase, get, type Analysis, type Sample } from '../lib/api';
 
-/** Hero island: cycles real samples through the live model on load. */
+/** Hero island: cycles real samples through the live model on load,
+ *  with the model's own evidence heatmap over the tissue. */
 export default function LiveHero() {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [idx, setIdx] = useState(0);
-  const [res, setRes] = useState<{ top: string; conf: number; ood: boolean } | null>(null);
+  const [res, setRes] = useState<Analysis | null>(null);
+  const camRef = useRef<HTMLCanvasElement>(null);
   const busy = useRef(false);
 
   useEffect(() => {
@@ -23,10 +25,34 @@ export default function LiveHero() {
         const r = await fetch(`${apiBase}/samples/${s.id}`);
         const blob = await r.blob();
         const j = await analyze(blob, 'ship');
-        if (!cancelled) setRes({ top: j.top_class, conf: j.confidence, ood: j.ood });
+        if (!cancelled) setRes(j);
+        // draw the model's evidence heatmap where it looked
+        const cam = camRef.current?.getContext('2d');
+        if (cam && j) {
+          const flat = (j.gradcam as unknown as number[][]).flat?.() ?? (j.gradcam as unknown as number[]);
+          const w = Math.round(Math.sqrt(flat.length));
+          const max = Math.max(...flat) || 1;
+          // hot region = cells within 55% of peak; edge cells get a solid outline
+          const hi = flat.map(v => v >= 0.55 * max);
+          const at = (cx: number, cy: number) =>
+            cx < 0 || cy < 0 || cx >= w || cy >= w ? false : hi[cy * w + cx];
+          const d = cam.createImageData(448, 448);
+          for (let y = 0; y < 448; y++) for (let x = 0; x < 448; x++) {
+            const cx = Math.floor((x / 448) * w), cy = Math.floor((y / 448) * w);
+            const v = flat[cy * w + cx] / max;
+            const i = (y * 448 + x) * 4;
+            const isHi = at(cx, cy);
+            const isEdge = isHi && (!at(cx - 1, cy) || !at(cx + 1, cy) || !at(cx, cy - 1) || !at(cx, cy + 1));
+            d.data[i] = 255; d.data[i + 1] = 40; d.data[i + 2] = 40;
+            d.data[i + 3] = isEdge ? 255
+              : isHi ? 255 * Math.min(1, 0.35 + v) * 0.65
+              : 255 * v * 0.25;
+          }
+          cam.putImageData(d, 0, 0);
+        }
       } catch { /* backend cold — keep last */ }
       finally { busy.current = false; }
-      if (!cancelled) setTimeout(() => !cancelled && setIdx(i => i + 1), 3800);
+      if (!cancelled) setTimeout(() => !cancelled && setIdx(i => i + 1), 4200);
     };
     run();
     return () => { cancelled = true; };
@@ -38,13 +64,14 @@ export default function LiveHero() {
     <div className="livehero">
       <div className="stack">
         {cur && <img src={`${apiBase}/samples/${cur.id}.png`} alt={cur.why} key={cur.id} />}
+        <canvas ref={camRef} width={448} height={448} aria-hidden="true" />
         <div className="readout mono">
           {res ? (
             <>
               <span className={res.ood ? 'warn' : 'ok'}>
-                {res.top} · {(res.conf * 100).toFixed(1)}%
+                {res.top_class} · {(res.confidence * 100).toFixed(1)}%
               </span>
-              <span className="dim">live inference · model pr16-mixed</span>
+              <span className="dim">live inference · red = where the model looked</span>
             </>
           ) : (
             <span className="dim">waking the model…</span>

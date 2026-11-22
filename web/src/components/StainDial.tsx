@@ -52,6 +52,7 @@ const EMPTY: Card = { conf: 0, label: '…', energy: '—' };
 
 export default function StainDial() {
   const cv = useRef<HTMLCanvasElement>(null);
+  const ov = useRef<HTMLCanvasElement>(null);
   const BASE = useRef<Uint8ClampedArray | null>(null);
   const CONV = useRef<Conv | null>(null);
   const RAW = useRef<Uint8ClampedArray | null>(null);
@@ -125,7 +126,33 @@ export default function StainDial() {
       const wrong = j.top_class !== 'TUM' ? ` ⚠ calls it ${j.top_class}` : '';
       const rej = j.ood ? ' ⚠ OOD-rejected' : '';
       set({ conf: j.confidence, label: `${j.top_class}${wrong}${rej}`, energy: String(j.energy) });
+      if (which === 'ship') drawEvidence(j.gradcam as unknown as number[][]);
     } catch { set({ conf: 0, label: 'error', energy: '—' }); }
+  }
+
+  /* same evidence overlay as home/demo: normalized, solid outline at the hot region */
+  function drawEvidence(cam2d: number[][]) {
+    const ctx = ov.current?.getContext('2d');
+    if (!ctx) return;
+    const flat = cam2d.flat?.() ?? (cam2d as unknown as number[]);
+    const w = Math.round(Math.sqrt(flat.length));
+    const max = Math.max(...flat) || 1;
+    const hi = flat.map(v => v >= 0.55 * max);
+    const at = (cx: number, cy: number) =>
+      cx < 0 || cy < 0 || cx >= w || cy >= w ? false : hi[cy * w + cx];
+    const d = ctx.createImageData(448, 448);
+    for (let y = 0; y < 448; y++) for (let x = 0; x < 448; x++) {
+      const cx = Math.floor((x / 448) * w), cy = Math.floor((y / 448) * w);
+      const v = flat[cy * w + cx] / max;
+      const i = (y * 448 + x) * 4;
+      const isHi = at(cx, cy);
+      const isEdge = isHi && (!at(cx - 1, cy) || !at(cx + 1, cy) || !at(cx, cy - 1) || !at(cx, cy + 1));
+      d.data[i] = 255; d.data[i + 1] = 40; d.data[i + 2] = 40;
+      d.data[i + 3] = isEdge ? 255
+        : isHi ? 255 * Math.min(1, 0.35 + v) * 0.6
+        : 255 * v * 0.2;
+    }
+    ctx.putImageData(d, 0, 0);
   }
 
   const onDial = (v: number) => {
@@ -141,19 +168,30 @@ export default function StainDial() {
     predict();
   };
 
-  const card = (title: string, c: Card, cls: string) => (
-    <div className={`mcard ${cls}`}>
-      <div className="t">{title}</div>
-      <div className="row"><span className="pct mono">{(c.conf * 100).toFixed(1)}%</span><span className="lab">{c.label}</span></div>
-      <div className="bar"><i style={{ width: `${c.conf * 100}%` }} /></div>
-      <div className="live mono">energy {c.energy}</div>
-    </div>
-  );
+  const card = (title: string, c: Card, cls: string) => {
+    const refused = c.label.includes('OOD-rejected');
+    const wrongCall = c.label.includes('calls it');
+    const status = refused ? 'refused to answer' : wrongCall ? 'WRONG — no longer sees the tumor' : 'sees the tumor';
+    return (
+      <div className={`mcard ${cls} ${refused ? 'ref' : wrongCall ? 'wrong' : 'right'}`}>
+        <div className="t">{title}</div>
+        <div className="row"><span className="pct mono">{(c.conf * 100).toFixed(1)}%</span><span className="lab">{c.label.split(' ⚠')[0]}</span></div>
+        <div className="bar"><i style={{ width: `${c.conf * 100}%` }} /></div>
+        <div className="verdict-line">{status}</div>
+        <div className="live mono">energy {c.energy}</div>
+      </div>
+    );
+  };
 
   return (
     <div className="dial-sec">
       <div className="viewer">
-        <canvas ref={cv} width="224" height="224" />
+        <p className="truth mono">ground truth: this patch is TUMOR (expert-labeled)</p>
+        <div className="tilewrap">
+          <canvas ref={cv} width="224" height="224" />
+          <canvas ref={ov} width="448" height="448" aria-hidden="true" />
+        </div>
+        <p className="cap-hint">red outline = where the shipped model is looking for the tumor</p>
         <p className="cap">{cap}</p>
         <div className="dialbox">
           <div className="ends"><span>◀ normal staining</span><span>heavy purple stain ▶</span></div>
@@ -166,8 +204,8 @@ export default function StainDial() {
         </div>
       </div>
       <div className="models">
-        {card('first model — the one that broke', v1, 'bad')}
-        {card('shipped model — trained on the physics of staining', ship, 'good')}
+        {card('first model — trained before the fix', v1, 'bad')}
+        {card('shipped model — retrained on stain physics', ship, 'good')}
         <p className="note">both models run live right now — numbers update as you drag</p>
       </div>
     </div>

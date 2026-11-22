@@ -16,10 +16,12 @@ const cfg = await get<SiteConfig>('/site-config.json');
     <section class="act">
       <div class="kicker">Act two — interactive</div>
       <h1>Then the stain changed. Drag the dial.</h1>
-      <p class="sub">This is one real tumor picture. The dial shifts the two dyes in the
-      tissue — the purple and the pink — exactly the way a different lab machine does it.
-      Both AIs below are running live as you drag. Then press the button to see a real
-      picture from a genuinely different machine.</p>
+      <p class="sub">This is one real tumor picture — the box in the panel states its expert label as ground truth.
+      The dial shifts the two dyes in the tissue — the purple and the pink — exactly the way a
+      different lab machine does it. Both AIs below run live as you drag; each says whether it
+      still sees the tumor. Push the dial far enough and even the shipped model refuses to
+      answer — that is the safety gate doing its job, not a failure. Then press the button for a
+      real picture from a genuinely different machine.</p>
       <StainDial client:load />
     </section>
 
@@ -37,8 +39,14 @@ const cfg = await get<SiteConfig>('/site-config.json');
   .act { padding: 52px 0; border-bottom: 1px solid var(--b-subtle); }
   .act:last-child { border: none; }
   .dial-sec { display: grid; grid-template-columns: 360px 1fr; gap: 30px; margin-top: 30px; align-items: start; }
-  .dial-sec canvas { width: 340px; max-width: 100%; height: auto; border-radius: 14px;
-    border: 2px solid var(--hema); display: block; }
+  .truth { font-size: 11.5px; color: var(--t3); border: 1px solid var(--b-std);
+    border-radius: 6px; padding: 6px 10px; display: inline-block; margin-bottom: 12px; }
+  .tilewrap { position: relative; width: 340px; max-width: 100%; border-radius: 14px;
+    border: 2px solid var(--hema); overflow: hidden; }
+  .tilewrap canvas:first-child { width: 100%; height: auto; display: block; }
+  .tilewrap canvas + canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .cap-hint { font-size: 12px; color: var(--t4); margin-top: 8px; }
+  .dial-sec .cap { margin-top: 6px; }
   .cap { font-size: 13px; color: var(--t3); text-align: center; margin-top: 10px; }
   .dialbox { margin-top: 18px; padding: 16px; border: 1px solid var(--b-std); border-radius: 12px; background: var(--panel); }
   .ends { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--t3); margin-bottom: 8px; }
@@ -47,6 +55,9 @@ const cfg = await get<SiteConfig>('/site-config.json');
   .models { display: grid; gap: 14px; }
   .mcard { background: var(--panel); border: 1px solid var(--b-std); border-radius: 12px; padding: 18px; }
   .mcard.bad { border-color: #4a3038; } .mcard.good { border-color: #23402b; }
+  .verdict-line { font-size: 14.5px; font-weight: 600; margin-top: 10px; }
+  .mcard.right .verdict-line { color: #5dbb7a; }
+  .mcard.wrong .verdict-line, .mcard.ref .verdict-line { color: var(--bad); }
   .mcard .t { font-size: 13px; color: var(--t3); }
   .mcard .row { display: flex; align-items: baseline; gap: 14px; margin-top: 4px; }
   .mcard .pct { font-size: 36px; font-weight: 600; }
