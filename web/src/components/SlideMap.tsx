@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { assetUrl, getSlideMap, tileDetail, tileUrl,
+import { assetUrl, getSlideMap, overviewUrl, tileDetail, tileUrl,
          type SlideMapData, type SlideTile } from '../lib/api';
 import type { PatchDetail } from '../lib/viewer';
 import { CLASS_COLORS } from '../lib/viewer';
