@@ -37,9 +37,7 @@ export const apiBase: string =
    this header — every API fetch carries it. Images can't (no headers on
    <img>), so live-mode images load via assetUrl() blob fetches. */
 export const ngrokHeaders: Record<string, string> = {
-  'ngrok-skip-browser-warning': '1',
-  // ngrok edge basic-auth (traffic policy) — demo gate, not security
-  'authorization': 'Basic bmdyb2s6MmZlZDI1MzAxYzc5NGE2YQ==',
+  'ngrok-skip-browser-warning': '1',   // skip the free-tier HTML interstitial
 };
 
 const blobCache = new Map<string, string>();
