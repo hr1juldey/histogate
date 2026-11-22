@@ -92,31 +92,24 @@ def _default() -> dict:
                 "the AI is the part built to pass measurable bars."),
         "about": {
             "name": "Hrijul Dey",
-            "role": "AI & Backend Engineer — production agents, APIs, and measurement",
-            "photo_caption": "Thane, 2026.",
-            "timeline": [
-                {"year": "2018–22", "title": "B.Tech, Biotechnology", "org": "Vellore Institute of Technology",
-                 "note": "Formal training in the domain this project works in."},
-                {"year": "2019–23", "title": "Biomedical R&D — computer vision & data science", "org": "Ashva, biomedical devices",
-                 "note": "Estimated knee and ankle joint loading from multi-sensor motion data, including partially-calibrated sensors. Posture detection and gait analysis on the CMU motion-capture database. Test design, validation and documentation against regulated medical-device standards."},
-                {"year": "2025", "title": "Product Manager & Software Engineer", "org": "Lilypad — EV marketplace",
-                 "note": "Production LLM features on India's first MCP-driven marketplace: tool integration, APIs, data flow. Owned requirements through release."},
-                {"year": "2026–", "title": "Product Engineer, AI Platform", "org": "Mosaic Wellness",
-                 "note": "Owns 'Kai' end-to-end, the agent platform serving a 500-person organization daily: an MCP gateway federating hundreds of tool servers behind one governed endpoint. Reduced organization-wide LLM token cost by ~93% while reliability held at org-wide scale. Built the automated failure-handling pipeline that ships fixes behind adversarial test gates."},
-                {"year": "Nov 2026", "title": "Open source", "org": "22 PRs across 6 orgs in four days",
-                 "note": "Token-accounting fix merged upstream in Hugging Face smolagents (PR #3206); 13 PRs in Trail-Code; 5 in NousResearch hermes-agent — found by running the agent daily on itself."},
-                {"year": "This site", "title": "HistoGate", "org": "Independent project",
-                 "note": "A colorectal tissue classifier with quality gating and biomarker scoring, held to the same release standard as production work: measured results, published failures."},
+            "role": "AI & Backend Engineer",
+            "bio": (
+                "Biotechnologist by training. Biomedical R&D and computer vision "
+                "before moving into production ML systems. HistoGate is an "
+                "independent project — a colorectal tissue classifier with quality "
+                "gating, built and released the same way production systems are: "
+                "measured, gated, failures kept."),
+            "background": [
+                {"dates": "2018–22", "what": "B.Tech, Biotechnology — Vellore Institute of Technology"},
+                {"dates": "2019–23", "what": "R&D, computer vision & data science — Ashva (biomedical devices). Joint-loading estimation from multi-sensor motion data; gait and posture analysis; validation against medical-device standards."},
+                {"dates": "2025–26", "what": "Product manager & engineer — Lilypad. LLM features and tool integration on an MCP-based marketplace."},
+                {"dates": "2026–", "what": "Product engineer, AI platform — Mosaic Wellness. Agent platform serving a 500-person organization: MCP gateway, evals, cost and reliability work."},
             ],
             "links": [
-                {"label": "GitHub — all code", "href": "https://github.com/hr1juldey"},
+                {"label": "GitHub", "href": "https://github.com/hr1juldey"},
                 {"label": "LinkedIn", "href": "https://www.linkedin.com/in/dey-h-ml972"},
-                {"label": "This project — code, training runs, failures", "href": "https://github.com/hr1juldey/histogate"},
-                {"label": "This project — model & artifacts", "href": "https://huggingface.co/riju279/histogate"},
+                {"label": "HistoGate — code", "href": "https://github.com/hr1juldey/histogate"},
+                {"label": "HistoGate — model", "href": "https://huggingface.co/riju279/histogate"},
             ],
-            "faith": (
-                "Clinical AI has one unforgivable failure mode: the confident wrong answer. "
-                "The system is built to refuse input it cannot judge, and this site "
-                "documents where it falls short. That discipline is the work."),
         },
     }

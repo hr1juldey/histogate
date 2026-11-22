@@ -23,10 +23,9 @@ export interface SiteConfig {
   cases: { id: string; title: string; what: string; fix: string; metric: string }[];
   gate_note: string; who: string;
   about: {
-    name: string; role: string; photo_caption: string;
-    timeline: { year: string; title: string; org: string; note: string }[];
+    name: string; role: string; bio: string;
+    background: { dates: string; what: string }[];
     links: { label: string; href: string }[];
-    faith: string;
   };
 }
 
