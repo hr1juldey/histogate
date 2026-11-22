@@ -108,7 +108,7 @@ export default function LiveHero() {
             aria-pressed={i === idx % samples.length}
             className={i === idx % samples.length ? 'on' : ''}
           >
-            <img src={`${apiBase}/samples/${s.id}.png`} alt="" />
+            <img src={`/samples/${s.id}.png`} alt="" />
           </button>
         ))}
       </div>

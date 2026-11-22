@@ -40,3 +40,60 @@ def test_nucleus_counter_real_tum_tile() -> None:
     counts = c.count(Image.open(tiles[0]).convert("RGB"))
     total = sum(counts.values())
     assert total >= 20, f"expected a populated tumor tile, got {counts}"
+
+
+# ------------------------------------------------- B4: analyzer flag wiring
+ROOT_DIR = __import__("pathlib").Path(__file__).resolve().parents[1]
+
+
+def _analyzer_with(tmp_path, cells_key):
+    import json
+
+    ckpt = ROOT_DIR / "runs/pr16-mixed/best.ckpt.pt"
+    calib = json.loads((ROOT_DIR / "runs/pr16-mixed/calibration.json").read_text())
+    if cells_key:
+        calib["cells"] = "pannuke"
+    else:
+        calib.pop("cells", None)
+    calib_path = tmp_path / "calibration.json"
+    calib_path.write_text(json.dumps(calib))
+    tmp_path.joinpath("ood_knn_bank.pt").write_bytes(
+        (ROOT_DIR / "runs/pr16-mixed/ood_knn_bank.pt").read_bytes())
+    from histogate.serve.patch_demo import PatchAnalyzer
+
+    return PatchAnalyzer(ckpt, calib_path)
+
+
+def test_analyzer_nuclei_when_flag_on(tmp_path, monkeypatch):
+    """Flag on + gate-passed tile -> nuclei dict of ints (stubbed counter)."""
+    import pytest
+    from PIL import Image
+
+    if not (ROOT_DIR / "runs/pr16-mixed/best.ckpt.pt").exists():
+        pytest.skip("ship artifacts absent")
+    an = _analyzer_with(tmp_path, cells_key=True)
+    monkeypatch.setattr(
+        "histogate.cells.NucleusCounter.count",
+        lambda self, img: {"neoplastic": 12, "connective": 3},
+    )
+    tile = ROOT_DIR / "data/raw/CRC-VAL-HE-7K/TUM/TUM-ADHC.jpg"
+    if not tile.exists():
+        tile = sorted((ROOT_DIR / "data/raw/CRC-VAL-HE-7K/TUM").glob("*.tif"))[0]
+    r = an.analyze(Image.open(tile).convert("RGB"))
+    assert r["ood"] is False
+    assert r["nuclei"] == {"neoplastic": 12, "connective": 3}
+    assert all(isinstance(v, int) for v in r["nuclei"].values())
+
+
+def test_analyzer_no_nuclei_key_when_flag_off(tmp_path):
+    """Flag absent -> response shape unchanged: no nuclei key at all."""
+    import pytest
+    from PIL import Image
+
+    ckpt = ROOT_DIR / "runs/pr16-mixed/best.ckpt.pt"
+    tile = ROOT_DIR / "data/raw/CRC-VAL-HE-7K/NORM/NORM-TCGA-AASSYQPA.tif"
+    if not (ckpt.exists() and tile.exists()):
+        pytest.skip("ship artifacts absent")
+    an = _analyzer_with(tmp_path, cells_key=False)
+    r = an.analyze(Image.open(tile).convert("RGB"))
+    assert "nuclei" not in r
