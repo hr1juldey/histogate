@@ -44,12 +44,12 @@ export default function InspectorCard({ title, tileSrc, detail, loading, error,
             {detail && (detail.ood ? (
               <>
                 <div className="big amber">declined — safe</div>
-                <div className="sub2">familiarity {famPct(detail.energy)}/100 — below its gate</div>
+                <div className="sub2">familiarity {Math.round(famPct(detail.energy))}/100 — below its gate</div>
               </>
             ) : (
               <>
                 <div className="big">{detail.top_class}</div>
-                <div className="sub2">{Math.round(detail.confidence * 100)}% sure · familiarity {famPct(detail.energy)}/100</div>
+                <div className="sub2">{Math.round(detail.confidence * 100)}% sure · familiarity {Math.round(famPct(detail.energy))}/100</div>
                 <div className="bars">
                   {[...detail.probabilities].sort((a, b) => b.p - a.p).slice(0, 3).map(pr => (
                     <div className="brow" key={pr.class}>
