@@ -75,11 +75,12 @@ export default function SlideMap() {
         ))}
       </div>
       <div className="panes">
-        <div className="pane mosaicwrap">
+        <div className="pane mosaicwrap fitbox"
+          style={{ aspectRatio: `${data.dims.w} / ${data.dims.h}`,
+            height: 'min(72vh, 700px)', maxWidth: '100%', margin: '0 auto' }}>
           <img className="underlayer" src={`${apiBase}/slide-overview.png`}
             alt="the real lymph-node slide, low magnification"
             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-          <p className="ulcap">the real slide underneath — overlays are the model's verdicts</p>
           {showVerdicts && data.tiles.map(t => (
             <button key={t.id} className={`vcell ${t.declined ? 'dec' : 'ans'} ${sel?.id === t.id ? 'sel' : ''}`}
               style={{ ...cell(t), borderColor: t.declined ? undefined : CLASS_COLORS[t.cls] ?? '#666',
@@ -89,34 +90,40 @@ export default function SlideMap() {
               aria-pressed={sel?.id === t.id} />
           ))}
         </div>
-        <div className="pane heatp">
-          <canvas ref={heatRef} width={512} height={512} aria-hidden="true" />
-          <p className="hleg mono">brightness = familiarity<br />one square = one patch</p>
-          <p className="hleg2">dim squares declined — the model refused to guess there</p>
+        <div className="sidecol">
+          <div className="pane inspector" role="status">
+            {sel ? (
+              <>
+                <img className="tileimg" src={`${apiBase}/slide-tile/${sel.row}/${sel.col}.png`}
+                  alt={`the actual patch ${sel.id}`} />
+                <div className="t mono">patch {sel.id} · col {sel.col} row {sel.row}</div>
+                {sel.declined ? (
+                  <>
+                    <div className="big amber">declined — safe</div>
+                    <div className="sub2">familiarity {sel.familiarity}/100 — below its gate</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="big">{sel.cls}</div>
+                    <div className="sub2">{Math.round(sel.conf * 100)}% sure · familiarity {sel.familiarity}/100</div>
+                  </>
+                )}
+                <details className="why" open><summary>why?</summary>
+                  <p>{sel.declined
+                    ? 'familiarity below its gate — unlike anything it studied'
+                    : 'answered — familiarity above its gate'}</p></details>
+              </>
+            ) : (
+              <p className="noclick">click any patch on the slide — its verdict appears here, no scrolling</p>
+            )}
+          </div>
+          <div className="pane heatp">
+            <canvas ref={heatRef} width={512} height={512} aria-hidden="true" />
+            <p className="hleg mono">brightness = familiarity<br />one square = one patch</p>
+            <p className="hleg2">dim squares declined — the model refused to guess there</p>
+          </div>
         </div>
       </div>
-      {sel && (
-        <div className="pane inspector" role="status">
-          <img className="tileimg" src={`${apiBase}/slide-tile/${sel.row}/${sel.col}.png`}
-            alt={`the actual patch ${sel.id}`} />
-          <div className="t mono">patch {sel.id} · col {sel.col} row {sel.row}</div>
-          {sel.declined ? (
-            <>
-              <div className="big amber">declined — safe</div>
-              <div className="sub2">familiarity {sel.familiarity}/100 — below its gate</div>
-            </>
-          ) : (
-            <>
-              <div className="big">{sel.cls}</div>
-              <div className="sub2">{Math.round(sel.conf * 100)}% sure · familiarity {sel.familiarity}/100</div>
-            </>
-          )}
-          <details className="why"><summary>why?</summary>
-            <p>{sel.declined
-              ? 'familiarity below its gate — unlike anything it studied'
-              : 'answered — familiarity above its gate'}</p></details>
-        </div>
-      )}
     </div>
   );
 }

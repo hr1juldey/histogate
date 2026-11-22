@@ -38,10 +38,12 @@ import { apiBase } from '../lib/api';
     padding: 5px 13px; background: transparent; color: var(--t3);
     font-size: 12px; font-weight: 600; cursor: pointer; }
   .vtg.on { border-color: var(--accent); color: var(--t1); }
-  .panes { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+  .panes { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+  .sidecol { display: grid; gap: 16px; position: sticky; top: 16px; }
+  .noclick { font-size: 13px; color: var(--t3); margin: 4px 0; }
   .pane { border: 1px solid var(--b-std); border-radius: 12px; background: var(--panel); padding: 14px; }
   .mosaicwrap { position: relative; padding: 8px; }
-  .mosaicwrap .underlayer { width: 100%; height: auto; display: block; border-radius: 6px; }
+  .fitbox .underlayer { width: 100%; height: 100%; object-fit: fill; display: block; border-radius: 6px; }
   .vcell { position: absolute; border-radius: 2px; border-width: 2px; border-style: solid;
     cursor: pointer; padding: 0; min-width: 0; }
   .vcell.dec { border-color: #e3b341 !important; border-style: dashed; background: transparent; }
