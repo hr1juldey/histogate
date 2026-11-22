@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { analyze, apiBase, get, type Analysis, type Sample } from '../lib/api';
 
-/* gauge scale shared with the story page: calm … strange */
-const ELO = -4.6, EHI = -1.6;
-const pct = (e: number) => Math.max(0, Math.min(100, ((e - ELO) / (EHI - ELO)) * 100));
+import { ELO, EHI, famPct } from '../lib/familiarity';
+const pct = (e: number) => 100 - famPct(e);
 
 /** Hero island: cycles real samples through the live model on load,
  *  with the model's own evidence heatmap over the tissue. */
@@ -85,7 +84,7 @@ export default function LiveHero() {
               <span className={res.ood ? 'warn' : 'ok'}>
                 {res.ood ? 'declined — safe' : `${res.top_class} · ${(res.confidence * 100).toFixed(1)}%`}
               </span>
-              <span className="mini-gauge" aria-hidden="true" title="strangeness gauge: calm to strange, amber tick = its gate">
+              <span className="mini-gauge" aria-hidden="true" title="familiarity gauge: familiar answers, unfamiliar declines — amber tick = its gate">
                 <i style={{ width: `${pct(res.energy)}%`, background: res.ood ? '#e3b341' : '#5dbb7a' }} />
                 <b style={{ left: `${pct(res.energy_threshold)}%` }} />
               </span>

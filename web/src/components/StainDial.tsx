@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { analyze, apiBase } from '../lib/api';
+import { ELO, EHI, famPct } from '../lib/familiarity';
 
 /* Same physics as training (bio_optics.py): Ruifrok H&E deconvolution,
    concentration scaling, residual preserved. Each tile carries its OWN
@@ -52,9 +53,8 @@ type TileId = 'lab' | 'raw';
 interface Card { conf: number; label: string; energy: number; thr: number; ood: boolean }
 const EMPTY: Card = { conf: 0, label: '…', energy: -4.6, thr: -3.7, ood: false };
 
-/* gauge scale: energy −4.6 (calm) … −1.6 (strange) */
-const ELO = -4.6, EHI = -1.6;
-const pct = (e: number) => Math.max(0, Math.min(100, ((e - ELO) / (EHI - ELO)) * 100));
+/* needle % on the shared display scale (0 = −4.6 familiar end) */
+const pct = (e: number) => 100 - famPct(e);
 
 export default function StainDial() {
   const cv = useRef<HTMLCanvasElement>(null);
@@ -195,7 +195,7 @@ export default function StainDial() {
     const status = refused ? 'declined — safe'
       : wrongCall ? `WRONG — says ${c.label}`
       : 'sees the tumor';
-    const why = refused ? 'needle past its gate — too strange to judge'
+    const why = refused ? 'familiarity below its gate — unlike anything it studied'
       : wrongCall ? 'confidently wrong — its gate saw no problem'
       : 'matches the expert label';
     const gcol = refused ? '#e3b341' : wrongCall ? 'var(--bad)' : '#5dbb7a';
@@ -205,15 +205,16 @@ export default function StainDial() {
         <div className="row"><span className="pct mono">{(c.conf * 100).toFixed(1)}%</span><span className="lab">{c.label}</span></div>
         <div className="bl"><span>how sure it is</span><span className="mono">0 – 100%</span></div>
         <div className="bar"><i style={{ width: `${c.conf * 100}%` }} /></div>
-        <div className="bl"><span>how strange the picture looks</span></div>
+        <div className="bl"><span>how familiar the picture looks</span></div>
         <div className="gauge">
+          <span className="fband" style={{ width: `${pct(c.thr)}%` }} aria-hidden="true" />
           <i style={{ width: `${pct(c.energy)}%`, background: gcol }} />
           <b className="tick" style={{ left: `${pct(c.thr)}%` }}><em className="mono">gate {c.thr.toFixed(2)}</em></b>
         </div>
-        <div className="glabels mono"><span>calm −4.6</span><span>strange −1.6</span></div>
+        <div className="glabels mono"><span>100 · familiar<br />answers</span><span>0 · unfamiliar<br />declines</span></div>
         <div className="verdict-line">{status}</div>
         <details className="why"><summary>why?</summary><p>{why}</p></details>
-        <div className="live mono">strangeness now {c.energy.toFixed(2)}</div>
+        <div className="live mono">familiarity {Math.round(famPct(c.energy))}/100 · energy {c.energy.toFixed(2)}</div>
       </div>
     );
   };
@@ -254,6 +255,7 @@ export default function StainDial() {
         </div>
         {card('first model', v1, 'bad')}
         {card('shipped model', ship, 'good')}
+        <p className="def">familiarity = how closely a patch resembles the 100,000 patches the model studied — technical name: energy score (Liu et al. 2020); the gate is tuned so ≤5% of real hospital patches are wrongly declined.</p>
         <p className="note">both models answer live as you drag</p>
       </div>
     </div>
