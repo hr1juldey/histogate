@@ -346,6 +346,20 @@ Each item below names the lane it scores in. Full landscape: docs/research/
 SOTA-DEBATE-PREP.md. All sized for RTX 3060 12GB; embeddings are CACHED to
 disk so no dataset ever trains a giant model on this machine.
 ═════════════════════════════════════════════════════════════════════════
+PR-22 EXECUTION STATUS (overnight 2026-11-22/23, artifacts committed):
+- P0a SHIPPED (prior session): conformal.json + coverage.json + UI row.
+- P0b CODE-COMPLETE, FLAG OFF (honesty law): HoVer-Net vendored BSD-3 (no
+  toolkit dep, opencv-headless only); biology bars 1.00/0.92/1.00 PASS,
+  VRAM 2.14 GiB PASS, total-range bar FAIL (4 non-BACK zero-nucleus tiles:
+  mucin/debris) -> deployed flag stays OFF; one-line flip is the morning
+  decision. docs/BENCHMARKS.md P0b table.
+- P1 CODE-COMPLETE, TEACHER-BLOCKED (license gate): phikon-v2 = Owkin NC,
+  Virchow2 = CC-BY-NC-ND + gated, UNI = NC; Apache teachers (hibou-l,
+  H-optimus-0) are browser-gated. Cache + probe + distill trainer all
+  committed and smoke-proven; phikon-v2 evaluated-only: full-100k probe
+  0.9473 (vs ship 0.9781). Morning decision: accept the hibou-l gate in
+  a browser, then extract + distill (~2 h GPU). docs/BENCHMARKS.md P1.
+
 P0a — CONFORMAL TILE CLASSIFICATION (ML theory; zero training risk).
   Split-conformal p-values per class on a held-out calibration split
   ( Mondrian/cross-conformal to reuse CRC-VAL ): distribution-free
