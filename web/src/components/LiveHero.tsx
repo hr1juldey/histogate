@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { analyze, apiBase, get, type Analysis, type Sample } from '../lib/api';
+import samplesFallback from '../data/samples.json';
+import { analyze, apiBase, get, ngrokHeaders, type Analysis, type Sample } from '../lib/api';
 
 import { ELO, EHI, famPct } from '../lib/familiarity';
 const pct = (e: number) => 100 - famPct(e);
@@ -15,7 +16,9 @@ export default function LiveHero() {
   const manual = useRef(false);
 
   useEffect(() => {
-    get<Sample[]>('/samples').then(s => setSamples(s.filter(x => x.id !== 'nonorm')));
+    get<Sample[]>('/samples')
+      .catch(() => samplesFallback as unknown as Sample[])
+      .then(s => setSamples(s.filter(x => x.id !== 'nonorm')));
   }, []);
 
   useEffect(() => {
@@ -26,8 +29,9 @@ export default function LiveHero() {
       busy.current = true;
       const s = samples[idx % samples.length];
       try {
-        const r = await fetch(`${apiBase}/samples/${s.id}`);
-        const blob = await r.blob();
+        const blob = await fetch(`${apiBase}/samples/${s.id}`, { headers: ngrokHeaders })
+          .then(r => r.ok ? r.blob() : Promise.reject(new Error('cold')))
+          .catch(() => fetch(`/samples/${s.id}.png`).then(r => r.blob()));   // static snapshot
         const j = await analyze(blob, 'ship');
         if (!cancelled) setRes(j);
         // draw the model's evidence heatmap where it looked

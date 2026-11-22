@@ -58,6 +58,11 @@ class PatchAnalyzer:
                 self.conformal_qhat = float(_c["alphas"]["0.1"])
             except (KeyError, TypeError, ValueError):
                 self.conformal_qhat = None
+        # optional per-nucleus counts (P0b): calibration key "cells": "pannuke"
+        # flips the second-model stage ON — only after
+        # runs/pr16-mixed/cells_validation.json passed (flag law). Lazy.
+        self.cells_mode = calib.get("cells") == "pannuke"
+        self._cells = None
 
     def _pre(self, img: Image.Image) -> torch.Tensor:
         img = img.convert("RGB").resize((224, 224))
