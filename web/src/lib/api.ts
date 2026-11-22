@@ -109,12 +109,14 @@ export interface SlideMapData {
   dims: { w: number; h: number }; patch: number; stride: number;
   gate: number; tiles: SlideTile[];
 }
-/* Static demo fallback: the whole /slide experience is precomputed into
-   /demo/slide/ (map + overview + tiles + per-tile analyze JSON, ~41 MB).
-   When no live API is reachable (static hosting, cold backend), the page
-   runs from the snapshot instead of dying. Live mode returns the moment
-   PUBLIC_API_BASE answers. */
-export let staticDemo = false;
+/* Static demo is now the PRIMARY /slide experience: the whole page is
+   precomputed into /demo/slide/ (map + overview + tiles + per-tile analyze
+   JSON, ~41 MB). The slide page must render and predict NO MATTER WHAT —
+   backend reachability only gates the interactive upload demo, never /slide.
+   (Live-first proved fragile: the ngrok free edge rate-limits browser
+   connections, so tiles fetched fine but fetches threw and predictions
+   never appeared.) */
+export let staticDemo = true;
 
 export function tileUrl(row: number, col: number): string {
   return staticDemo
@@ -128,30 +130,14 @@ export function overviewUrl(): string {
 }
 
 export async function getSlideMap(): Promise<SlideMapData> {
-  try {
-    const r = await fetchAwake(`${apiBase}/slide-map.json`, { headers: ngrokHeaders });
-    if (!r.ok) throw new Error(`slide-map: ${r.status}`);
-    return r.json();
-  } catch {
-    const s = await fetch('/demo/slide/slide-map.json');
-    if (!s.ok) throw new Error('slide-map unavailable (live and static)');
-    staticDemo = true;
-    return s.json();
-  }
+  const s = await fetch('/demo/slide/slide-map.json');
+  if (!s.ok) throw new Error('slide-map unavailable (static snapshot)');
+  staticDemo = true;
+  return s.json();
 }
 
 export async function tileDetail(row: number, col: number): Promise<Analysis> {
-  if (staticDemo) {
-    const r = await fetch(`/demo/slide/${row}_${col}.json`);
-    if (!r.ok) throw new Error('static detail missing');
-    return r.json();
-  }
-  const png = await fetch(tileUrl(row, col));
-  if (!png.ok) throw new Error('tile fetch failed');
-  const fd = new FormData();
-  fd.append('file', await png.blob(), 'tile.png');
-  fd.append('model', 'ship');
-  const a = await fetchAwake(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
-  if (!a.ok) throw new Error('analyze failed');
-  return a.json();
+  const r = await fetch(`/demo/slide/${row}_${col}.json`);
+  if (!r.ok) throw new Error('static detail missing');
+  return r.json();
 }

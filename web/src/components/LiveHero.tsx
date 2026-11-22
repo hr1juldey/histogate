@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
+import sampleAnalyses from '../data/sample-analyses.json';
 import samplesFallback from '../data/samples.json';
-import { analyze, apiBase, get, ngrokHeaders, type Analysis, type Sample } from '../lib/api';
+import { type Analysis, type Sample } from '../lib/api';
 
 import { ELO, EHI, famPct } from '../lib/familiarity';
 const pct = (e: number) => 100 - famPct(e);
 
-/** Hero island: cycles real samples through the live model on load,
- *  with the model's own evidence heatmap over the tissue. */
+/** Hero island: cycles known samples through CACHED model verdicts on load,
+ *  with the model's own evidence heatmap over the tissue. Only unknown-data
+ *  uploads hit the live backend — known samples are cache, always render. */
 export default function LiveHero() {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [idx, setIdx] = useState(0);
@@ -16,9 +18,7 @@ export default function LiveHero() {
   const manual = useRef(false);
 
   useEffect(() => {
-    get<Sample[]>('/samples')
-      .catch(() => samplesFallback as unknown as Sample[])
-      .then(s => setSamples(s.filter(x => x.id !== 'nonorm')));
+    setSamples((samplesFallback as unknown as Sample[]).filter(x => x.id !== 'nonorm'));
   }, []);
 
   useEffect(() => {
@@ -29,10 +29,8 @@ export default function LiveHero() {
       busy.current = true;
       const s = samples[idx % samples.length];
       try {
-        const blob = await fetch(`${apiBase}/samples/${s.id}`, { headers: ngrokHeaders })
-          .then(r => r.ok ? r.blob() : Promise.reject(new Error('cold')))
-          .catch(() => fetch(`/samples/${s.id}.png`).then(r => r.blob()));   // static snapshot
-        const j = await analyze(blob, 'ship');
+        const j = (sampleAnalyses as unknown as Record<string, Analysis>)[s.id]
+          ?? null;   // precomputed verdict — no backend, no wake, instant
         if (!cancelled) setRes(j);
         // draw the model's evidence heatmap where it looked
         const cam = camRef.current?.getContext('2d');

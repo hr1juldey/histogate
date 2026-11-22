@@ -1,3 +1,4 @@
+import sampleAnalyses from '../data/sample-analyses.json';
 import samplesFallback from '../data/samples.json';
 import { useEffect, useRef, useState } from 'react';
 import { analyze, analyzeTiff, apiBase, get, type Analysis, type Sample, ngrokHeaders} from '../lib/api';
@@ -50,8 +51,11 @@ export default function Demo() {
   const pick = async (id: string) => {
     touched.current = true;
     setSel(id);
-    const r = await fetch(`${apiBase}/samples/${id}`, { headers: ngrokHeaders });
-    await runBlob(await r.blob(), `/samples/${id}.png`, true, null);
+    // known samples: cached verdict, instant, zero backend (live is for
+    // unknown-data uploads only)
+    const cached = (sampleAnalyses as unknown as Record<string, Analysis>)[id];
+    if (cached) { setJ(cached); setErr(false); setFname(null); return; }
+    await runBlob(await fetch(`/samples/${id}.png`).then(r => r.blob()), `/samples/${id}.png`, true, null);
   };
 
   const onFile = (f: File | null | undefined) => {
