@@ -7,6 +7,20 @@ export, a fail-closed regression gate, and FastAPI/FastMCP serving.
 **Numbers → [docs/RESULTS.md](docs/RESULTS.md)** · rendered from measured
 artifacts, never typed by hand; CI enforces byte-parity.
 
+## The user flow, as screenshots
+
+From landing to agent-assisted analysis — every state below is real (local
+dev server, live model):
+
+| | | |
+|---|---|---|
+| ![home](docs/screenshots/home.png) | ![story](docs/screenshots/story.png) | ![slide](docs/screenshots/slide.png) |
+| **1 · land** — the offer, one screen | **2 · the story** — five acts, artifacts linked | **3 · whole slide** — 56 patches, verdicts + declines |
+| ![slide_inspector](docs/screenshots/slide_inspector.png) | ![demo_verdict](docs/screenshots/demo_verdict.png) | ![mcp](docs/screenshots/mcp.png) |
+| **4 · inspect a tile** — full-res tile, verdict, Grad-CAM evidence | **5 · try it** — upload your own patch, get the verdict | **6 · for agents** — connect Claude/Gemini over MCP |
+| ![portal_upload](docs/screenshots/portal_upload.png) | ![portal_tilemap](docs/screenshots/portal_tilemap.png) | ![mobile](docs/screenshots/mobile.png) |
+| **7 · agent opens a portal** — images never enter the chat | **8 · tile map returned** — every tile classified, seen in browser | **9 · on a phone** — same flow, responsive |
+
 ## Why this repo exists
 
 Not the accuracy — the **diagnostic loop**. The model passed every expected
@@ -17,7 +31,7 @@ measured, not assumed. Five acts, each backed by artifacts:
 ## Results (all in [docs/RESULTS.md](docs/RESULTS.md))
 
 External CRC-VAL macro-F1 and kappa · raw multi-scanner domain score ·
-calibration error · OOD energy AUROC · int8 biomarker drift ·
+calibration error · OOD KNN AUROC · int8 biomarker drift ·
 throughput / VRAM · per-run history with two documented gate failures.
 
 ## Quickstart

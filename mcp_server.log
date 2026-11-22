@@ -38,3 +38,15 @@ INFO:     127.0.0.1:38296 - "POST /mcp HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54210 - "POST /mcp HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54210 - "POST /mcp HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54210 - "POST /mcp HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:53442 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53442 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53442 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53458 - "POST /portal/dcb4897a5b41/upload HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53442 - "POST /mcp HTTP/1.1" 200 OK
+/home/riju279/Documents/code/AIRA/histogate/src/histogate/serve/patch_demo.py:54: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:208.)
+  x = torch.from_numpy(np.asarray(img)).permute(2, 0, 1).float() / 255
+INFO:     127.0.0.1:53442 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53442 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40902 - "GET /portal/dcb4897a5b41 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40902 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:40902 - "GET /portal/dcb4897a5b41/map HTTP/1.1" 200 OK
