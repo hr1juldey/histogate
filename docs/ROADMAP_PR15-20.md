@@ -280,6 +280,55 @@ PR-20 (conditional): ConvNeXt-Small swap — configs/default.yaml backbone
   leave measured headroom to the targets.
 
 ═════════════════════════════════════════════════════════════════════════
+PR-21 (PROPOSED 2026-11-22, not scheduled) SUBTILE REGION-WISE
+CLASSIFICATION — recorded per user directive; implement only if it can
+be done WITHOUT trade-offs.
+═════════════════════════════════════════════════════════════════════════
+DOCTRINE (user, 2026-11-22): one 448px tile can hold several tissue
+types at once; a single argmax bin per tile throws away that mixture.
+Instead: divide a tile into subtiles (2x2 or 3x3), run each subtile
+through the SAME model (zero retraining — the trunk+head+KNN gate accept
+any RGB patch), classify per subtile, and compose the master tile
+region-wise. This converts the single-label classifier into a pseudo-
+segmentation and is spatially honest (real regions, real boundaries) —
+unlike the softmax spread, which is label competition, not area.
+
+TWO EXTRACTION PATHS — the trade-off lives here:
+- PATH A (NO trade-off, preferred): re-read the ORIGINAL WSI and extract
+  sub-regions at native resolution so every subtile covers ~224um at the
+  trained um/px. Trained scale preserved exactly. The slide-map/tile_grid
+  machinery already does this between levels.
+- PATH B (HAS a trade-off, only with disclosure): cut the already-extracted
+  448px tile into subtiles -> each is stretched back to 224 input ->
+  structures appear 2-3x larger than training scale = distribution shift;
+  some subtiles would read worse or decline due to SCALE, not content.
+  Acceptable only as an explicitly-labeled "zoom-in" analysis.
+
+KNOWN LIMITS (inherent, mitigations noted):
+- Context floor: the model needs ~224um of coherent architecture; below
+  4-subtile division the pattern itself is destroyed. Do not subdivide
+  indefinitely.
+- Edge splitting: structures straddling subtile borders read as DEB/STR
+  in both halves (expected, not a bug); mitigate with overlapping windows
+  (stride = half subtile).
+- Cost: 4-9x inference per tile — trivial (6M model, ~455 tiles/s).
+
+SCOPE IF APPROVED: per-tile subtile mosaic in the inspector (click a tile
+-> its subtile grid, per-region verdicts + familiarity + per-region
+Grad-CAM), declined tiles showing PER-REGION unfamiliarity instead of a
+blanket refusal (this also delivers the user's "at least say something"
+request naturally: forced-guess cls+conf already exist in the tile
+payload, unspoken). Companion upgrade under the same doctrine: slide
+composition as the mean of per-tile 9-vectors (weighted sum of all 9
+classes) instead of argmax counting; TSR = sum(p_STR)/(sum(p_STR)+
+sum(p_TUM)), TIL = sum(p_LYM)/N.
+
+STATUS: doctrine recorded, implementation NOT started. Gate before any
+code: confirm PATH A is achievable end-to-end on the Camelyon demo slide
+at trained scale (level arithmetic) — if only PATH B is feasible, the
+trade-off must be surfaced to the user first, per their instruction.
+
+═════════════════════════════════════════════════════════════════════════
 COMPACTION ANCHORS: if context is compacted, resume by
   1) reading THIS file top to bottom,
   2) `git log --oneline -5` to see which sub-task IDs are committed,
