@@ -184,8 +184,8 @@ export default function StainDial() {
   const card = (title: string, c: Card, cls: string) => {
     const refused = c.label.includes('OOD-rejected');
     const wrongCall = c.label.includes('calls it');
-    const status = refused ? 'declined to answer — the safe behavior'
-      : wrongCall ? `WRONG — calls it ${c.label.split(' ⚠')[0]}, and its gate sees no problem`
+    const status = refused ? 'declined — safe'
+      : wrongCall ? `WRONG — says ${c.label.split(' ⚠')[0]}`
       : 'sees the tumor';
     return (
       <div className={`mcard ${cls} ${refused ? 'ref' : wrongCall ? 'wrong' : 'right'}`}>
@@ -205,27 +205,27 @@ export default function StainDial() {
           <canvas ref={cv} width="224" height="224" />
           <canvas ref={ov} width="448" height="448" aria-hidden="true" />
         </div>
-        <p className="cap-hint">red outline = where the shipped model is looking for the tumor</p>
+        <p className="cap-hint">red = where the model looks</p>
         <p className="cap">{cap}</p>
         <div className="dialbox">
-          <p className="truth mono">ground truth: this patch is <b>TUMOR</b> — drag and watch the two AIs below try to keep seeing it</p>
+          <p className="truth mono">ground truth: <b>TUMOR</b>. drag the dial.</p>
           <div className="ends"><span>◀ normal staining</span><span>heavy purple stain ▶</span></div>
           <input type="range" min={0} max={100} value={stain * 100} disabled={rawMode}
             onChange={e => onDial(+(e.target as HTMLInputElement).value / 100)}
             onPointerUp={predict} aria-label="stain dial" />
           <button className="btn ghost rawbtn" onClick={toggleRaw}>
-            {rawMode ? '← back to the first tile' : 'see a REAL picture from a different machine →'}
+            {rawMode ? '← Back' : 'Real scanner tile →'}
           </button>
         </div>
       </div>
       <div className="models">
         <div className="score">
           <div className="chip expert"><span className="who">expert label</span><span className="call mono">TUMOR</span><span className="badge">truth</span></div>
-          {scoreChip('first model — before the fix', v1)}
-          {scoreChip('shipped model — stain physics', ship)}
+          {scoreChip('first model', v1)}
+          {scoreChip('shipped model', ship)}
         </div>
-        {card('first model — trained before the fix', v1, 'bad')}
-        {card('shipped model — retrained on stain physics', ship, 'good')}
+        {card('first model', v1, 'bad')}
+        {card('shipped model', ship, 'good')}
         <p className="note">both models run live right now — numbers update as you drag</p>
       </div>
     </div>

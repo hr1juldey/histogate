@@ -42,7 +42,7 @@ export default function Journey({ cfg, metrics }: { cfg: SiteConfig; metrics: Me
         </p>
         {stage.run_url && (
           <a className="runlink" href={stage.run_url} target="_blank" rel="noopener">
-            This stage's training curves, in the experiment tracker ↗</a>
+            Training curves ↗</a>
         )}
       </div>
     </div>

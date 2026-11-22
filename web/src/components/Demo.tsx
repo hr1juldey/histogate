@@ -82,7 +82,7 @@ export default function Demo() {
         </div>
         <p className="gloss">{sel ? GLOSS[sel] : ''}</p>
         <div className="own">
-          <button className="btn ghost" onClick={() => fileRef.current?.click()}>…or upload your own H&E patch</button>
+          <button className="btn ghost" onClick={() => fileRef.current?.click()}>Upload your own</button>
           <input ref={fileRef} type="file" accept="image/*" hidden
             onChange={e => { const f = e.target.files?.[0]; if (!f) return;
               setSel(null); runBlob(f, URL.createObjectURL(f), false); }} />
@@ -108,9 +108,9 @@ export default function Demo() {
             <div className="viewer"><img src={src} alt="patch" /><canvas ref={camRef} width={448} height={448} /></div>
             <div className="stats">
               <div className="srow"><span>how sure it really is</span><b>{j ? `${(j.confidence * 100).toFixed(1)}%` : '—'}</b></div>
-              <div className="srow"><span>"is this picture strange?" gauge</span><b className="mono">{j?.energy ?? '—'}</b></div>
-              <div className="srow"><span>decision</span><b>{j ? (j.ood ? 'refused — too strange to judge' : 'answered') : '—'}</b></div>
-              <label className="heat">where the model looked — its evidence, not a pathologist's marking
+              <div className="srow"><span>strangeness gauge</span><b className="mono">{j?.energy ?? '—'}</b></div>
+              <div className="srow"><span>decision</span><b>{j ? (j.ood ? 'declined' : 'answered') : '—'}</b></div>
+              <label className="heat">where the model looked
                 <input type="range" min="0" max="100" value={alpha * 100} onInput={e => setAlpha(+(e.target as HTMLInputElement).value / 100)} />
               </label>
             </div>

@@ -49,7 +49,7 @@ def _default() -> dict:
                 "or too strange to judge, it says so instead of guessing. "
                 "It's running live, right now, on this page."),
             "primary_cta": {"label": "See it work", "href": "/demo"},
-            "secondary_cta": {"label": "How it failed, and how we fixed it",
+            "secondary_cta": {"label": "How it broke",
                               "href": "/story"},
         },
         "journey": [
