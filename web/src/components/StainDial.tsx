@@ -168,6 +168,19 @@ export default function StainDial() {
     predict();
   };
 
+  const scoreChip = (title: string, c: Card) => {
+    const refused = c.label.includes('OOD-rejected');
+    const wrongCall = c.label.includes('calls it');
+    const call = c.label.split(' ⚠')[0];
+    return (
+      <div className={`chip ${refused ? 'miss' : wrongCall ? 'miss' : 'match'}`}>
+        <span className="who">{title}</span>
+        <span className="call mono">{call}</span>
+        <span className="badge">{refused ? '✗ refused' : wrongCall ? '✗ MISMATCH' : '✓ MATCH'}</span>
+      </div>
+    );
+  };
+
   const card = (title: string, c: Card, cls: string) => {
     const refused = c.label.includes('OOD-rejected');
     const wrongCall = c.label.includes('calls it');
@@ -204,6 +217,11 @@ export default function StainDial() {
         </div>
       </div>
       <div className="models">
+        <div className="score">
+          <div className="chip expert"><span className="who">expert label</span><span className="call mono">TUMOR</span><span className="badge">truth</span></div>
+          {scoreChip('first model — before the fix', v1)}
+          {scoreChip('shipped model — stain physics', ship)}
+        </div>
         {card('first model — trained before the fix', v1, 'bad')}
         {card('shipped model — retrained on stain physics', ship, 'good')}
         <p className="note">both models run live right now — numbers update as you drag</p>

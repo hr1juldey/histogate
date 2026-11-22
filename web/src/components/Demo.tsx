@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { analyze, analyzeTiff, apiBase, get, type Analysis, type Sample } from '../lib/api';
 
+const TRUTH: Record<string, string> = {
+  tumor: 'TUM', normal: 'NORM', stroma: 'STR', lymph: 'LYM', mucus: 'MUC', debris: 'DEB',
+};
+
 const GLOSS: Record<string, string> = {
   tumor: 'Malignant epithelium — the cancer cells themselves.',
   normal: 'Healthy mucosal glands: neat, orderly crypts.',
@@ -85,6 +89,16 @@ export default function Demo() {
         </div>
       </div>
       <div className="right card">
+        {sel && j && (
+          <div className={`score ${j.top_class === TRUTH[sel] ? 'match' : 'miss'}`}>
+            <span className="sc"><em>expert label</em><b className="mono">{TRUTH[sel]}</b></span>
+            <span className="sc-arrow">vs</span>
+            <span className="sc"><em>AI call</em><b className="mono">{j.top_class}</b></span>
+            <span className="badge">
+              {j.ood ? '✗ refused' : j.top_class === TRUTH[sel] ? '✓ MATCH' : '✗ MISMATCH'}
+            </span>
+          </div>
+        )}
         <div className={`verdict ${j?.ood ? 'ood' : ''}`}>
           <div className="vt">{j ? j.verdict : err ?? 'analyzing…'}</div>
           {j && <div className="vd mono">really {j.confidence >= 0.9 ? 'is' : 'is not'} bluffing: {(j.confidence * 100).toFixed(1)}% · refuses when the picture is too strange (energy {j.energy})</div>}

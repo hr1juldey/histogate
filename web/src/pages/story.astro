@@ -47,6 +47,17 @@ const cfg = await get<SiteConfig>('/site-config.json');
   .tilewrap canvas + canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .cap-hint { font-size: 12px; color: var(--t4); margin-top: 8px; }
   .dial-sec .cap { margin-top: 6px; }
+  .score { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .chip { border: 1px solid var(--b-std); border-radius: 10px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.02); }
+  .chip .who { font-size: 11px; color: var(--t4); }
+  .chip .call { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: var(--t1); }
+  .chip .badge { font-size: 12px; font-weight: 700; margin-top: 4px; }
+  .chip.match { border-color: #23402b; background: rgba(16,185,129,0.06); }
+  .chip.match .badge { color: #5dbb7a; }
+  .chip.miss { border-color: #4a3038; background: rgba(224,128,128,0.05); }
+  .chip.miss .badge { color: var(--bad); }
+  .chip.expert .badge { color: var(--t4); font-weight: 500; }
   .cap { font-size: 13px; color: var(--t3); text-align: center; margin-top: 10px; }
   .dialbox { margin-top: 18px; padding: 16px; border: 1px solid var(--b-std); border-radius: 12px; background: var(--panel); }
   .ends { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--t3); margin-bottom: 8px; }
