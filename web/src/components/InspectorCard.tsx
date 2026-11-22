@@ -73,6 +73,12 @@ export default function InspectorCard({ title, tileSrc, detail, loading, error,
                     ))}
                   </div>
                 </details>
+                {Array.isArray(detail.conformal_set) && detail.conformal_set.length > 0 && (
+                  <div className="sub2 cset">
+                    guaranteed set (90%): {detail.conformal_set.join(' + ')}
+                    <span className="cnote"> — among answered tiles</span>
+                  </div>
+                )}
                 <div className="camrow">
                   <button className="camtog" aria-pressed={showCam} onClick={() => setShowCam(s => !s)}>
                     {showCam ? 'hide evidence' : 'show evidence'}</button>
