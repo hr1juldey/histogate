@@ -59,6 +59,20 @@ export default function InspectorCard({ title, tileSrc, detail, loading, error,
                     </div>
                   ))}
                 </div>
+                {/* all 9 bins — accordion: nothing hidden, clutter collapsed.
+                    Top 3 above carry the verdict; the rest stay one click away. */}
+                <details className="allbins">
+                  <summary>other bins ▾</summary>
+                  <div className="bars dim">
+                    {[...detail.probabilities].sort((a, b) => b.p - a.p).slice(3).map(pr => (
+                      <div className="brow" key={pr.class}>
+                        <span className="mono blab">{pr.class}</span>
+                        <span className="btrack"><i style={{ width: `${Math.max(2, Math.round(pr.p * 100))}%`, background: CLASS_COLORS[pr.class] ?? '#666' }} /></span>
+                        <span className="mono bpct">{Math.round(pr.p * 100)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
                 <div className="camrow">
                   <button className="camtog" aria-pressed={showCam} onClick={() => setShowCam(s => !s)}>
                     {showCam ? 'hide evidence' : 'show evidence'}</button>

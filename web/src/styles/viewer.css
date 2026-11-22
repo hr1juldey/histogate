@@ -72,3 +72,9 @@ details.why p { font-size: 12.5px; color: var(--t3); margin: 6px 0 0; }
 
 /* programmatic moves (rotate, glide home) animate; wheel/drag stay immediate */
 .zoomable.gliding, .rotwrap.gliding { transition: transform 0.24s cubic-bezier(0.2, 0.7, 0.3, 1); }
+
+/* all-9-bins accordion: collapsed clutter, nothing hidden */
+.allbins { margin-top: 6px; }
+.allbins summary { cursor: pointer; font-size: 11.5px; color: var(--t4, #8a8f98); user-select: none; }
+.allbins summary:hover { color: var(--t2, #c8cdd4); }
+.allbins .bars.dim { opacity: 0.72; margin-top: 6px; }
