@@ -74,9 +74,9 @@ export default function StainDial() {
 
   useEffect(() => {
     (async () => {
-      PIX.current.lab = await loadPixels(`${apiBase}/samples/tumor.png`);
+      PIX.current.lab = await loadPixels(`/samples/tumor.png`);
       CONVS.current.lab = deconvolve(PIX.current.lab);
-      PIX.current.raw = await loadPixels(`${apiBase}/samples/nonorm.png`);
+      PIX.current.raw = await loadPixels(`/samples/nonorm.png`);
       CONVS.current.raw = deconvolve(PIX.current.raw);
       render(0);
       predict();

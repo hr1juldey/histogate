@@ -4,10 +4,10 @@ HONESTY LAW: this is a SECOND model — counts, not diagnoses. Only ever invoked
 on gate-PASSED tiles. 'neoplastic' is the PanNuke organ-agnostic label
 (segmentation-validated on CoNSeP/PanNuke), not a colon-neoplasia diagnosis.
 
-Resolution caveat (measured & documented, docs/BENCHMARKS.md P0b): the
+Resolution law (measured & documented, docs/BENCHMARKS.md P0b): the
 fast-pannuke checkpoint was trained on 256x256 patches at 0.25 mpp; CRC tiles
-are 224x224 at 0.5 mpp. We infer single-pass on the resized tile (native
-scale) — absolute counts are plausibility-grade, not calibrated.
+are 224x224 at 0.5 mpp. count() upscales 2x to 448 (checkpoint scale) and
+runs a 3x3 crop grid with Voronoi dedup — counts are plausibility-grade.
 
 Fail-closed law: weights missing / any inference error → ``{}`` (no counts,
 no crash). Weights: TIACentre/TIAToolbox_pretrained_weights
@@ -25,7 +25,13 @@ TAXONOMY = ["neoplastic", "inflammatory", "connective", "dead", "nonneop_epithel
 
 WEIGHT_REPO = "TIACentre/TIAToolbox_pretrained_weights"
 WEIGHT_FILE = "hovernet_fast-pannuke.pth"
-INPUT = 256
+CROP = 256          # checkpoint input size
+SCALE = 2           # CRC tiles are 0.5 mpp; checkpoint expects 0.25 mpp
+BIG = 224 * SCALE   # 448 -> pad to 512 for the 3x3 crop grid
+PAD = 512
+STRIDE = 128        # crop origins 0/128/256 -> cores overlap 32px
+CORE_OFF = (CROP - 164) // 2  # forward crops 256->164, border is unreliable
+CENTERS = (128, 256, 384)     # crop core centers; Voronoi boundaries 192/320
 
 
 class NucleusCounter:
@@ -69,32 +75,57 @@ class NucleusCounter:
             return None  # fail-closed: untrained weights are never used silently
 
     def count(self, img: Image.Image) -> dict[str, int]:
+        """Counts over the 224px tile: 2x upscale to the checkpoint's 0.25 mpp
+        scale, 3x3 overlapping 256px crops, per-instance Voronoi dedup.
+
+        Known under-count (measured, documented): a ~7px-equivalent ring at
+        the tile edge falls outside all crop cores."""
         out: dict[str, int] = {k: 0 for k in TAXONOMY}
         try:
-            arr = np.asarray(
-                img.convert("RGB").resize((INPUT, INPUT), Image.Resampling.LANCZOS)
+            big = img.convert("RGB").resize((BIG, BIG), Image.Resampling.LANCZOS)
+            a = np.pad(
+                np.asarray(big, dtype=np.float32),
+                ((32, 32), (32, 32), (0, 0)),
+                mode="reflect",
+            )
+            crops, origins = [], []
+            for oy in (0, STRIDE, 2 * STRIDE):
+                for ox in (0, STRIDE, 2 * STRIDE):
+                    crops.append(a[oy : oy + CROP, ox : ox + CROP])
+                    origins.append((ox, oy))
+            x = (
+                torch.from_numpy(np.stack(crops))
+                .permute(0, 3, 1, 2)
+                .to(self._dev)
             )
             # fast-pannuke quirk (measured): the checkpoint expects RAW 0-255
             # floats — /255 normalization kills all detection (np frac>0.5:
             # 0.168 raw vs 0.000 normalized)
-            x = torch.from_numpy(arr.astype(np.float32)).permute(2, 0, 1)[None].to(
-                self._dev
-            )
             with torch.no_grad():
                 pred = self._model()(x)
-            np_map = torch.softmax(pred["np"], dim=1)[0, 1].cpu().numpy()[..., None]
-            hv_map = pred["hv"][0].cpu().numpy().transpose(1, 2, 0)
-            tp_map = (
-                torch.softmax(pred["tp"], dim=1).argmax(dim=1)[0].cpu().numpy()[
-                    ..., None
-                ]
+            np_maps = torch.softmax(pred["np"], dim=1)[..., 1].cpu().numpy()
+            hv_maps = pred["hv"].cpu().numpy().transpose(0, 2, 3, 1)
+            tp_maps = (
+                torch.softmax(pred["tp"], dim=1).argmax(dim=1).cpu().numpy()
             )
-            seg = self._model().postproc([np_map, hv_map, tp_map])[0]
-            types = np.asarray(seg["info_dict"]["type"])
-            for t in types:
-                t = int(t)
-                if 0 < t <= len(TAXONOMY):
-                    out[TAXONOMY[t - 1]] += 1
+            for i, (ox, oy) in enumerate(origins):
+                seg = self._model().postproc(
+                    [np_maps[i][..., None], hv_maps[i], tp_maps[i][..., None]]
+                )[0]
+                cents = np.asarray(seg["info_dict"]["centroid"]).reshape(-1, 2)
+                types = np.asarray(seg["info_dict"]["type"])
+                for c, t in zip(cents, types, strict=False):
+                    gx = ox + CORE_OFF + c[0]
+                    gy = oy + CORE_OFF + c[1]
+                    # Voronoi dedup: this crop owns the centroid iff its core
+                    # center is the nearest in BOTH axes
+                    cx = min(CENTERS, key=lambda v: abs(gx - v))
+                    cy = min(CENTERS, key=lambda v: abs(gy - v))
+                    if (cx, cy) != (ox + CROP // 2, oy + CROP // 2):
+                        continue
+                    t = int(t)
+                    if 0 < t <= len(TAXONOMY):
+                        out[TAXONOMY[t - 1]] += 1
         except Exception:
             return {}  # fail-closed: no counts, no crash
         return {k: v for k, v in out.items() if v or k != "dead"}

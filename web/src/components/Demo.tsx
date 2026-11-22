@@ -48,7 +48,7 @@ export default function Demo() {
     touched.current = true;
     setSel(id);
     const r = await fetch(`${apiBase}/samples/${id}`, { headers: ngrokHeaders });
-    await runBlob(await r.blob(), `${apiBase}/samples/${id}.png`, true, null);
+    await runBlob(await r.blob(), `/samples/${id}.png`, true, null);
   };
 
   const onFile = (f: File | null | undefined) => {
@@ -78,7 +78,7 @@ export default function Demo() {
         <div className="gallery">
           {samples.map(s => (
             <button key={s.id} className={`tile ${sel === s.id ? 'on' : ''}`} onClick={() => pick(s.id)}>
-              <img src={`${apiBase}/samples/${s.id}.png`} alt={s.why} />
+              <img src={`/samples/${s.id}.png`} alt={s.why} />
               <span>{s.id.toUpperCase()}</span>
             </button>
           ))}
