@@ -23,7 +23,7 @@ export default function SlideMap() {
 
   useEffect(() => {
     getSlideMap().then(setData).catch(e => setErr(String(e)));
-    assetUrl('/slide-overview.png').then(setOverview);
+    assetUrl(overviewUrl()).then(setOverview);
   }, []);
 
   /* clicking a patch re-analyzes that exact tile at full resolution */
