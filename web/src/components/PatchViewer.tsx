@@ -77,7 +77,7 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
         const k = Math.max(KMIN, Math.min(KMAX, v.k * Math.exp(-e.deltaY * 0.0016)));
         const wx = (px - v.x) / v.k, wy = (py - v.y) / v.k;
         const nv = { x: px - wx * k, y: py - wy * k, k };
-        return clampView(k <= KMIN + 1e-3 ? HOME : nv, r, rot);
+        return clampView(nv, r, rot);   /* zoom-out keeps position (no HOME snap) */
       });
     };
     b.addEventListener('wheel', onWheel, { passive: false });
@@ -117,7 +117,6 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
     const r = b.getBoundingClientRect();
     setView(v => {
       const k = Math.max(KMIN, Math.min(KMAX, v.k * f));
-      if (k <= KMIN + 1e-3) return clampView(HOME, r, rot);
       const px = r.width / 2, py = r.height / 2;
       const wx = (px - v.x) / v.k, wy = (py - v.y) / v.k;
       return clampView({ x: px - wx * k, y: py - wy * k, k }, r, rot);

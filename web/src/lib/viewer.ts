@@ -20,20 +20,19 @@ export interface PatchDetail {
   energy_threshold: number; ood: boolean; gradcam: number[][];
 }
 
-/* Pan bounds from the ROTATED content's true extent (AABB): when rotated, the
-   content spans the other way — every pixel must stay reachable. An axis
-   smaller than the window locks centered (window model). */
+/* Pan bounds (user law 2026-11-22: "I cannot drag the image from bottom to
+   the center and then zoom in" — the no-void rule forbade exactly that).
+   Rule now: the WINDOW CENTER must always stay over content, with a margin
+   inside the content edges. Dead space is allowed (Google-Maps style) so
+   any part of the image — e.g. a tissue strip at the image's bottom edge —
+   can be dragged to the center at ANY zoom, then zoomed in place. The image
+   can never leave the screen: its center coverage is enforced. */
 export const clampView = (v: View, r: { width: number; height: number }, rot: number): View => {
   const [Wc, Hc] = rot % 180 ? [r.height, r.width] : [r.width, r.height];
+  const m = Math.min(r.width, r.height) * 0.1;
   const cw = v.k * Wc, ch = v.k * Hc;
-  const x = cw <= r.width
-    ? (r.width - cw) / 2
-    : Math.max(r.width - (v.k * (r.width + Wc)) / 2,
-        Math.min((v.k * (Wc - r.width)) / 2, v.x));
-  const y = ch <= r.height
-    ? (r.height - ch) / 2
-    : Math.max(r.height - (v.k * (r.height + Hc)) / 2,
-        Math.min((v.k * (Hc - r.height)) / 2, v.y));
+  const x = Math.max(r.width / 2 - cw + m, Math.min(cw - r.width / 2 - m, v.x));
+  const y = Math.max(r.height / 2 - ch + m, Math.min(ch - r.height / 2 - m, v.y));
   return { ...v, x, y };
 };
 
