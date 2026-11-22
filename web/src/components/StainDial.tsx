@@ -203,15 +203,17 @@ export default function StainDial() {
       <div className={`mcard ${cls} ${state} ${analyzing ? 'dim' : ''}`}>
         <div className="t">{title}</div>
         <div className="row"><span className="pct mono">{(c.conf * 100).toFixed(1)}%</span><span className="lab">{c.label}</span></div>
+        <div className="bl"><span>how sure it is</span><span className="mono">0 – 100%</span></div>
         <div className="bar"><i style={{ width: `${c.conf * 100}%` }} /></div>
+        <div className="bl"><span>how strange the picture looks</span></div>
         <div className="gauge">
           <i style={{ width: `${pct(c.energy)}%`, background: gcol }} />
-          <b className="tick" style={{ left: `${pct(c.thr)}%` }} />
+          <b className="tick" style={{ left: `${pct(c.thr)}%` }}><em className="mono">gate {c.thr.toFixed(2)}</em></b>
         </div>
-        <div className="glabels"><span>calm</span><span>gate ▲</span><span>strange</span></div>
+        <div className="glabels mono"><span>calm −4.6</span><span>strange −1.6</span></div>
         <div className="verdict-line">{status}</div>
         <details className="why"><summary>why?</summary><p>{why}</p></details>
-        <div className="live mono">strangeness {c.energy.toFixed(2)} · gate {c.thr.toFixed(2)}</div>
+        <div className="live mono">strangeness now {c.energy.toFixed(2)}</div>
       </div>
     );
   };

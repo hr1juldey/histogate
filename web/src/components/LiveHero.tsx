@@ -85,7 +85,7 @@ export default function LiveHero() {
               <span className={res.ood ? 'warn' : 'ok'}>
                 {res.ood ? 'declined — safe' : `${res.top_class} · ${(res.confidence * 100).toFixed(1)}%`}
               </span>
-              <span className="mini-gauge" aria-hidden="true">
+              <span className="mini-gauge" aria-hidden="true" title="strangeness gauge: calm to strange, amber tick = its gate">
                 <i style={{ width: `${pct(res.energy)}%`, background: res.ood ? '#e3b341' : '#5dbb7a' }} />
                 <b style={{ left: `${pct(res.energy_threshold)}%` }} />
               </span>
