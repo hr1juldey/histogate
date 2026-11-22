@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { apiBase, getSlideMap, type SlideMapData, type SlideTile } from '../lib/api';
+import { assetUrl, getSlideMap, tileDetail, tileUrl,
+         type SlideMapData, type SlideTile } from '../lib/api';
 import type { PatchDetail } from '../lib/viewer';
 import { CLASS_COLORS } from '../lib/viewer';
 import PatchViewer from './PatchViewer';
@@ -17,9 +18,12 @@ export default function SlideMap() {
   const [zoomed, setZoomed] = useState(false);
   const [detail, setDetail] = useState<PatchDetail | null>(null);
   const [detailErr, setDetailErr] = useState(false);
+  const [overview, setOverview] = useState<string | null>(null);
+  const [tileSrc, setTileSrc] = useState<string | null>(null);
 
   useEffect(() => {
     getSlideMap().then(setData).catch(e => setErr(String(e)));
+    assetUrl('/slide-overview.png').then(setOverview);
   }, []);
 
   /* clicking a patch re-analyzes that exact tile at full resolution */
@@ -27,17 +31,14 @@ export default function SlideMap() {
     if (!sel) { setDetail(null); setDetailErr(false); return; }
     let live = true;
     setDetail(null); setDetailErr(false);
+    setTileSrc(null);
     (async () => {
       try {
-        const r = await fetch(`${apiBase}/slide-tile/${sel.row}/${sel.col}.png`);
-        if (!r.ok) throw new Error('tile fetch failed');
-        const fd = new FormData();
-        fd.append('file', await r.blob(), 'tile.png');
-        fd.append('model', 'ship');
-        const a = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd });
-        if (!a.ok) throw new Error('analyze failed');
-        const j: PatchDetail = await a.json();
-        if (live) setDetail(j);
+        const [j, u] = await Promise.all([
+          tileDetail(sel.row, sel.col) as unknown as Promise<PatchDetail>,
+          assetUrl(tileUrl(sel.row, sel.col)),
+        ]);
+        if (live) { setDetail(j); setTileSrc(u); }
       } catch { if (live) setDetailErr(true); }
     })();
     return () => { live = false; };
@@ -85,7 +86,7 @@ export default function SlideMap() {
       <div className="panes">
         <div className="pane mosaicwrap">
           <PatchViewer
-            src={`${apiBase}/slide-overview.png`}
+            src={overview ?? 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
             alt="the real lymph-node slide, low magnification"
             captionIdle={mode === 'verdicts'
               ? 'scroll to zoom in — the squares become real tiles · colored = answer, dashed amber = declined'
@@ -107,7 +108,7 @@ export default function SlideMap() {
                 aria-pressed={sel?.id === t.id}>
                 {showTiles && (
                   <img className="cellimg" loading="lazy"
-                    src={`${apiBase}/slide-tile/${t.row}/${t.col}.png`} alt="" draggable={false} />
+                    src={tileUrl(t.row, t.col)} alt="" draggable={false} />
                 )}
               </button>
             ))}
@@ -116,7 +117,7 @@ export default function SlideMap() {
         <div className="sidecol">
           <InspectorCard
             title={sel ? `patch ${sel.id} · col ${sel.col} row ${sel.row}` : ''}
-            tileSrc={sel ? `${apiBase}/slide-tile/${sel.row}/${sel.col}.png` : null}
+            tileSrc={tileSrc}
             detail={detail} loading={!!sel && !detail && !detailErr} error={detailErr}
             placeholder="click any patch on the slide — its verdict appears here, no scrolling" />
         </div>

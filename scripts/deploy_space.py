@@ -96,8 +96,13 @@ def main() -> None:
     print(f"assembled {total / 1e6:.1f} MB at {DEST}")
     if dry:
         return
-    run(["hf", "repo", "create", "histogate", "--repo-type", "space",
-         "-y"], in_dest=False)
+    import subprocess as sp
+
+    r = sp.run(["hf", "repos", "create", "riju279/histogate", "--type",
+                "space", "--space-sdk", "docker"], capture_output=True,
+               text=True)
+    already = "already exists" in (r.stdout + r.stderr).lower()
+    print("create:", "exists" if already else r.stdout.strip() or r.stderr.strip())
     run(["hf", "upload", "riju279/histogate", ".", ".", "--repo-type",
          "space"], in_dest=True)
     print("uploaded → https://huggingface.co/spaces/riju279/histogate")

@@ -33,8 +33,29 @@ export const apiBase: string =
   (import.meta.env.PUBLIC_API_BASE as string | undefined) ??
   'http://127.0.0.1:8000';
 
+/* ngrok free tier shows an HTML interstitial to browser requests without
+   this header — every API fetch carries it. Images can't (no headers on
+   <img>), so live-mode images load via assetUrl() blob fetches. */
+export const ngrokHeaders: Record<string, string> = {
+  'ngrok-skip-browser-warning': '1',
+  // ngrok edge basic-auth (traffic policy) — demo gate, not security
+  'authorization': 'Basic bmdyb2s6MmZlZDI1MzAxYzc5NGE2YQ==',
+};
+
+const blobCache = new Map<string, string>();
+export async function assetUrl(path: string): Promise<string> {
+  if (staticDemo) return path;
+  const hit = blobCache.get(path);
+  if (hit) return hit;
+  const r = await fetch(`${apiBase}${path}`, { headers: ngrokHeaders });
+  if (!r.ok) return `${apiBase}${path}`;
+  const u = URL.createObjectURL(await r.blob());
+  blobCache.set(path, u);
+  return u;
+}
+
 export const get = async <T>(path: string): Promise<T> => {
-  const r = await fetch(`${apiBase}${path}`);
+  const r = await fetch(`${apiBase}${path}`, { headers: ngrokHeaders });
   if (!r.ok) throw new Error(`${path}: ${r.status}`);
   return r.json() as Promise<T>;
 };
@@ -43,7 +64,7 @@ export async function analyze(file: Blob, model: 'ship' | 'v1'): Promise<Analysi
   const fd = new FormData();
   fd.append('file', new File([file], 'patch.png', { type: 'image/png' }));
   fd.append('model', model);
-  const r = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd });
+  const r = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
   if (!r.ok) throw new Error(`analyze: ${r.status}`);
   return r.json();
 }
@@ -52,7 +73,7 @@ export async function analyzeTiff(file: Blob, model: 'ship' | 'v1'): Promise<Ana
   const fd = new FormData();
   fd.append('file', new File([file], 'patch.tif', { type: 'image/tiff' }));
   fd.append('model', model);
-  const r = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd });
+  const r = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
   if (!r.ok) throw new Error(`analyze: ${r.status}`);
   return r.json();
 }
@@ -66,8 +87,49 @@ export interface SlideMapData {
   dims: { w: number; h: number }; patch: number; stride: number;
   gate: number; tiles: SlideTile[];
 }
+/* Static demo fallback: the whole /slide experience is precomputed into
+   /demo/slide/ (map + overview + tiles + per-tile analyze JSON, ~41 MB).
+   When no live API is reachable (static hosting, cold backend), the page
+   runs from the snapshot instead of dying. Live mode returns the moment
+   PUBLIC_API_BASE answers. */
+export let staticDemo = false;
+
+export function tileUrl(row: number, col: number): string {
+  return staticDemo
+    ? `/demo/slide/${row}_${col}.png`
+    : `${apiBase}/slide-tile/${row}/${col}.png`;
+}
+
+export function overviewUrl(): string {
+  return staticDemo ? '/demo/slide/overview.png'
+    : `${apiBase}/slide-overview.png`;
+}
+
 export async function getSlideMap(): Promise<SlideMapData> {
-  const r = await fetch(`${apiBase}/slide-map.json`);
-  if (!r.ok) throw new Error(`slide-map: ${r.status}`);
-  return r.json();
+  try {
+    const r = await fetch(`${apiBase}/slide-map.json`, { headers: ngrokHeaders });
+    if (!r.ok) throw new Error(`slide-map: ${r.status}`);
+    return r.json();
+  } catch {
+    const s = await fetch('/demo/slide/slide-map.json');
+    if (!s.ok) throw new Error('slide-map unavailable (live and static)');
+    staticDemo = true;
+    return s.json();
+  }
+}
+
+export async function tileDetail(row: number, col: number): Promise<Analysis> {
+  if (staticDemo) {
+    const r = await fetch(`/demo/slide/${row}_${col}.json`);
+    if (!r.ok) throw new Error('static detail missing');
+    return r.json();
+  }
+  const png = await fetch(tileUrl(row, col));
+  if (!png.ok) throw new Error('tile fetch failed');
+  const fd = new FormData();
+  fd.append('file', await png.blob(), 'tile.png');
+  fd.append('model', 'ship');
+  const a = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
+  if (!a.ok) throw new Error('analyze failed');
+  return a.json();
 }
