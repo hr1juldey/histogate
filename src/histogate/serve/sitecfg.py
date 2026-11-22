@@ -126,6 +126,7 @@ def _default() -> dict:
                 {"label": "GitHub", "href": "https://github.com/hr1juldey"},
                 {"label": "LinkedIn", "href": "https://www.linkedin.com/in/dey-h-ml972"},
                 {"label": "HistoGate — code", "href": "https://github.com/hr1juldey/histogate"},
+                {"label": "Agent API (MCP)", "href": "https://github.com/hr1juldey/histogate/blob/master/docs/MCP.md"},
                 {"label": "HistoGate — model", "href": "https://huggingface.co/riju279/histogate"},
                 {"label": "Experiment tracking", "href": MLFLOW_BASE},
             ],

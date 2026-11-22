@@ -32,6 +32,19 @@ class PatchAnalyzer:
         calib = json.loads(Path(calib_path).read_text())
         self.temperature = float(calib["temperature"])
         self.energy_thr = float(calib["energy_threshold_fpr05"])
+        # optional feature-space KNN OOD detector (calibration key
+        # "ood_detector": "knn" flips the gate; absent -> energy, unchanged).
+        # Measured AUROC 0.9599 vs energy 0.7972 — see runs/pr16-mixed/ood_knn.json
+        self._knn = None
+        if calib.get("ood_detector") == "knn":
+            import torch as _t
+
+            from histogate.ood import KNNDetector
+
+            ck = _t.load(calib_path.parent / "ood_knn_bank.pt",
+                         map_location="cpu", weights_only=True)
+            self._knn = KNNDetector(ck["bank"], k=int(ck["k"]))
+            self.knn_thr = float(calib.get("knn_threshold_fpr05", -0.9163))
         self._feats: list[torch.Tensor] = []
         self.model.backbone.stages[-1].register_forward_hook(
             lambda m, i, o: self._feats.append(o))
@@ -49,7 +62,14 @@ class PatchAnalyzer:
         z = logits[0] / self.temperature
         probs = F.softmax(z.detach(), dim=0)
         energy = float(energy_score(logits.detach(), T=self.temperature)[0])
-        is_ood = energy > self.energy_thr
+        if self._knn is not None:
+            feat = self._feats[-1]
+            pooled = feat.mean(dim=(2, 3)) if feat.dim() == 4 else feat
+            is_ood = bool(self._knn.score(
+                __import__("torch").nn.functional.normalize(
+                    pooled, dim=1))[0] > self.knn_thr)
+        else:
+            is_ood = energy > self.energy_thr
         top = int(probs.argmax())
 
         cam = np.zeros((224, 224), dtype=np.float32)

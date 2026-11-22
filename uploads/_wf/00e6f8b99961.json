@@ -1,0 +1,1 @@
+{"step": "report", "created": 1795350168.7527626, "files": ["TUM-AACLKFGG.tif"], "flagged": [], "results": [{"file": "TUM-AACLKFGG.tif", "top_class": "TUM", "confidence": 0.985, "energy": -3.9156, "ood": false}]}

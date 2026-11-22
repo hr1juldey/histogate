@@ -205,13 +205,15 @@ def gate(argv: list[str] | None = None) -> None:
 
 
 def serve(argv: list[str] | None = None) -> None:
-    """`histogate-serve [--api|--mcp]`: FastAPI (uvicorn) or FastMCP (stdio)."""
+    """`histogate-serve [--api|--mcp-http]`: FastAPI (uvicorn) or FastMCP
+    over streamable HTTP (stdio is dead — user law)."""
     import argparse as _ap
 
     p = _ap.ArgumentParser(prog="histogate-serve")
     mode = p.add_mutually_exclusive_group()
     mode.add_argument("--api", action="store_true", help="FastAPI on serve.host:port")
-    mode.add_argument("--mcp", action="store_true", help="FastMCP over stdio")
+    mode.add_argument("--mcp-http", metavar="HOST:PORT", default=None,
+                      help="FastMCP over streamable HTTP (default 127.0.0.1:8790)")
     p.add_argument("--config", type=Path, default=None)
     args = p.parse_args(argv)
     settings = load_settings(args.config)
@@ -225,10 +227,17 @@ def serve(argv: list[str] | None = None) -> None:
     analyze = build_analyze(ckpt, calib,
                             device="cuda" if torch.cuda.is_available() else "cpu")
 
-    if args.mcp:
+    if args.mcp_http:
         from histogate.serve.mcp import build_mcp
+        from histogate.serve.patch_demo import PatchAnalyzer
 
-        build_mcp(analyze=analyze).run()
+        host, _, port = args.mcp_http.partition(":")
+        host = host or "127.0.0.1"
+        port_i = int(port or 8790)
+        app = build_mcp(analyze=analyze,
+                        patch_analyzer=PatchAnalyzer(ckpt, calib),
+                        uploads_root=Path("uploads"))
+        app.run(transport="http", host=host, port=port_i)
         return
     if args.api:
         import uvicorn
@@ -245,4 +254,4 @@ def serve(argv: list[str] | None = None) -> None:
                              Path("runs/overnight-30ep/calibration.json")))
         uvicorn.run(app, host=settings.serve.host, port=settings.serve.port)
         return
-    raise SystemExit("histogate-serve: pass --api or --mcp")
+    raise SystemExit("histogate-serve: pass --api or --mcp-http")
