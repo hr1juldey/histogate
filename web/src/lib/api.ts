@@ -47,15 +47,36 @@ export async function assetUrl(path: string): Promise<string> {
   if (staticDemo) return path;
   const hit = blobCache.get(path);
   if (hit) return hit;
-  const r = await fetch(`${apiBase}${path}`, { headers: ngrokHeaders });
+  const r = await fetchAwake(`${apiBase}${path}`, { headers: ngrokHeaders });
   if (!r.ok) return `${apiBase}${path}`;
   const u = URL.createObjectURL(await r.blob());
   blobCache.set(path, u);
   return u;
 }
 
+/* Wake-aware fetching: the backend is DOWN by default (on-prem steward
+   pattern). Any 503 means "booting" — poll /wake until warm, then retry the
+   original request once. Cold start is a normal state, never an error. */
+async function wakeLoop(): Promise<void> {
+  for (let i = 0; i < 24; i++) {            // ~4 min ceiling
+    await new Promise(r => setTimeout(r, 10000));
+    try {
+      const r = await fetch(`${apiBase}/wake`, { headers: ngrokHeaders });
+      if (r.ok) return;
+    } catch { /* backend mid-boot; keep polling */ }
+  }
+  throw new Error('backend did not wake within 4 minutes');
+}
+
+async function fetchAwake(url: string, init?: RequestInit): Promise<Response> {
+  const r = await fetch(url, init);
+  if (r.status !== 503) return r;
+  await wakeLoop();
+  return fetch(url, init);
+}
+
 export const get = async <T>(path: string): Promise<T> => {
-  const r = await fetch(`${apiBase}${path}`, { headers: ngrokHeaders });
+  const r = await fetchAwake(`${apiBase}${path}`, { headers: ngrokHeaders });
   if (!r.ok) throw new Error(`${path}: ${r.status}`);
   return r.json() as Promise<T>;
 };
@@ -64,7 +85,7 @@ export async function analyze(file: Blob, model: 'ship' | 'v1'): Promise<Analysi
   const fd = new FormData();
   fd.append('file', new File([file], 'patch.png', { type: 'image/png' }));
   fd.append('model', model);
-  const r = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
+  const r = await fetchAwake(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
   if (!r.ok) throw new Error(`analyze: ${r.status}`);
   return r.json();
 }
@@ -73,7 +94,7 @@ export async function analyzeTiff(file: Blob, model: 'ship' | 'v1'): Promise<Ana
   const fd = new FormData();
   fd.append('file', new File([file], 'patch.tif', { type: 'image/tiff' }));
   fd.append('model', model);
-  const r = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
+  const r = await fetchAwake(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
   if (!r.ok) throw new Error(`analyze: ${r.status}`);
   return r.json();
 }
@@ -107,7 +128,7 @@ export function overviewUrl(): string {
 
 export async function getSlideMap(): Promise<SlideMapData> {
   try {
-    const r = await fetch(`${apiBase}/slide-map.json`, { headers: ngrokHeaders });
+    const r = await fetchAwake(`${apiBase}/slide-map.json`, { headers: ngrokHeaders });
     if (!r.ok) throw new Error(`slide-map: ${r.status}`);
     return r.json();
   } catch {
@@ -129,7 +150,7 @@ export async function tileDetail(row: number, col: number): Promise<Analysis> {
   const fd = new FormData();
   fd.append('file', await png.blob(), 'tile.png');
   fd.append('model', 'ship');
-  const a = await fetch(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
+  const a = await fetchAwake(`${apiBase}/analyze-patch`, { method: 'POST', body: fd, headers: ngrokHeaders });
   if (!a.ok) throw new Error('analyze failed');
   return a.json();
 }
