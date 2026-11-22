@@ -43,7 +43,10 @@ import { apiBase } from '../lib/api';
   .vswitch button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .panes { display: grid; grid-template-columns: auto minmax(340px, 1fr);
     gap: 24px; align-items: stretch; justify-content: center; }
-  .ulcap { font-size: 12px; color: var(--t4); margin: 10px 2px 0; }
+  .ulcap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; margin: 0;
+    padding: 5px 8px; background: rgba(8, 9, 10, 0.75); font-size: 12px; color: var(--t3);
+    text-align: center; pointer-events: none; border-radius: 0 0 6px 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sidecol { display: grid; gap: 16px; position: sticky; top: 16px; }
   .noclick { grid-column: 1 / -1; font-size: 13px; color: var(--t3); margin: 4px 0; }
   .pane { border: 1px solid var(--b-std); border-radius: 12px; background: var(--panel); padding: 14px; }
@@ -68,12 +71,27 @@ import { apiBase } from '../lib/api';
   .vcell.fam { border-color: rgba(255, 255, 255, 0.12); }
   .vcell:hover { filter: brightness(1.3); }
   .vcell.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .ulcap { font-size: 12px; color: var(--t4); margin: 10px 2px 0; }
-  .inspector { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
-    gap: 14px; align-items: start; }
+  .ulcap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; margin: 0;
+    padding: 5px 8px; background: rgba(8, 9, 10, 0.75); font-size: 12px; color: var(--t3);
+    text-align: center; pointer-events: none; border-radius: 0 0 6px 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inspector { display: grid; grid-template-columns: minmax(300px, 460px) minmax(0, 1fr);
+    gap: 16px; align-items: start; }
   .inspector .itxt { display: grid; gap: 6px; align-content: start; }
-  .inspector .tileimg { width: 100%; max-width: 220px; aspect-ratio: 1; object-fit: cover;
-    border-radius: 8px; border: 1px solid var(--b-std); display: block; }
+  .tilebox { position: relative; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--b-std); align-self: start; }
+  .tilebox .tileimg { width: 100%; display: block; }
+  .tilebox .cam { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .bars { display: grid; gap: 7px; margin-top: 10px; min-width: 0; }
+  .brow { display: grid; grid-template-columns: 44px minmax(0, 1fr) 40px; gap: 8px; align-items: center; }
+  .btrack { height: 10px; border-radius: 5px; background: #141516; overflow: hidden; display: block; }
+  .btrack i { display: block; height: 100%; border-radius: 5px; }
+  .blab { font-size: 12px; color: var(--t2); } .bpct { font-size: 12px; color: var(--t2); text-align: right; }
+  .camrow { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .camtog { border: 1px solid var(--b-std); border-radius: 9999px; padding: 4px 12px; font-size: 12px;
+    background: var(--panel); color: var(--t2); cursor: pointer; }
+  .camtog[aria-pressed="true"] { border-color: var(--accent); color: var(--t1); }
+  .camnote { font-size: 12px; color: var(--t3); }
   .inspector .t { font-size: 12px; color: var(--t4); }
   .inspector .big { font-size: clamp(28px, 2.6vw, 40px); font-weight: 600; letter-spacing: -0.5px; margin-top: 6px; }
   .inspector .big.amber { color: #e3b341; }
@@ -83,6 +101,5 @@ import { apiBase } from '../lib/api';
   details.why p { font-size: 12.5px; color: var(--t3); margin: 6px 0 0; }
   .map-err { font-size: 14px; color: var(--t3); margin-top: 24px; }
   @media (max-width: 900px) { .panes { grid-template-columns: 1fr; }
-    .inspector { grid-template-columns: 120px 1fr; }
-    .inspector .tileimg { width: 120px; height: 120px; } }
+    .inspector { grid-template-columns: minmax(180px, 300px) minmax(0, 1fr); } }
 </style>
