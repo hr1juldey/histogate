@@ -81,3 +81,57 @@ def test_empirical_coverage_on_exchangeable_draws():
             hits += 1
     cov = hits / n_test
     assert cov >= 0.90, f"empirical coverage {cov:.3f} below the 1-alpha guarantee"
+
+
+# ---------------------------------------------------------------- A4: served
+ROOT_DIR = __import__("pathlib").Path(__file__).resolve().parents[1]
+
+
+def test_analyzer_serves_conformal_set_when_artifact_present(tmp_path):
+    """analyze() of an in-distribution tile must carry conformal_set (alpha .10)."""
+    import json
+
+    import pytest
+    from PIL import Image
+
+    ckpt = ROOT_DIR / "runs/pr16-mixed/best.ckpt.pt"
+    conformal = ROOT_DIR / "runs/pr16-mixed/conformal.json"
+    tile = ROOT_DIR / "data/raw/CRC-VAL-HE-7K/NORM/NORM-TCGA-AASSYQPA.tif"
+    if not (ckpt.exists() and conformal.exists() and tile.exists()):
+        pytest.skip("ship artifacts absent")
+    calib = json.loads((ROOT_DIR / "runs/pr16-mixed/calibration.json").read_text())
+    calib_path = tmp_path / "calibration.json"
+    calib_path.write_text(json.dumps(calib))
+    tmp_path.joinpath("ood_knn_bank.pt").write_bytes(
+        (ROOT_DIR / "runs/pr16-mixed/ood_knn_bank.pt").read_bytes())
+
+    from histogate.serve.patch_demo import PatchAnalyzer
+    an = PatchAnalyzer(ckpt, calib_path)
+    r = an.analyze(Image.open(tile).convert("RGB"))
+    assert r["ood"] is False
+    assert isinstance(r.get("conformal_set"), list) and r["conformal_set"]
+    assert set(r["conformal_set"]) <= set(__import__("histogate.data", fromlist=["CLASS_ORDER"]).CLASS_ORDER)
+    assert r["conformal_set"][0] == r["top_class"]  # ranked by prob desc
+
+
+def test_analyzer_no_conformal_key_when_artifact_absent(tmp_path):
+    """Without conformal.json the response shape is unchanged (no key at all)."""
+    import json
+
+    import pytest
+    from PIL import Image
+
+    ckpt = ROOT_DIR / "runs/pr16-mixed/best.ckpt.pt"
+    tile = ROOT_DIR / "data/raw/CRC-VAL-HE-7K/NORM/NORM-TCGA-AASSYQPA.tif"
+    if not (ckpt.exists() and tile.exists()):
+        pytest.skip("ship artifacts absent")
+    calib = json.loads((ROOT_DIR / "runs/pr16-mixed/calibration.json").read_text())
+    calib_path = tmp_path / "calibration.json"
+    calib_path.write_text(json.dumps(calib))
+    tmp_path.joinpath("ood_knn_bank.pt").write_bytes(
+        (ROOT_DIR / "runs/pr16-mixed/ood_knn_bank.pt").read_bytes())
+
+    from histogate.serve.patch_demo import PatchAnalyzer
+    an = PatchAnalyzer(ckpt, calib_path)
+    r = an.analyze(Image.open(tile).convert("RGB"))
+    assert "conformal_set" not in r
