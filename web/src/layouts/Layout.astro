@@ -20,9 +20,9 @@ const nav = [
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div class="announce">
-    <span>Research prototype · <b>8 of 9</b> ship-gate checks passing — the failing one is published <a href="/story">→</a></span>
-  </div>
+  <a class="announce" href="/story">
+    Research prototype · <b>8 of 9</b> ship-gate checks passing — the failing one is published
+  </a>
   <nav>
     <div class="wrap navrow">
       <a class="mark" href="/">
@@ -46,10 +46,11 @@ const nav = [
   </footer>
 </body>
 <style>
-  .announce { background: var(--brand); color: #fff; text-align: center; font-size: 12.5px;
-    padding: 7px 16px; }
+  .announce { display: block; background: var(--brand); color: #fff; text-align: center;
+    font-size: 12.5px; padding: 8px 16px; text-decoration: none;
+    transition: background 0.15s; }
+  .announce:hover { background: var(--accent); }
   .announce b { font-weight: 600; }
-  .announce a { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
   nav { position: sticky; top: 0; z-index: 40; background: rgba(8,9,10,0.82);
     backdrop-filter: blur(10px); border-bottom: 1px solid var(--b-subtle); }
   .navrow { display: flex; align-items: center; gap: 24px; height: 58px; }

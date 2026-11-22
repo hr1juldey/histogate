@@ -40,6 +40,10 @@ export default function Journey({ cfg, metrics }: { cfg: SiteConfig; metrics: Me
               ? 'The failure flipped: it now does better on machines it never saw than on its own homework.'
               : 'Both hold — but regaining the new machines cost it some edge at home.'}
         </p>
+        {stage.run_url && (
+          <a className="runlink" href={stage.run_url} target="_blank" rel="noopener">
+            This stage's training curves, in the experiment tracker ↗</a>
+        )}
       </div>
     </div>
   );

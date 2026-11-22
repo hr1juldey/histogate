@@ -40,6 +40,9 @@ const metList = [
   </header>
 
   <div class="metrics"><div class="wrap">
+    <div class="mhead">
+      <span>Every number below is read from the experiment tracker — <a href={cfg.mlflow_base} target="_blank" rel="noopener">open the tracker ↗</a></span>
+    </div>
     <div class="mgrid">
       {metList.map((x, i) => (
         <div class={`metric ${i % 3 > 0 ? 'div' : ''} ${i >= 3 ? 'row2' : ''}`}>
@@ -117,6 +120,10 @@ const metList = [
   .lead { font-size: 17px; color: var(--t3); margin: 18px 0 28px; max-width: 520px; }
   .row { display: flex; gap: 12px; flex-wrap: wrap; }
   .metrics { border-top: 1px solid var(--b-subtle); border-bottom: 1px solid var(--b-subtle); background: var(--panel); }
+  .mhead { padding: 14px 24px 0; font-size: 12.5px; color: var(--t4); }
+  .mhead a { color: var(--accent-h); text-decoration: underline; text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--accent-h) 40%, transparent); }
+  .mhead a:hover { text-decoration-color: var(--accent-h); }
   .mgrid { display: grid; grid-template-columns: repeat(3, 1fr);
     padding: 34px 24px; }
   .metric { padding: 14px 22px; }
@@ -174,6 +181,11 @@ const metList = [
   .detail h3 { font-size: 20px; font-weight: 500; }
   .detail p { font-size: 14.5px; color: var(--t3); margin-top: 8px; }
   .detail .foot { color: var(--t2); }
+  .runlink { display: inline-block; margin-top: 14px; font-size: 13px;
+    color: var(--accent-h); text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent-h) 40%, transparent);
+    text-underline-offset: 3px; }
+  .runlink:hover { text-decoration-color: var(--accent-h); }
   .bars { margin-top: 18px; }
   .barrow { display: grid; grid-template-columns: 120px 1fr 64px; gap: 12px; align-items: center; margin: 10px 0; }
   .barrow .bl { font-size: 12.5px; color: var(--t3); text-align: right; }

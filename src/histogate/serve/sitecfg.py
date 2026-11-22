@@ -14,6 +14,21 @@ from pathlib import Path
 
 CONFIG_PATH = Path("configs/site_ui.json")
 
+# experiment-tracker deep links: the site's numbers trace here (swap base when the
+# public tracker deploys; run ids are stable in the tracking DB)
+MLFLOW_BASE = "http://127.0.0.1:5010"
+MLFLOW_RUNS = {
+    "overnight-30ep": "bea623e98bf24a94a173c80034bf0255",
+    "nonorm-ft": "f1aa37d46ab346808498d08739893770",
+    "nonorm-ft2": "ec8ebaead4fc413399faa032a17417de",
+    "pr16-mixed": "9218b5b77d0b4a9395c6026f38f0f5cf",
+}
+
+
+def run_url(run: str) -> str:
+    rid = MLFLOW_RUNS.get(run)
+    return f"{MLFLOW_BASE}/#/experiments/1/runs/{rid}" if rid else MLFLOW_BASE
+
 
 @lru_cache(maxsize=1)
 def site_config() -> dict:
@@ -24,6 +39,7 @@ def site_config() -> dict:
 
 def _default() -> dict:
     return {
+        "mlflow_base": MLFLOW_BASE,
         "product": {
             "name": "HistoGate",
             "tagline": "One of these patches is cancer. It knows which.",
@@ -37,19 +53,19 @@ def _default() -> dict:
                               "href": "/story"},
         },
         "journey": [
-            {"run": "overnight-30ep", "title": "The first try",
+            {"run": "overnight-30ep", "run_url": run_url("overnight-30ep"), "title": "The first try",
              "note": "We taught it with 100,000 tissue pictures that doctors had "
                      "already labeled. Perfect grades on the test — but the test "
                      "was too easy. It had only ever seen one hospital's machines."},
-            {"run": "nonorm-ft", "title": "The fix that backfired",
+            {"run": "nonorm-ft", "run_url": run_url("nonorm-ft"), "title": "The fix that backfired",
              "note": "We showed it pictures from other machines — but pushed too "
                      "hard, and it forgot almost everything in a single night of "
                      "training. A classic mistake, kept here on purpose."},
-            {"run": "nonorm-ft2", "title": "The careful fix",
+            {"run": "nonorm-ft2", "run_url": run_url("nonorm-ft2"), "title": "The careful fix",
              "note": "Slower, gentler retraining. It kept most of its skill and "
                      "learned the new machines — but not well enough to ship. "
                      "Close isn't shipped."},
-            {"run": "pr16-mixed", "title": "The fix that worked",
+            {"run": "pr16-mixed", "run_url": run_url("pr16-mixed"), "title": "The fix that worked",
              "note": "Instead of just more data, we taught it the physics of how "
                      "tissue staining works — so a different machine reads as a "
                      "different color, not a different disease. Now it scores "
@@ -111,6 +127,7 @@ def _default() -> dict:
                 {"label": "LinkedIn", "href": "https://www.linkedin.com/in/dey-h-ml972"},
                 {"label": "HistoGate — code", "href": "https://github.com/hr1juldey/histogate"},
                 {"label": "HistoGate — model", "href": "https://huggingface.co/riju279/histogate"},
+                {"label": "Experiment tracking", "href": MLFLOW_BASE},
             ],
         },
     }

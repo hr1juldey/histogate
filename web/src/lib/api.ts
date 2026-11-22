@@ -19,7 +19,7 @@ export interface SiteConfig {
   product: { name: string; tagline: string; hero_sub: string;
     primary_cta: { label: string; href: string };
     secondary_cta: { label: string; href: string } };
-  journey: { run: string; title: string; note: string }[];
+  journey: { run: string; title: string; note: string; run_url?: string }[];
   cases: { id: string; title: string; what: string; fix: string; metric: string }[];
   gate_note: string; who: string;
   about: {
