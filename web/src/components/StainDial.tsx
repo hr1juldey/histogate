@@ -134,7 +134,10 @@ export default function StainDial() {
   async function predictBase() {
     const cache = storyCache as unknown as Record<string, Analysis>;
     const v1c = cache['tumor:v1'], shipc = cache['tumor:ship'];
-    setV1(card(v1c)); setShip(card(shipc));
+    const toCard = (j: Analysis): Card =>
+      ({ conf: j.confidence, label: j.top_class, energy: j.energy,
+         thr: j.energy_threshold, ood: j.ood });
+    setV1(toCard(v1c)); setShip(toCard(shipc));
     if (shipc?.gradcam) drawEvidence(shipc.gradcam as unknown as number[][]);
   }
 
