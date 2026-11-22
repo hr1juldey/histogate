@@ -39,6 +39,7 @@ dependencies = [
     "gdown>=6.5.2",
     "imagecodecs>=2026.3.6",
     "transformers>=5.24.0",
+    "opencv-python-headless>=5.1.0.95",
 ]
 
 [project.optional-dependencies]
@@ -78,6 +79,10 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# vendored upstream code — intentionally byte-close to tiatoolbox, not ours
+"src/histogate/vendor/*" = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.coverage.run]
 source = ["src/histogate"]

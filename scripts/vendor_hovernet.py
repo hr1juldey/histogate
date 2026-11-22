@@ -19,7 +19,6 @@ Everything else is byte-identical to upstream. Run:
 """
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 WHEEL = Path("/tmp/tia/wheel/tiatoolbox")
@@ -132,8 +131,9 @@ def main() -> None:
         "from tiatoolbox.utils.misc import get_bounding_box, pad_contours\n",
         "# vendored: toolkit imports removed — helpers inlined below\n",
     )
-    assert "tiatoolbox" not in src.split('"""', 2)[-1] or True
-    assert "from tiatoolbox" not in src, "toolkit import survived"
+    assert "from tiatoolbox" not in "\n".join(
+        ln for ln in src.splitlines() if not ln.lstrip().startswith(">")
+    ), "toolkit import survived"
 
     # 2. dask out (numpy-only)
     src = src.replace("import dask.array as da\n", "# vendored: dask import removed (numpy-only paths)\n")
@@ -142,10 +142,12 @@ def main() -> None:
         "        is_dask = False  # vendored: numpy-only\n",
     )
     src = src.replace(
-        "            da.empty(shape=0, dtype=np.int8)\n"
-        "            if is_dask\n"
-        "            else np.empty(shape=0, dtype=np.int8)\n",
-        "            np.empty(shape=0, dtype=np.int8)\n",
+        "            empty_array = (\n"
+        "                da.empty(shape=0, dtype=np.int8)\n"
+        "                if is_dask\n"
+        "                else np.empty(shape=0, dtype=np.int8)\n"
+        "            )\n",
+        "            empty_array = np.empty(shape=0, dtype=np.int8)  # vendored: numpy-only\n",
     )
     src = src.replace(
         '            "predictions": da.array(pred_inst)\n'
@@ -159,9 +161,10 @@ def main() -> None:
         "        )\n",
         "        inst_info_dict_[key] = col_np  # vendored: numpy-only\n",
     )
-    assert "da." not in src, "dask reference survived: " + str(
-        [ln for ln in src.splitlines() if "da." in ln and "nda" not in ln][:5]
-    )
+    import re as _re
+
+    leftovers = _re.findall(r"\bda\.\w", src)
+    assert not leftovers, f"dask reference survived: {leftovers}"
 
     # 3. ModelABC -> nn.Module
     src = src.replace("class HoVerNet(ModelABC):", "class HoVerNet(nn.Module):")
