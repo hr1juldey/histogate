@@ -11,19 +11,20 @@ export, a fail-closed regression gate, and FastAPI/FastMCP serving.
 **Numbers → [docs/RESULTS.md](docs/RESULTS.md)** · rendered from measured
 artifacts, never typed by hand; CI enforces byte-parity.
 
-## The user flow, as screenshots
+## The user flow, as a walkthrough
 
-From landing to agent-assisted analysis — every state below is real (local
-dev server, live model):
+<video controls preload="metadata" width="896"
+  src="https://github.com/hr1juldey/histogate/releases/download/v1.0/histogate_walkthrough_voiced_v5.mp4">
+</video>
 
-| | | |
-|---|---|---|
-| ![home](docs/screenshots/home.png) | ![story](docs/screenshots/story.png) | ![slide](docs/screenshots/slide.png) |
-| **1 · land** — the offer, one screen | **2 · the story** — five acts, artifacts linked | **3 · whole slide** — 56 patches, verdicts + declines |
-| ![slide_inspector](docs/screenshots/slide_inspector.png) | ![demo_verdict](docs/screenshots/demo_verdict.png) | ![mcp](docs/screenshots/mcp.png) |
-| **4 · inspect a tile** — full-res tile, verdict, Grad-CAM evidence | **5 · try it** — upload your own patch, get the verdict | **6 · for agents** — connect Claude/Gemini over MCP |
-| ![portal_upload](docs/screenshots/portal_upload.png) | ![portal_tilemap](docs/screenshots/portal_tilemap.png) | ![mobile](docs/screenshots/mobile.png) |
-| **7 · agent opens a portal** — images never enter the chat | **8 · tile map returned** — every tile classified, seen in browser | **9 · on a phone** — same flow, responsive |
+Two and a half minutes, end to end: the failure that started it, the
+staining physics baked into training, the trust layer that declines
+unfamiliar tissue, the live whole-slide map with 41 of 56 patches refused
+on a foreign organ, and the demo running in a phone browser. Every number
+spoken is a measured artifact — see
+[docs/RESULTS.md](docs/RESULTS.md) and [docs/STORY.md](docs/STORY.md).
+Still screenshots of individual states remain under
+[docs/screenshots/](docs/screenshots/).
 
 ## Why this repo exists
 
