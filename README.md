@@ -13,7 +13,7 @@ artifacts, never typed by hand; CI enforces byte-parity.
 
 ## The user flow, as a walkthrough
 
-[docs/media/histogate_walkthrough.mp4](docs/media/histogate_walkthrough.mp4)
+[![HistoGate walkthrough video](docs/media/histogate_walkthrough_poster.png)](https://github.com/hr1juldey/histogate/releases/download/v1.0/histogate_walkthrough_voiced_v5.mp4)
 
 Two and a half minutes, end to end: the failure that started it, the
 staining physics baked into training, the trust layer that declines
