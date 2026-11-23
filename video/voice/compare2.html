@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare v2 — natural vs clone vs old</title>
+<style>
+  :root { --bg:#08090a; --t1:#f7f8f8; --t3:#8a8f98; --accent:#5e6ad2; }
+  body { background:var(--bg); color:var(--t1); font-family:Inter,system-ui,sans-serif; padding:28px; max-width:900px; margin:auto; }
+  h1 { font-size:18px; margin-bottom:6px; }
+  .sub { color:var(--t3); font-size:14px; margin-bottom:26px; }
+  .card { border:1px solid #ffffff14; border-radius:10px; padding:20px 22px; margin-bottom:16px; background:#ffffff05; }
+  .card h2 { font-size:15px; margin-bottom:4px; }
+  .meta { font-size:12px; color:var(--t3); font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  audio { width:100%; }
+</style>
+</head>
+<body>
+<h1>Compare v3 — biologist voice</h1>
+<div class="sub">Same scene (stain physics). A: you, natural freestyle. B: your clone speaking the v5 script — your style, re-authored as a biologist who turned DL engineer. C: the old failure for contrast.</div>
+
+<div class="card">
+  <h2>A — you, natural freestyle (t4, unedited)</h2>
+  <div class="meta">the ground truth · recorded 11:41</div>
+  <audio controls src="t4_dial.webm"></audio>
+</div>
+
+<div class="card">
+  <h2>B — your clone, v5 script (biologist voice, your style)</h2>
+  <div class="meta">pocket-tts · natural-voice bank · 20.0s · RMS 0.097</div>
+  <audio controls src="C_s4_v5.wav"></audio>
+</div>
+
+<div class="card">
+  <h2>C — you, reading my old narrator script (the failure)</h2>
+  <div class="meta">s4_take2 · for reference — this is what we're leaving behind</div>
+  <audio controls src="s4_take2.webm"></audio>
+</div>
+</body>
+</html>

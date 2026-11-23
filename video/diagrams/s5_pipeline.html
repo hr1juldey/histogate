@@ -1,0 +1,120 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--bg:#08090a;--panel:#0f1011;--t1:#f7f8f8;--t2:#d0d6e0;--t3:#8a8f98;--t4:#62666d;--brand:#5e6ad2;--accent:#7170ff;--ok:#10b981;--bad:#e08080;--amber:#e3b341;--hema:#7c5cd6;--eos:#c25b8d;--b:#ffffff14}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1920px;height:1080px;background:var(--bg);color:var(--t1);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.wrap{position:absolute;inset:0;padding:84px 90px}
+.kicker{color:var(--t3);text-transform:uppercase;letter-spacing:.14em;font-size:15px;font-weight:500}
+h1{font-size:50px;font-weight:500;letter-spacing:-1px;margin:14px 0 6px}
+.sub{color:var(--t3);font-size:20px}
+.flow{margin-top:84px;display:flex;align-items:stretch;justify-content:space-between;gap:0}
+.stage{width:300px;border:1px solid var(--b);background:#ffffff05;border-radius:12px;padding:26px 24px;position:relative}
+.stage .ic{height:96px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.stage h3{font-size:21px;font-weight:600;letter-spacing:-.2px}
+.stage p{color:var(--t3);font-size:15.5px;line-height:1.5;margin-top:8px}
+.stage .n{margin-top:14px;font-size:14px;color:var(--t2)}
+.stage .n b{color:var(--accent);font-weight:500}
+.stage.hot{border-color:#5e6ad266;background:#5e6ad20f}
+.arr{flex:1;display:flex;align-items:center;justify-content:center;position:relative;height:100%}
+.arr .line{position:absolute;left:8%;right:8%;top:50%;height:2px;background:linear-gradient(90deg,#5e6ad200,var(--brand),#5e6ad200)}
+.arr .dot{position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;background:var(--accent);transform:translate(-6px,-6px)}
+.foot{position:absolute;left:90px;right:90px;bottom:88px;color:var(--t4);font-size:16px;border-top:1px solid var(--b);padding-top:20px;display:flex;gap:44px}
+.foot b{color:var(--t2);font-weight:500}
+</style></head><body>
+<div class="wrap">
+  <div class="kicker">How it works</div>
+  <h1>The picture is checked before it is answered.</h1>
+  <div class="sub">One pass, five stages — every number measured on the shipped build.</div>
+  <div class="flow">
+    <div class="stage" id="st1">
+      <div class="ic"><svg width="120" height="96" viewBox="0 0 120 96">
+        <circle cx="34" cy="40" r="26" fill="#7c5cd633" stroke="#7c5cd6" stroke-width="2"/>
+        <circle cx="62" cy="40" r="26" fill="#c25b8d33" stroke="#c25b8d" stroke-width="2"/>
+        <rect id="hemaArrow" x="20" y="78" width="0" height="0" fill="none"/>
+        <path d="M18 86 H100" stroke="#8a8f98" stroke-width="2" marker-end="url(#a)"/>
+        <defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#8a8f98"/></marker></defs>
+      </svg></div>
+      <h3>stain physics</h3>
+      <p>Training simulates the real dye variation of H&E scanners — calibrated, not guessed.</p>
+      <div class="n mono">haematoxylin + eosin dyes,<br>shifted per scanner</div>
+    </div>
+    <div class="arr" id="ar1"><div class="line"></div><div class="dot"></div></div>
+    <div class="stage" id="st2">
+      <div class="ic"><svg width="120" height="96" viewBox="0 0 120 96">
+        <g id="grid"></g>
+        <rect x="30" y="18" width="60" height="60" rx="8" fill="none" stroke="#7170ff" stroke-width="2.5"/>
+      </svg></div>
+      <h3>9-class tissue model</h3>
+      <p>A 6M-parameter reader — not a 307M foundation model — trained on 100k doctor-labeled patches.</p>
+      <div class="n mono"><b>6M</b> params · int8 <b>28.7 MB</b><br><b>455.9</b> patches/sec</div>
+    </div>
+    <div class="arr" id="ar2"><div class="line"></div><div class="dot"></div></div>
+    <div class="stage hot" id="st3">
+      <div class="ic"><svg width="120" height="96" viewBox="0 0 120 96">
+        <path d="M60 8 L72 30 L98 34 L79 52 L84 78 L60 65 L36 78 L41 52 L22 34 L48 30 Z" fill="#5e6ad233" stroke="#7170ff" stroke-width="2.5"/>
+        <circle cx="60" cy="45" r="9" fill="#7170ff"/>
+      </svg></div>
+      <h3>familiarity gate</h3>
+      <p>Anything unlike its training distribution is declined instead of guessed — KNN detector on the ship path.</p>
+      <div class="n mono">AUROC <b>0.9763</b> · false decline<br>≤ 5% of real hospital patches</div>
+    </div>
+    <div class="arr" id="ar3"><div class="line"></div><div class="dot"></div></div>
+    <div class="stage" id="st4">
+      <div class="ic"><svg width="130" height="96" viewBox="0 0 130 96">
+        <rect x="10" y="30" width="86" height="36" rx="18" fill="none" stroke="#10b981" stroke-width="2.5"/>
+        <rect id="pillGrow" x="98" y="30" width="0" height="36" rx="18" fill="none" stroke="#10b981" stroke-width="2.5"/>
+      </svg></div>
+      <h3>conformal sets</h3>
+      <p>When unsure, it returns a set of plausible tissues — with a coverage guarantee, not a vibe.</p>
+      <div class="n mono">90% fold coverage <b>0.9006</b><br>· 95%: 0.9503</div>
+    </div>
+    <div class="arr" id="ar4"><div class="line"></div><div class="dot"></div></div>
+    <div class="stage" id="st5">
+      <div class="ic"><svg width="120" height="96" viewBox="0 0 120 96">
+        <rect x="22" y="8" width="76" height="80" rx="6" fill="#ffffff05" stroke="#8a8f98" stroke-width="1.5"/>
+        <g id="cells"></g>
+      </svg></div>
+      <h3>whole-slide map</h3>
+      <p>Every patch gets one verdict each — answers colored, unfamiliar patches outlined amber.</p>
+      <div class="n mono">foreign organ (lymph node):<br>most patches declined — safely</div>
+    </div>
+  </div>
+  <div class="foot">
+    <span>throughput <b class="mono">455.9 patches/s</b></span>
+    <span>ECE <b class="mono">0.0064</b> (calibrated)</span>
+    <span>int8 = fp32 argmax <b class="mono">1.000000</b></span>
+    <span>ship gate <b class="mono">9/9 PASS</b></span>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+// decorative tile grids
+const g = document.getElementById('grid');
+for (let r=0;r<4;r++) for(let c=0;c<4;c++){
+  const rc = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rc.setAttribute('x',36+c*12); rc.setAttribute('y',24+r*12); rc.setAttribute('width',9); rc.setAttribute('height',9);
+  rc.setAttribute('rx',2); rc.setAttribute('fill', (r*4+c)%7? '#5e6ad233':'#7170ff88');
+  g.appendChild(rc);
+}
+const cells = document.getElementById('cells');
+const kinds = ['#10b981','#10b981','#e3b341','#5e6ad2','#10b981','#e3b341','#e3b341','#10b981','#5e6ad2'];
+kinds.forEach((k,i)=>{
+  const rc = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rc.setAttribute('x',30+(i%3)*22); rc.setAttribute('y',18+Math.floor(i/3)*22);
+  rc.setAttribute('width',18); rc.setAttribute('height',18); rc.setAttribute('rx',3);
+  rc.setAttribute('stroke',k); rc.setAttribute('fill',k+'22'); rc.setAttribute('stroke-dasharray', k==='#e3b341'?'3 2':'none');
+  cells.appendChild(rc);
+});
+const tl = gsap.timeline({paused:true});
+['#st1','#st2','#st3','#st4','#st5'].forEach((s,i)=>{
+  tl.fromTo(s,{opacity:0,y:26},{opacity:1,y:0,duration:.45,ease:'power2.out'}, i*0.62);
+});
+['#ar1','#ar2','#ar3','#ar4'].forEach((a,i)=>{
+  tl.fromTo(a+' .line',{scaleX:0},{scaleX:1,duration:.3,transformOrigin:'left center'}, i*0.62+0.42);
+  tl.fromTo(a+' .dot',{left:'0%'},{left:'100%',duration:.3,ease:'none'}, i*0.62+0.42);
+});
+tl.to('#pillGrow',{attr:{width:20},duration:.5}, 3.1);
+tl.to({}, {duration: 1.4});
+window.tl = tl;
+</script></body></html>

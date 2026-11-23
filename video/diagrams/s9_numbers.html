@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--bg:#08090a;--panel:#0f1011;--t1:#f7f8f8;--t2:#d0d6e0;--t3:#8a8f98;--t4:#62666d;--brand:#5e6ad2;--accent:#7170ff;--ok:#10b981;--bad:#e08080;--amber:#e3b341;--b:#ffffff14}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1920px;height:1080px;background:var(--bg);color:var(--t1);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.wrap{position:absolute;inset:0;padding:90px 110px}
+.kicker{color:var(--t3);text-transform:uppercase;letter-spacing:.14em;font-size:15px;font-weight:500}
+h1{font-size:52px;font-weight:500;letter-spacing:-1px;margin:14px 0 8px}
+.grid{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.m{border:1px solid var(--b);background:#ffffff05;border-radius:12px;padding:34px 34px 28px;opacity:0}
+.m .v{font-size:64px;font-weight:500;letter-spacing:-2px}
+.m .v small{font-size:30px;color:var(--t3);letter-spacing:0}
+.m .l{color:var(--t2);font-size:18px;margin-top:10px;line-height:1.45}
+.m .tech{color:var(--t4);font-size:14px;margin-top:12px;font-family:'JetBrains Mono',monospace}
+.m.hl{border-color:#5e6ad266;background:#5e6ad210}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.ac{color:var(--accent)}
+.src{position:absolute;left:110px;bottom:64px;color:var(--t4);font-size:16px}
+</style></head><body>
+<div class="wrap">
+  <div class="kicker">The scoreboard</div>
+  <h1>Every number measured, not promised.</h1>
+  <div class="grid">
+    <div class="m hl" id="m1"><div class="v mono"><span id="n1">0.00</span><small>%</small></div><div class="l">CRC-VAL top-line accuracy on the shipped build</div><div class="tech">pr16-mixed · docs/BENCHMARKS.md</div></div>
+    <div class="m" id="m2"><div class="v mono"><span id="n2">0.0000</span></div><div class="l">macro-F1 on scanners it never saw — no stain normalization</div><div class="tech">NONORM · docs/RESULTS.md</div></div>
+    <div class="m" id="m3"><div class="v mono ok"><span id="n3">0.0000</span></div><div class="l">OOD gate AUROC — the KNN detector that closed the last failing check</div><div class="tech">runs/pr16-mixed/ood_knn_livepath.json</div></div>
+    <div class="m" id="m4"><div class="v mono"><span id="n4">0.0000</span></div><div class="l">conformal set coverage at the 90% guarantee</div><div class="tech">fold-mean @ alpha 0.10</div></div>
+    <div class="m" id="m5"><div class="v mono"><span id="n5">0.0000</span></div><div class="l">calibration error — when it says 97%, it is right 97%</div><div class="tech">ECE, temperature-calibrated</div></div>
+    <div class="m" id="m6"><div class="v mono"><span id="n6">0.0</span><small>&nbsp;p/s</small></div><div class="l">inference throughput, int8 on one consumer GPU</div><div class="tech">455.9 patches/sec · 554.5 MB VRAM</div></div>
+    <div class="m" id="m7"><div class="v mono ac">6M <small style="font-size:26px;color:var(--t3)">vs 307M</small></div><div class="l">our reader vs phikon-v2 — and it still outscores it: 97.81 vs 93.12</div><div class="tech">linear-probe comparison · docs/BENCHMARKS.md</div></div>
+    <div class="m" id="m8"><div class="v mono ok">9/9</div><div class="l">ship-gate checks passing — failures published, not hidden</div><div class="tech">four runs, three failures, one that shipped</div></div>
+    <div class="m" id="m9"><div class="v mono">1.000000</div><div class="l">int8 vs fp32 argmax agreement — 28.7 MB, identical answers</div><div class="tech">deployment integrity battery</div></div>
+  </div>
+  <div class="src">source of truth: docs/RESULTS.md · docs/BENCHMARKS.md · docs/EXEC_LOG.md — rendered from the experiment tracker</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+const st = {a:0,b:0,c:0,d:0,e:0,f:0};
+const tl = gsap.timeline({paused:true});
+const offs = [0, .18, .36, .54, .72, .9, 1.08, 1.26, 1.44];
+['m1','m2','m3','m4','m5','m6','m7','m8','m9'].forEach((id,i)=>{
+  tl.to('#'+id,{opacity:1,y:0,duration:.4},offs[i]);
+  tl.from('#'+id,{y:22},offs[i]);
+});
+tl.to(st,{a:97.81,duration:1.0,ease:'power2.out',onUpdate:()=>document.getElementById('n1').textContent=st.a.toFixed(2)},0.1);
+tl.to(st,{b:0.9776,duration:1.0,ease:'power2.out',onUpdate:()=>document.getElementById('n2').textContent=st.b.toFixed(4)},0.28);
+tl.to(st,{c:0.9763,duration:1.0,ease:'power2.out',onUpdate:()=>document.getElementById('n3').textContent=st.c.toFixed(4)},0.46);
+tl.to(st,{d:0.9006,duration:1.0,ease:'power2.out',onUpdate:()=>document.getElementById('n4').textContent=st.d.toFixed(4)},0.64);
+tl.to(st,{e:0.0064,duration:1.0,ease:'power2.out',onUpdate:()=>document.getElementById('n5').textContent=st.e.toFixed(4)},0.82);
+tl.to(st,{f:455.9,duration:1.0,ease:'power2.out',onUpdate:()=>document.getElementById('n6').textContent=st.f.toFixed(1)},1.0);
+tl.to({}, {duration: 1.6});
+window.tl = tl;
+</script></body></html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A/B/C — s4 stain dial</title>
+<style>
+  :root { --bg:#08090a; --t1:#f7f8f8; --t3:#8a8f98; --accent:#5e6ad2; }
+  body { background:var(--bg); color:var(--t1); font-family:Inter,system-ui,sans-serif; padding:28px; max-width:900px; margin:auto; }
+  h1 { font-size:18px; margin-bottom:6px; }
+  .sub { color:var(--t3); font-size:14px; margin-bottom:26px; }
+  .card { border:1px solid #ffffff14; border-radius:10px; padding:20px 22px; margin-bottom:16px; background:#ffffff05; }
+  .card h2 { font-size:15px; margin-bottom:4px; }
+  .meta { font-size:12px; color:var(--t3); font-family:'JetBrains Mono',monospace; margin-bottom:12px; }
+  audio { width:100%; }
+  .script { font-size:15px; line-height:1.6; color:var(--t1); }
+  .old { color:var(--t3); text-decoration:line-through; text-decoration-color:#e0808066; }
+  .new { color:#7ee2a8; }
+  #bfile { margin-top:10px; font-size:13px; color:var(--t3); }
+</style>
+</head>
+<body>
+<h1>A / B / C — scene 4 “stain dial”, same voice, three paths</h1>
+<div class="sub">Listen in order. Score: which one would you ship?</div>
+
+<div class="card">
+  <h2>A — you, old script (as recorded)</h2>
+  <div class="meta">s4_take2 · jargon-heavy · the stumble: “the fix was in more data… the shift model holds and pass the gate”</div>
+  <audio controls src="s4_take2.webm"></audio>
+</div>
+
+<div class="card">
+  <h2>B — you, NEW spoken script (record right here)</h2>
+  <div class="meta">read the big text below — calm, one take</div>
+  <div class="script" id="btext" style="font-size:clamp(20px,2.6vw,28px); margin:12px 0; line-height:1.55;">Here's why. Same tissue, different staining machines. It's a color shift — not a disease. So I drag this dial. The first model flips to a wrong answer. The shipped one holds. And when the shift gets too big, it doesn't guess. It declines.</div>
+  <div style="display:flex; gap:12px; align-items:center; margin-top:10px;">
+    <button id="brec" style="font:inherit; padding:12px 22px; border-radius:8px; border:1px solid #e08080; color:#e08080; background:#ffffff08; cursor:pointer;">⏺ record B</button>
+    <div class="meter" style="flex:1; height:10px; border-radius:5px; background:#ffffff10; overflow:hidden;"><i id="bmeter" style="display:block; height:100%; width:0%; background:#27a644;"></i></div>
+  </div>
+  <audio id="baudio" controls style="margin-top:12px"></audio>
+</div>
+
+<div class="card">
+  <h2>C — your cloned voice, NEW spoken script (zero-shot from s7_take5)</h2>
+  <div class="meta">pocket-tts · 18.7s · RMS 0.036 · no re-record needed</div>
+  <audio controls src="C_s4_cloned.wav"></audio>
+</div>
+
+<script>
+document.getElementById('bfile').onchange = e => {
+  const f = e.target.files[0];
+  if (f) document.getElementById('baudio').src = URL.createObjectURL(f);
+};
+</script>
+</body>
+</html>

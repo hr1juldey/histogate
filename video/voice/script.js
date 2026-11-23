@@ -1,0 +1,22 @@
+// HistoGate narration v5 — VOICE: biologist who turned into a DL engineer.
+// HOW copied from the freestyle corpus (arcs with and/so/because, "I
+// actually", "I cannot say X but Y", plain declaratives, "That's it.").
+// WHAT re-authored in that persona: biology is first-nature, ML is
+// second-nature but owned. No YouTuber mechanics (no "Let's look at",
+// no "watch this", no hook-punchline). Numbers as digits — he says them
+// natively. No flagged clusters (declines/flips/shift). "H and E", not
+// "hematoxylin".
+const SCENES = [
+  { id: "s1", label: "HOOK", mood: "measured, clinical",
+    text: "When you stain a tissue and put it under a scanner, a classifier will always give you an answer. Even when the tissue is something it has never seen. It hallucinates. It misclassifies. And nobody finds out until it is too late." },
+  { id: "s2", label: "DEMO", mood: "plain, showing",
+    text: "This is HistoGate. I give it a biopsy tile, and it tells me the tissue class, the confidence, and where it looked. If the image is bad or the tissue is unfamiliar, it refuses to answer. That was the whole design goal." },
+  { id: "s3", label: "FAILURE", mood: "serious, honest",
+    text: "I trained it four times. The first model scored 97 percent on its own validation set. Then I gave it tissue from a different hospital, a different scanner, a different staining protocol. It dropped to 78 percent, and it was confident about every wrong answer. Three of the four runs failed this way. All of them are in the repo." },
+  { id: "s4", label: "STAIN PHYSICS", mood: "the biologist's core",
+    text: "I am a biologist first, so I went back to the staining chemistry. H and E have known absorbance. The Beer-Lambert law tells you how much light each dye takes in. I actually baked that physics into the training, so the model sees through the stain instead of memorizing it. Drag the dial, and the old model gives a wrong answer. The shipped model holds." },
+  { id: "s5", label: "TRUST LAYER", mood: "calm, engineering",
+    text: "Then there is the trust layer. A k-nearest-neighbor memory watches every tile. If your tissue type was never in the training data, the model tells you that, instead of guessing. And when it is not sure, it gives you a small set of options, not one wrong answer." },
+  { id: "s6", label: "CLOSE", mood: "his closer",
+    text: "The demo is live on your browser, on mobile and desktop. The code is open, the failures are published, and every number I said is measured. HistoGate. That's it." },
+];

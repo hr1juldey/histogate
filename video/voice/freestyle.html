@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Freestyle — just talk</title>
+<style>
+  :root { --bg:#08090a; --t1:#f7f8f8; --t3:#8a8f98; --accent:#5e6ad2; --ok:#27a644; --bad:#e08080; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--t1); font-family:Inter,system-ui,sans-serif; padding:24px; max-width:860px; margin:auto; }
+  h1 { font-size:16px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:.12em; margin-bottom:6px; }
+  .sub { font-size:14px; color:var(--t3); margin-bottom:22px; line-height:1.5; }
+  .topic { border:1px solid #ffffff14; border-radius:10px; padding:20px 22px; margin-bottom:14px; background:#ffffff05; }
+  .topic.active { border-color:var(--accent); }
+  .tlabel { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--accent); margin-bottom:8px; }
+  .keywords { font-size:clamp(24px,3vw,32px); line-height:1.5; max-width:100%; }
+  .keywords span { color:var(--t3); }
+  .controls { display:flex; gap:12px; margin-top:14px; align-items:center; }
+  button { font:inherit; cursor:pointer; border-radius:8px; border:1px solid var(--bad); color:var(--bad); background:#ffffff08; padding:12px 20px; }
+  button.rec { background:#e0808022; }
+  .meter { flex:1; height:10px; border-radius:5px; background:#ffffff10; overflow:hidden; }
+  .meter i { display:block; height:100%; width:0%; background:var(--ok); transition:width .05s; }
+  .status { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--t3); min-width:180px; text-align:right; }
+  #done { margin-top:18px; font-size:13px; color:var(--ok); font-family:'JetBrains Mono',monospace; line-height:1.7; }
+</style>
+</head>
+<body>
+<h1>Freestyle capture — no script, just talk</h1>
+<div class="sub">Each card is just keywords. Hit record and explain it to me like a colleague asked "what is this?" — natural pace, your own words, stumbles are fine, no re-takes. 30–60 seconds each. Click once anywhere first to allow the mic. Each take auto-downloads when you stop.</div>
+<div id="topics"></div>
+<div id="done"></div>
+<script>
+const TOPICS = [
+  { id: "t1_hook",  kw: ["the hook"],  hint: "why an AI that refuses to answer matters" },
+  { id: "t2_demo",  kw: ["the demo"],  hint: "what happens when you show it a tissue image" },
+  { id: "t3_fail",  kw: ["the failure"], hint: "the four training runs story" },
+  { id: "t4_dial",  kw: ["the stain dial"], hint: "staining machines, color change, what the two models do" },
+  { id: "t5_trust", kw: ["the trust layer"], hint: "memory gate, unsure answers" },
+  { id: "t6_close", kw: ["the wrap-up"], hint: "numbers, mobile, try it yourself" },
+];
+let stream = null;
+document.body.addEventListener('click', async () => {
+  if (stream) return;
+  stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount:1, echoCancellation:false, noiseSuppression:false, autoGainControl:false } });
+  document.querySelector('.sub').textContent = '🎤 mic live — meter should sit ~70–90% green on normal speech. Go.';
+});
+const el = document.getElementById('topics');
+TOPICS.forEach((t, idx) => {
+  const div = document.createElement('div');
+  div.className = 'topic';
+  div.innerHTML = `
+    <div class="tlabel">${String(idx+1).padStart(2,'0')} · ${t.kw[0]} <span style="color:var(--t3)">— ${t.hint}</span></div>
+    <div class="keywords">${t.kw.join(' · ')}</div>
+    <div class="controls">
+      <button>⏺ talk</button>
+      <div class="meter"><i></i></div>
+      <span class="status">idle</span>
+    </div>`;
+  el.appendChild(div);
+  const btn = div.querySelector('button'), meter = div.querySelector('.meter i'), status = div.querySelector('.status');
+  let rec = null, chunks = [];
+  btn.onclick = () => {
+    if (!stream) { document.querySelector('.sub').textContent = '⚠️ click anywhere first to allow the mic'; return; }
+    if (rec && rec.state === 'recording') { rec.stop(); return; }
+    chunks = [];
+    rec = new MediaRecorder(stream, { mimeType:'audio/webm' });
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = () => {
+      const blob = new Blob(chunks, { type:'audio/webm' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${t.id}.webm`; a.click();
+      btn.textContent = '✓ saved'; btn.classList.remove('rec'); btn.style.borderColor = 'var(--ok)'; btn.style.color = 'var(--ok)';
+      status.textContent = `${(blob.size/1024)|0} KB`;
+      const d = document.createElement('div'); d.textContent = `saved ${a.download}`; document.getElementById('done').appendChild(d);
+    };
+    rec.start();
+    btn.textContent = '⏹ stop'; btn.classList.add('rec'); status.textContent = 'RECORDING — just talk';
+    const ctx = new AudioContext(), src = ctx.createMediaStreamSource(stream);
+    const an = ctx.createAnalyser(); an.fftSize = 512; src.connect(an);
+    const buf = new Uint8Array(an.frequencyBinCount);
+    (function loop(){
+      if (!rec || rec.state !== 'recording') { meter.style.width = '0%'; return; }
+      an.getByteFrequencyData(buf);
+      const v = Math.max(...buf) / 255;
+      meter.style.width = Math.min(100, v * 100) + '%';
+      meter.style.background = v > 0.92 ? 'var(--bad)' : 'var(--ok)';
+      requestAnimationFrame(loop);
+    })();
+  };
+});
+</script>
+</body>
+</html>

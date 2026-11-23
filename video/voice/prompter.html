@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HistoGate — narration teleprompter</title>
+<style>
+  :root { --bg:#08090a; --t1:#f7f8f8; --t3:#8a8f98; --accent:#5e6ad2; --ok:#27a644; --bad:#e08080; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--t1); font-family:Inter,system-ui,sans-serif; padding:24px; }
+  h1 { font-size:15px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:.12em; margin-bottom:16px; }
+  #micstate { font-size:14px; margin-bottom:14px; }
+  .scene { border:1px solid #ffffff14; border-radius:10px; padding:20px 22px; margin-bottom:14px; background:#ffffff05; }
+  .scene.active { border-color:var(--accent); }
+  .shead { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .slabel { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--accent); }
+  .smood { font-size:12px; color:var(--t3); }
+  .stext { font-size:clamp(22px,3.2vw,34px); line-height:1.5; max-width:60ch; }
+  button { font:inherit; cursor:pointer; border-radius:8px; border:1px solid #ffffff20; background:#ffffff08; color:var(--t1); padding:10px 18px; }
+  button.rec { border-color:var(--bad); color:var(--bad); }
+  button.playing { border-color:var(--ok); color:var(--ok); }
+  .controls { display:flex; gap:10px; margin-top:14px; align-items:center; }
+  .meter { flex:1; height:10px; border-radius:5px; background:#ffffff10; overflow:hidden; }
+  .meter i { display:block; height:100%; width:0%; background:var(--ok); transition:width .05s; }
+  .status { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--t3); min-width:200px; text-align:right; }
+  .done { font-size:12px; color:var(--ok); font-family:'JetBrains Mono',monospace; }
+</style>
+</head>
+<body>
+<h1>HistoGate narration · read each scene · one take per scene · space = next</h1>
+<div id="micstate">⏳ click anywhere to grant microphone…</div>
+<div id="scenes"></div>
+<div id="downloads" style="margin-top:20px"></div>
+<script src="script.js"></script>
+<script>
+let stream = null, recs = {};
+const scenesEl = document.getElementById('scenes');
+document.body.addEventListener('click', async () => {
+  if (stream) return;
+  stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount:1, echoCancellation:false, noiseSuppression:false, autoGainControl:false } });
+  document.getElementById('micstate').textContent = '🎤 mic live — find your distance (meter should peak ~70–90% on normal speech, red = too close/loud)';
+}, { once:false });
+
+SCENES.forEach((s, idx) => {
+  const div = document.createElement('div');
+  div.className = 'scene'; div.id = s.id;
+  div.innerHTML = `
+    <div class="shead"><span class="slabel">${String(idx+1).padStart(2,'0')} · ${s.label}</span><span class="smood">${s.mood}</span></div>
+    <div class="stext">${s.text}</div>
+    <div class="controls">
+      <button class="rbtn">⏺ record</button>
+      <div class="meter"><i></i></div>
+      <span class="status">idle</span>
+    </div>`;
+  scenesEl.appendChild(div);
+  const btn = div.querySelector('.rbtn'), meter = div.querySelector('.meter i'),
+        status = div.querySelector('.status');
+  let rec = null, chunks = [], takens = [];
+  btn.onclick = async () => {
+    if (!stream) { document.getElementById('micstate').textContent = '⚠️ grant the mic first (click anywhere)'; return; }
+    if (rec && rec.state === 'recording') { rec.stop(); return; }
+    chunks = [];
+    rec = new MediaRecorder(stream, { mimeType:'audio/webm' });
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = () => {
+      const blob = new Blob(chunks, { type:'audio/webm' });
+      takens.push(blob);
+      btn.textContent = '⏺ re-take'; btn.classList.remove('rec'); status.textContent = `take ${takens.length} · ${(blob.size/1024)|0} KB — press F to save, or re-take`;
+      btn.dataset.ready = '1';
+    };
+    rec.start();
+    btn.textContent = '⏹ stop'; btn.classList.add('rec'); status.textContent = 'RECORDING — read it out';
+    const ctx = new AudioContext(); const src = ctx.createMediaStreamSource(stream);
+    const an = ctx.createAnalyser(); an.fftSize = 512; src.connect(an);
+    const buf = new Uint8Array(an.frequencyBinCount);
+    (function loop(){
+      if (!rec || rec.state !== 'recording') { meter.style.width = '0%'; return; }
+      an.getByteFrequencyData(buf);
+      const v = Math.max(...buf) / 255;
+      meter.style.width = Math.min(100, v * 100) + '%';
+      meter.style.background = v > 0.92 ? 'var(--bad)' : 'var(--ok)';
+      requestAnimationFrame(loop);
+    })();
+  };
+  div.saveBest = () => {
+    if (!takens.length) return false;
+    const blob = takens[takens.length - 1];
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${s.id}_take${takens.length}.webm`; a.click();
+    const d = document.createElement('div'); d.className = 'done';
+    d.textContent = `saved ${a.download}`; document.getElementById('downloads').appendChild(d);
+    takens = [];
+    return true;
+  };
+  div._btn = btn;
+});
+
+document.addEventListener('keydown', e => {
+  const scenes = SCENES.map(s => document.getElementById(s.id));
+  scenes.forEach(s => s.classList.remove('active'));
+  if (e.code === 'Space') {
+    e.preventDefault();
+    const next = scenes.find(s => !s.querySelector('.rbtn').dataset.ready) || scenes[0];
+    next.classList.add('active'); next.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+  if (e.key.toLowerCase() === 'f') {
+    const any = scenes.some(s => s._btn.dataset.ready === '1');
+    if (any) scenes.forEach(s => s.saveBest && s.saveBest());
+  }
+});
+</script>
+</body>
+</html>
