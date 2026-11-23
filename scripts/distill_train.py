@@ -128,6 +128,8 @@ def main() -> None:
     ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--bs", type=int, default=64)
     ap.add_argument("--lr", type=float, default=1e-4)
+    ap.add_argument("--w-mse", type=float, default=0.5)
+    ap.add_argument("--w-kl", type=float, default=1.0)
     ap.add_argument("--subset", type=int, default=None)
     ap.add_argument("--synthetic-smoke", action="store_true",
                     help="tiny synthetic teacher cache keyed to 64 real tiles, "
@@ -207,7 +209,8 @@ def main() -> None:
                 feats = model.features(img)
                 logits = model.head(feats)
                 loss, parts = distill_loss(
-                    logits.float(), y, t_soft, t_emb, feats.float(), proj)
+                    logits.float(), y, t_soft, t_emb, feats.float(), proj,
+                    w_kl=args.w_kl, w_mse=args.w_mse)
             opt.zero_grad()
             loss.backward()
             opt.step()

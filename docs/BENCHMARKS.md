@@ -94,3 +94,20 @@ VRAM co-residency (ship + counter, 20 tiles): peak 2.14 GiB of 11.61 (bar ≤ 4 
 **Strict plan verdict: FAILED** — the biology bars pass decisively (TUM/NORM/STR modal family), but the [20, 8000] total-range bar fails: zero-nucleus tiles {'DEB': 1, 'MUC': 3, 'BACK': 7} — mucin/debris/background tiles that legitimately carry ~0 nuclei at this scale (the analyzer never counts BACK tiles by design). Per the plan's honesty law the deployed flag stays OFF: `cells: pannuke` is NOT set in runs/pr16-mixed/calibration.json. The wiring is complete and unit-tested behind the flag; flipping it is a one-line morning decision with this table in hand.
 
 <!-- /pr22 -->
+
+<!-- distill-hiboul -->
+## Distillation from hibou-l (2026-11-23) — NEGATIVE RESULT, ship not swapped
+
+Teacher: histai/hibou-l (ViT-L, Apache-2.0), 225k tiles cached fp16 (`runs/distill/hibou-l`).
+Student: 6M warm-started from `runs/pr16-mixed/best.ckpt.pt`. Both runs: 1 epoch, eval via morning_eval.sh + gate.
+
+| run | CRC-VAL macro-F1 | NONORM macro-F1 | ECE | gate |
+|---|---|---|---|---|
+| ship (pr16-mixed) | 0.9781 | 0.9752 | 0.0064 | 9/9 PASS |
+| distill v1 (CE+KL+0.5·featMSE, lr 1e-4) | 0.4404 | 0.2094 | 0.486 | catastrophic |
+| distill v2 (KL-only, lr 1e-5) | 0.9515 | 0.7884 | 0.0080 | 3 FAIL |
+
+v2 gate failures: domain drop 0.163 (≤0.015), OOD AUROC 0.773 (≥0.9), quant agreement 0.988 (≥0.999).
+
+**Conclusion:** naive logit/feature distillation from hibou-l *degrades* a warm-started stain-augmented student — v1's feature-MSE destroyed the trunk (train CE≈0 while val collapsed: memorization vs distortion); v2's KL alone still drags every trust metric below ship. The stain-augmentation + hard-label recipe (PR-16) remains the winning training signal at this scale. Cache (38 min GPU) retained for any future attempt with a projection-aligned or layer-matched scheme. `runs/distill-hiboul{,-kl}/gate_report.json`.
+<!-- /distill-hiboul -->
