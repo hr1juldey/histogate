@@ -118,13 +118,16 @@ export let staticDemo = true;
 
 export function tileUrl(row: number, col: number): string {
   return staticDemo
-    ? `/demo/slide/${row}_${col}.png`
+    ? `/demo/slide/${row}_${col}.webp`
     : `${apiBase}/slide-tile/${row}/${col}.png`;
 }
 
+/* mobile gets a 720px ~112KB overview (10x lighter than the 1.2MB PNG);
+   the full-res PNG stays for desktop. Bad-network tier-1 doctrine. */
 export function overviewUrl(): string {
-  return staticDemo ? '/demo/slide/overview.png'
-    : `${apiBase}/slide-overview.png`;
+  if (!staticDemo) return `${apiBase}/slide-overview.png`;
+  const mobile = typeof window !== 'undefined' && window.innerWidth <= 760;
+  return mobile ? '/demo/slide/overview-720.jpg' : '/demo/slide/overview.png';
 }
 
 export async function getSlideMap(): Promise<SlideMapData> {

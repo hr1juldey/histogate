@@ -82,3 +82,25 @@ details.why p { font-size: 12.5px; color: var(--t3); margin: 6px 0 0; }
 /* conformal guarantee row — inherits .sub2, adds set emphasis */
 .cset { color: var(--t2, #c8cdd4); }
 .cset .cnote { color: var(--t4, #8a8f98); }
+
+/* ===== mobile-native layer (phone-first touch interaction) ===== */
+/* the pan surface owns its gestures: no browser scroll/zoom hijack */
+.zoombox { touch-action: none; -webkit-user-select: none; user-select: none; }
+
+@media (max-width: 760px) {
+  /* one column; inspector docks as a bottom sheet above the fold */
+  .panes { grid-template-columns: 1fr !important; gap: 12px; }
+  .sidecol { position: sticky; bottom: 8px; top: auto; z-index: 20; }
+  .sidecol .card, .sidecol .inspector {
+    max-height: 46vh; overflow-y: auto;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  .inspector { grid-template-columns: minmax(120px, 44vw) minmax(0, 1fr); }
+  /* 44px touch targets on the control cluster */
+  .vctrl { gap: 6px; }
+  .vctrl button { width: 44px; height: 44px; font-size: 16px; }
+  .drophint { display: none; }               /* no drag-drop on phones */
+  .ulcap { font-size: 11px; }
+  .upl { min-height: 44px; }
+  .tile { min-height: 44px; }
+}

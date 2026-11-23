@@ -62,10 +62,24 @@ export default function Demo() {
     await runBlob(await fetch(`/samples/${id}.png`).then(r => r.blob()), `/samples/${id}.png`, true, null);
   };
 
-  const onFile = (f: File | null | undefined) => {
+  /* mobile/bad-network: the model reads 224px — resize on-device so an
+     upload is ~40KB, not the phone camera's 4MB */
+  const shrink = async (f: File): Promise<File> => {
+    if (f.type === 'image/tiff' || !f.type.startsWith('image/') || f.size < 250_000) return f;
+    const img = await createImageBitmap(f);
+    const c = document.createElement('canvas');
+    c.width = c.height = 448;
+    const m = Math.min(img.width, img.height);
+    c.getContext('2d')!.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 448, 448);
+    const blob = await new Promise<Blob | null>(r => c.toBlob(r, 'image/jpeg', 0.85));
+    return blob && blob.size < f.size ? new File([blob], f.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }) : f;
+  };
+
+  const onFile = async (f: File | null | undefined) => {
     if (!f) return;
     touched.current = true;
     setSel(null);
+    f = await shrink(f);
     const tiff = f.type === 'image/tiff' || f.name.toLowerCase().endsWith('.tif') || f.name.toLowerCase().endsWith('.tiff');
     runBlob(f, URL.createObjectURL(f), tiff, f.name);
   };

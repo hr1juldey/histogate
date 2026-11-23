@@ -1,0 +1,11 @@
+{
+  "name": "HistoGate — tissue AI that knows when it shouldn't answer",
+  "short_name": "HistoGate",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08090a",
+  "theme_color": "#08090a",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

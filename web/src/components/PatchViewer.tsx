@@ -30,6 +30,9 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
   const wrapRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ px: number; py: number; vx: number; vy: number; moved: number; id: string | null } | null>(null);
+  /* two-finger pinch: pointers tracked by id; anchor at the pinch midpoint */
+  const pts = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ d0: number; x0: number; y0: number; k0: number; mx: number; my: number } | null>(null);
   const glideTimer = useRef<number | null>(null);
 
   /* programmatic moves (rotate, glide-to-home) animate; direct manipulation
@@ -90,6 +93,19 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
     if (e.button !== 0) return;
     const t = e.target as HTMLElement;
     if (t.closest('.vctrl')) return;
+    pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.current.size === 2) {            /* pinch begins — cancel pan/tap */
+      const [a, b] = [...pts.current.values()];
+      const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      pinch.current = {
+        d0: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+        x0: view.x, y0: view.y, k0: view.k,
+        mx: (a.x + b.x) / 2 - r.left, my: (a.y + b.y) / 2 - r.top,
+      };
+      drag.current = null;
+      return;
+    }
+    if (pts.current.size > 2) return;
     if (glide) setGlide(false);              /* drag overrides any glide */
     const child = t.closest('[data-id]');
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -99,6 +115,21 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
     };
   };
   const onPointerMove = (e: React.PointerEvent) => {
+    if (pts.current.has(e.pointerId)) pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const p = pinch.current;
+    if (p && pts.current.size >= 2) {
+      const [a, b] = [...pts.current.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const box = boxRef.current;
+      if (!box) return;
+      const r = box.getBoundingClientRect();
+      setView(v => {
+        const k = Math.max(KMIN, Math.min(KMAX, p.k0 * (d / p.d0)));
+        const wx = (p.mx - p.x0) / p.k0, wy = (p.my - p.y0) / p.k0;  /* world point under the pinch start stays fixed */
+        return clampView({ x: p.mx - wx * k, y: p.my - wy * k, k }, r, rot);
+      });
+      return;
+    }
     const d = drag.current;
     if (!d) return;
     const dx = e.clientX - d.px, dy = e.clientY - d.py;
@@ -106,7 +137,9 @@ export default function PatchViewer({ src, alt, captionIdle, natural,
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setView(v => clampView({ ...v, x: d.vx + dx, y: d.vy + dy }, r, rot));
   };
-  const onPointerUp = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
+    pts.current.delete(e.pointerId);
+    if (pts.current.size < 2) pinch.current = null;
     const d = drag.current;
     drag.current = null;
     if (d && d.id && d.moved <= 5) onTapChild?.(d.id);
