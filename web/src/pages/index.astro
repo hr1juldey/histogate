@@ -1,8 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LiveHero from '../components/LiveHero';
-import Journey from '../components/Journey';
-import { CaseStudies, GateGrid } from '../components/CaseStudies';
 import { apiBase, get, type Metrics, type SiteConfig, type Sample } from '../lib/api';
 
 // SSR: shell + all copy + measured numbers render server-side from the
@@ -70,35 +68,15 @@ const metList = [
     </div>
   </div>
 
-  <section class="padded"><div class="wrap">
-    <div class="kicker">How it was trained</div>
-    <h2>Four attempts. Three failures. One that shipped.</h2>
-    <p class="sub">Click a stage to see what happened and the measured numbers. Nothing here is a claim — every number comes from the real training logs.</p>
-    <Journey client:load cfg={cfg} metrics={metrics} />
-  </div></section>
-
-  <section class="padded"><div class="wrap">
-    <div class="kicker">Case studies</div>
-    <h2>Where it broke — and what we did about it.</h2>
-    <p class="sub">Click a card to open it.</p>
-    <CaseStudies client:load cfg={cfg} metrics={metrics} />
-  </div></section>
-
-  <section class="padded"><div class="wrap">
-    <div class="kicker">How it works</div>
-    <h2>Check the picture first. Answer second.</h2>
-    <div class="flow">
-      <div class="card"><b>A picture goes in</b><p>A small magnified square of stained tissue — one of the examples, or one you upload.</p></div>
-      <div class="card"><b>The quality check happens first</b><p>Blurry, marked, folded or unfamiliar pictures get flagged before any diagnosis — a bad picture should never produce a confident answer.</p></div>
-      <div class="card"><b>The answer, with its reasons</b><p>What kind of tissue, how sure it really is, and a heat map showing exactly which parts of the picture drove the call.</p></div>
-    </div>
-  </div></section>
-
   <section class="padded dark"><div class="wrap">
-    <div class="kicker">The shipping bar</div>
-    <h2>Nothing ships until it passes nine checks.</h2>
-    <p class="sub">{cfg.gate_note}</p>
-    <GateGrid client:load metrics={metrics} />
+    <div class="kicker">The walkthrough</div>
+    <h2>Two and a half minutes, start to finish.</h2>
+    <video class="walk" controls preload="metadata" playsinline
+      poster="/histogate_walkthrough_poster.png"
+      src="/histogate_walkthrough.mp4">The narrated HistoGate walkthrough.</video>
+    <p class="sub">The failure that started it, the staining physics, the trust layer that
+    declines unfamiliar tissue, the live whole-slide map, and the demo on a phone.
+    The words and the numbers live in the <a href="/story">story</a> — this page stays short.</p>
   </div></section>
 
   <section class="padded"><div class="wrap">
@@ -159,6 +137,8 @@ const metList = [
   .cl img { width: 100%; aspect-ratio: 1; object-fit: cover; }
   .cl span { display: block; padding: 10px 12px; font-size: 12.5px; color: var(--t3); }
   .who { margin-top: 32px; font-size: 15px; color: var(--t3); }
+  .walk { display: block; width: 100%; max-width: 960px; margin: 36px auto 18px;
+    border-radius: 12px; border: 1px solid var(--b-std); background: #000; }
   @media (max-width: 900px) { .herogrid { grid-template-columns: 1fr; } }
 </style>
 
