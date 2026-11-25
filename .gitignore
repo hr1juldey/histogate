@@ -10,3 +10,4 @@ mlflow.db
 mlruns/
 evidence/
 mlflow_public/
+.vercel

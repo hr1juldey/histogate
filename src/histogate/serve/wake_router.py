@@ -22,17 +22,30 @@ import time
 
 import httpx
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
 
 BACKEND = "http://127.0.0.1:8000"
-IDLE_S = 20 * 60          # shut the heavy box down after 20 min of silence
-BOOT_CMD = ("tmux has-session -t hg 2>/dev/null || true; "
-            "tmux send-keys -t hg:api C-c 2>/dev/null; sleep 1; "
-            "tmux send-keys -t hg:api 'uv run histogate-serve --api' Enter")
+IDLE_S = 20 * 60          # shut the heavy box down after 20 min of silence          # shut the heavy box down after 20 min of silence
+BOOT_CMD = ("tmux has-window -t hg:api 2>/dev/null && "
+            "tmux respawn-window -k -t hg:api "
+            "'cd /home/riju279/Documents/code/AIRA/histogate && "
+            "exec .venv/bin/histogate-serve --api 2>&1 | tee -a /tmp/api.log' || "
+            "tmux new-window -d -t hg -n api "
+            "'cd /home/riju279/Documents/code/AIRA/histogate && "
+            "exec .venv/bin/histogate-serve --api 2>&1 | tee -a /tmp/api.log; exec bash'")
 WORKDIR = "/home/riju279/Documents/code/AIRA/histogate"
+SITE_CONFIG = WORKDIR + "/web/src/data/site-config.json"
 
 app = FastAPI(title="wake-router")
 _state = {"last_used": time.time(), "booting": False}
+
+
+@app.get("/site-config.json")
+async def site_config() -> Response:
+    """Router-native: the watchdog pings this every 2 min as the thin-layer
+    health check, and the frontend loads it while the backend is still cold.
+    Serving it here (not proxying) is what lets the backend ever idle out."""
+    return FileResponse(SITE_CONFIG, media_type="application/json")
 
 
 async def _backend_up() -> bool:
@@ -66,8 +79,10 @@ async def _boot() -> None:
 @app.get("/wake")
 async def wake() -> JSONResponse:
     if await _backend_up():
+        _state["last_used"] = time.time()   # landing on the site counts as presence
         return JSONResponse({"status": "up", "took_s": 0})
     asyncio.create_task(_boot())
+    _state["last_used"] = time.time()
     return JSONResponse({"status": "booting", "eta_s": 150}, status_code=202)
 
 

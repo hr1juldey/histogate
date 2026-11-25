@@ -204,3 +204,12 @@ const metList = [
   .tick.no { background: rgba(224,128,128,0.12); color: var(--bad); }
   @media (max-width: 820px) { .journey { grid-template-columns: 1fr; } }
 </style>
+
+<script>
+  // wake-on-landing: the backend sleeps when idle (GPU shared with training).
+  // The moment anyone opens the site, fire /wake so the model is warm by the
+  // time they reach the demo. Fire-and-forget; the demo's fetchAwake() also
+  // handles the cold state as a normal case.
+  import { apiBase, ngrokHeaders } from '../lib/api';
+  fetch(`${apiBase}/wake`, { headers: ngrokHeaders }).catch(() => {});
+</script>
