@@ -78,12 +78,16 @@ async def _boot() -> None:
 
 @app.get("/wake")
 async def wake() -> JSONResponse:
+    """Browser beacons hit this cross-origin from the Vercel site; CORS must
+    allow it or the preflight/reading gets blocked and the wake never fires."""
+    hdrs = {"Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "ngrok-skip-browser-warning"}
     if await _backend_up():
         _state["last_used"] = time.time()   # landing on the site counts as presence
-        return JSONResponse({"status": "up", "took_s": 0})
+        return JSONResponse({"status": "up", "took_s": 0}, headers=hdrs)
     asyncio.create_task(_boot())
     _state["last_used"] = time.time()
-    return JSONResponse({"status": "booting", "eta_s": 150}, status_code=202)
+    return JSONResponse({"status": "booting", "eta_s": 150}, status_code=202, headers=hdrs)
 
 
 @app.api_route(
